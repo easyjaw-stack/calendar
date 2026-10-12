@@ -250,7 +250,7 @@ let cur={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};
 let edit=null;            // 正在編輯的待辦
 let openIdx=-1;           // 展開看詳細的卡片
 let pending=0;
-let PEND=[],POPEN=true;try{POPEN=localStorage.getItem('pendOpen')!=='0'}catch(e){}
+let PEND=[],POPEN=true,PDRAG=false;try{POPEN=localStorage.getItem('pendOpen')!=='0'}catch(e){}
 let POP=-1,JO=-1,ED_IN=false,SW=null,SLIDING=false;  // 動畫狀態：剛打勾、剛展開、編輯頁剛打開、左滑露出刪除、換天中
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 // iPhone 網頁沒有震動 API；iOS 18 起點一下「開關」核取方塊會有輕微觸感
@@ -463,10 +463,11 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   go(o);el.offsetWidth;
   el.style.transition='transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s';el.style.transform='';el.style.opacity=1;
   await wait(300);el.style.transition='';SLIDING=false}
-(()=>{const el=$('#day');let sx=0,sy=0,lock=null,dx=0,t0=0,on=false;
-  el.addEventListener('touchstart',e=>{if(edit||D||SLIDING||e.target.closest('.cw,.pi'))return;on=true;lock=null;dx=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
-  el.addEventListener('touchmove',e=>{if(!on)return;const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8))lock=Math.abs(x)>Math.abs(y)?'h':'v';if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
-  el.addEventListener('touchend',()=>{if(!on)return;on=false;if(lock!=='h')return;const fast=Date.now()-t0<250;
+(()=>{const el=$('#day'),zone=document;let sx=0,sy=0,lock=null,dx=0,t0=0,on=false;
+  // 整個畫面（卡片、週列、彈出視窗以外）左右滑都能換天
+  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.cw,.strip,#ovl,.sheet,.fab,#toast'))return;on=true;lock=null;dx=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
+  zone.addEventListener('touchmove',e=>{if(!on)return;if(PDRAG){on=false;el.style.transform='';return}const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8))lock=Math.abs(x)>Math.abs(y)?'h':'v';if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
+  zone.addEventListener('touchend',()=>{if(!on)return;on=false;if(lock!=='h')return;const fast=Date.now()-t0<250;
     if(Math.abs(dx)>el.offsetWidth*0.25||(fast&&Math.abs(dx)>40))slideGo(addDays(cur,dx<0?1:-1),true);
     else{el.style.transition='transform .24s cubic-bezier(.2,.8,.2,1)';el.style.transform=''}});
   // 週列左右滑：換一整週
@@ -497,10 +498,10 @@ function renderPend(){const el=$('#pend');if(!el)return;$('#day').classList.togg
   $('#pendH').onclick=()=>{POPEN=!POPEN;try{localStorage.setItem('pendOpen',POPEN?'1':'0')}catch(e){}renderPend()};
   el.querySelectorAll('.pi').forEach(bindPend)}
 function bindPend(el){const p=PEND[+el.dataset.p];let timer,sx,sy,moved=false,dragging=false,ghost=null,off=0,day=null;
-  const start=(x,y)=>{sx=x;sy=y;moved=false;timer=setTimeout(()=>{dragging=true;haptic();const r=el.getBoundingClientRect();off=y-r.top;ghost=el.cloneNode(true);ghost.className='pi pghost';Object.assign(ghost.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px'});document.body.appendChild(ghost);el.style.opacity=.3},380)};
+  const start=(x,y)=>{sx=x;sy=y;moved=false;timer=setTimeout(()=>{dragging=true;PDRAG=true;haptic();const r=el.getBoundingClientRect();off=y-r.top;ghost=el.cloneNode(true);ghost.className='pi pghost';Object.assign(ghost.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px'});document.body.appendChild(ghost);el.style.opacity=.3},380)};
   const move=(x,y,ev)=>{if(dragging){ev.preventDefault();ghost.style.top=(y-off)+'px';day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-12&&y<=b.bottom+12;s.classList.toggle('drop',hit);if(hit)day=+s.dataset.i});return}
     if(Math.abs(x-sx)>8||Math.abs(y-sy)>8){moved=true;clearTimeout(timer)}};
-  const end=(x,y)=>{clearTimeout(timer);if(dragging){dragging=false;document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));ghost.remove();el.style.opacity='';
+  const end=(x,y)=>{clearTimeout(timer);if(dragging){dragging=false;PDRAG=false;document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));ghost.remove();el.style.opacity='';
       if(day!==null)schedule(p,weekOf(cur)[day]);else{const lb=$('#list').getBoundingClientRect();if(y<lb.bottom+30)schedule(p,{...cur})}return}
     if(!moved)pendMenu(p)};
   el.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY)},{passive:true});
