@@ -295,9 +295,13 @@ async function call(action,payload){
   }finally{pending--;syncTxt()}
 }
 function syncTxt(){$('#sync').textContent=pending?'同步中…':''}
-function absorb(r){if(r&&r.months)Object.keys(r.months).forEach(k=>M[k]=r.months[k])}
+function absorb(r){if(r&&r.months){Object.keys(r.months).forEach(k=>{M[k]=r.months[k];delete STALE[k]});persist()}}
 const INF={};
-async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force)return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=r.month;return M[k]}).finally(()=>delete INF[k]);return INF[k]}
+// 手機裡存一份最近幾個月，打開先顯示，再背景同步（STALE＝還沒跟試算表確認過）
+const STALE={};
+function persist(){try{const keep={};const n=T.getFullYear()*12+T.getMonth();Object.keys(M).forEach(k=>{const [y,m]=k.split('-').map(Number);if(Math.abs(y*12+m-1-n)<=1)keep[k]=M[k]});localStorage.setItem('calcache',JSON.stringify(keep))}catch(e){}}
+try{const c=JSON.parse(localStorage.getItem('calcache')||'{}');Object.keys(c).forEach(k=>{M[k]=c[k];STALE[k]=1})}catch(e){}
+async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force&&!STALE[k])return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=r.month;delete STALE[k];persist();return M[k]}).finally(()=>delete INF[k]);return INF[k]}
 
 // ---- 備註（時間/地點/備註）存在試算表附註 ----
 function parseNote(n){const o={tm:'',pl:'',nt:''},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
@@ -553,10 +557,9 @@ $('#srBtn').onclick=openSearch;
 $('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
 window.addEventListener('resize',render);
-go(cur);
-loadPending();
+go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261012144229';
+const VER=/*VER*/'20261012215331';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
