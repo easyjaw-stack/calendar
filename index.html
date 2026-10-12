@@ -226,6 +226,9 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 @keyframes fdin{from{opacity:0}}
 #day.hasp #list{min-height:0}
 .sa{pointer-events:none}.sa.on{pointer-events:auto;z-index:0}
+#backZone{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 14px);height:64px;z-index:30;border-radius:16px;border:1.5px solid #C9C6BF;background:rgba(250,250,248,.95);display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--mu);animation:tin .2s;transition:background .15s,color .15s,transform .15s}
+#backZone i{font-size:20px}
+#backZone.hot{background:var(--ink);color:#fff;border-color:var(--ink);transform:scale(1.03)}
 </style>
 </head>
 <body>
@@ -250,7 +253,7 @@ let cur={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};
 let edit=null;            // 正在編輯的待辦
 let openIdx=-1;           // 展開看詳細的卡片
 let pending=0;
-let PEND=[],POPEN=true,PDRAG=false;try{POPEN=localStorage.getItem('pendOpen')!=='0'}catch(e){}
+let PEND=[],OPEN=[],POPEN=true,PDRAG=false;try{POPEN=localStorage.getItem('pendOpen')!=='0'}catch(e){}
 let POP=-1,JO=-1,ED_IN=false,SW=null,SLIDING=false;  // 動畫狀態：剛打勾、剛展開、編輯頁剛打開、左滑露出刪除、換天中
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 // iPhone 網頁沒有震動 API；iOS 18 起點一下「開關」核取方塊會有輕微觸感
@@ -440,14 +443,17 @@ async function setOpen(n){const old=document.querySelector('#list .det');
   if(old){const h=old.offsetHeight;await old.animate([{height:h+'px',opacity:1},{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0}],{duration:170,easing:'ease-in',fill:'forwards'}).finished}
   openIdx=n;JO=n;render();JO=-1}
 let D=null;
-function beginDrag(cw,y){closeSwipe();const all=[...document.querySelectorAll('#list .cw')];const r=cw.getBoundingClientRect();
+function beginDrag(cw,y){closeSwipe();const cs=caseOf((dayItems(cur)[+cw.dataset.i]||{}).text||'');if(cs){const z=document.createElement('div');z.id='backZone';z.innerHTML='<i class="ti ti-arrow-back-up"></i>拖到這裡放回待排';document.body.appendChild(z)}const all=[...document.querySelectorAll('#list .cw')];const r=cw.getBoundingClientRect();
   D={card:cw,from:+cw.dataset.i,offset:y-r.top,startTop:r.top,to:+cw.dataset.i,day:null,h:r.height+8,rects:all.map(c=>{const b=c.getBoundingClientRect();return {c,h:b.height+8,mid:b.top+b.height/2}})};cw.classList.add('dragging')}
-function dragMove(x,y){const dy=y-D.offset-D.startTop;D.card.style.transform=`translateY(${dy}px)`;
+function dragMove(x,y){const bz=$('#backZone');D.back=false;if(bz){const b=bz.getBoundingClientRect();D.back=y>=b.top-10;bz.classList.toggle('hot',D.back)}const dy=y-D.offset-D.startTop;D.card.style.transform=`translateY(${dy}px)`;
   D.day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-10&&y<=b.bottom+10;s.classList.toggle('drop',hit);if(hit)D.day=+s.dataset.i});
   const center=D.startTop+dy+(D.h-8)/2;
   D.to=D.day!==null?D.from:D.rects.filter((r,j)=>j!==D.from&&center>r.mid).length;
   D.rects.forEach((r,j)=>{if(j===D.from)return;let sh=0;if(D.from<D.to&&j>D.from&&j<=D.to)sh=-D.h;else if(D.from>D.to&&j>=D.to&&j<D.from)sh=D.h;r.c.style.transform=sh?`translateY(${sh}px)`:''})}
-async function dragEnd(){const d=D;D=null;document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));
+async function dragEnd(){const d=D;D=null;const bz=$('#backZone');if(bz)bz.remove();
+  if(d.back){const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];const o={...cur};const cs=caseOf(it.text);d.card.style.transition='transform .2s,opacity .2s';d.card.style.opacity=0;await wait(180);
+    if(cs&&!PEND.some(p=>p.id===cs.id))PEND.push(cs);save([{o,items}]);toast('已放回待排',()=>{PEND=PEND.filter(p=>p.id!==cs.id);const now=clone(dayItems(o));now.splice(Math.min(d.from,now.length),0,it);save([{o,items:now}])});return}
+  document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));
   const settle=async(t,op)=>{d.card.classList.remove('dragging');d.card.style.transition='transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s';d.card.style.transform=t;if(op!=null)d.card.style.opacity=op;await wait(200)};
   if(d.day!==null){const target=weekOf(cur)[d.day];if(!same(target,cur)){haptic();await settle(d.card.style.transform+' scale(.6)',0);await loadMonth(target.y,target.m);const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];save([{o:{...cur},items},{o:target,items:clone(dayItems(target)).concat([it])}]);toast(`已移到 ${target.m}/${target.d}`);return}}
   if(d.to!==d.from){let off=0;if(d.to>d.from)for(let j=d.from+1;j<=d.to;j++)off+=d.rects[j].h;else for(let j=d.to;j<d.from;j++)off-=d.rects[j].h;
@@ -491,7 +497,11 @@ function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first
 }
 
 // ---- 待排：剪輯表裡還沒排進月曆的案子 ----
-async function loadPending(){try{const r=await call('pending',{});PEND=r.pending||[];renderPend()}catch(e){}}
+async function loadPending(){try{const r=await call('pending',{});PEND=r.pending||[];OPEN=r.open||[];renderPend()}catch(e){}}
+// 這件待辦是不是剪輯表裡的案子（跟後端同一套比對：編號＋｜後面的字，或專案名稱開頭）
+const normT=t=>String(t).toUpperCase().replace(/[\s.．・·]/g,'');
+function caseOf(text){const x=normT(text);return OPEN.find(c=>{const t=String(c.title);const codes=(t.match(/[A-Za-z]{1,5}\s?\.?\s?\d{1,4}/g)||[]).map(normT);const after=t.indexOf('｜')>=0?normT(t.split('｜').pop()).slice(0,2):'';
+  if(codes.length)return codes.some(cd=>x.indexOf(cd)>=0)&&(!after||x.indexOf(after)>=0);const head=normT(t.replace(/[【】\[\]()（）]/g,'')).slice(0,6);return head.length>1&&x.indexOf(head)>=0})}
 function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return false;const t=new Date(T.getFullYear(),+m[1]-1,+m[2]);return (t-T)/864e5<=3}
 function renderPend(){const el=$('#pend');if(!el)return;$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){el.innerHTML='';return}
   el.innerHTML=`<button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b>剪輯表裡還沒排進月曆的案子<i class="ti ti-chevron-down"></i></button>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
@@ -546,7 +556,7 @@ window.addEventListener('resize',render);
 go(cur);
 loadPending();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261012142328';
+const VER=/*VER*/'20261012144229';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
