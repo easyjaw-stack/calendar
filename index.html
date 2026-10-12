@@ -244,7 +244,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 <script>
 // 試算表裡的顏色一律換成 4 種低彩度色調顯示；App 裡選色時寫回對應的淡色
 const TONES=[['#B5665E','#F6DCD9'],['#A27A62','#F5E6DC'],['#768462','#E6EEDB'],['#5F7F89','#DDE9ED'],['#86739A','#EBE2F1']]; // [色票, 卡片底色＝寫回試算表的顏色]：紅、橘棕、綠、藍、紫
-function tone(hex){if(!hex||!/^#[0-9a-f]{6}$/i.test(hex))return '';const n=parseInt(hex.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;if(dl<0.06||(l>0.97))return '';const sat=dl/(1-Math.abs(2*l-1));if(sat<0.12)return '';let h=mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;const i=(h>=345||h<18)?0:h<70?1:h<170?2:h<245?3:4;return TONES[i][0]}
+function tone(hex){if(!hex||!/^#[0-9a-f]{6}$/i.test(hex))return '';const n=parseInt(hex.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;if(dl<0.035||(l>0.975))return '';const sat=dl/(1-Math.abs(2*l-1));if(sat<0.12)return '';let h=mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;const i=(h>=345||h<18)?0:h<70?1:h<170?2:h<245?3:4;return TONES[i][0]}
 const fillOf=hex=>{const t=tone(hex);const c=TONES.find(x=>x[0]===t);return c?c[1]:''};
 const WD='日一二三四五六';
 const M={};               // 已載入的月份資料
@@ -559,7 +559,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261012215331';
+const VER=/*VER*/'20261013011302';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
