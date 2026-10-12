@@ -1,1447 +1,472 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>趙辰心｜影片剪輯師作品集</title>
-<meta name="description" content="短影音、長影音、業配與主持節目作品集。擅長字卡設計、敘事節奏與整體調性。">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="zh_TW">
-<meta property="og:site_name" content="趙辰心｜影片剪輯師">
-<meta property="og:title" content="趙辰心｜影片剪輯師作品集">
-<meta property="og:description" content="短影音、長影音、業配與主持節目作品集。擅長字卡設計、敘事節奏與整體調性。">
-<meta property="og:url" content="https://zhaochenxin-editor.netlify.app/">
-<meta property="og:image" content="https://zhaochenxin-editor.netlify.app/og.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="月曆">
+<meta name="theme-color" content="#F2F1EE">
+<title>月曆</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
-  :root{
-    --bg:#FAFAFA;
-    --surface:#FFFFFF;
-    --border:#E9E9EE;
-    --text:#1F2024;
-    --text-secondary:#7A7A85;
-    --text-tertiary:#A6A6AF;
-    --accent:#AB92BF;
-    --accent-hover:#8F76A6;
-    --accent-light:#F2ECF5;
-    --accent-deep:#655A7C;
-    --accent-deep-hover:#544A69;
-    --radius:18px;
-    --radius-sm:8px;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    --shadow-card: 0 1px 2px rgba(30,20,60,0.05), 0 10px 28px rgba(30,20,60,0.08);
-    --shadow-card-hover: 0 2px 4px rgba(30,20,60,0.06), 0 16px 36px rgba(30,20,60,0.12);
-    --shadow-soft: 0 2px 4px rgba(30,20,60,0.08), 0 14px 28px rgba(30,20,60,0.12);
-    --shadow-inset: inset 0 1px 3px rgba(30,20,60,0.08);
-  }
+:root{--bg:#F2F1EE;--card:#FFFFFF;--line:#E6E4DF;--tx:#262624;--mu:#9B9993;--dim:#B8B8B4;--ac:#262624;--ac2:#C5AECF;--ink:#262624;--hol:#B5584E;--sh:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:12px/1.45 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+input{font:inherit;color:var(--tx);background:transparent;border:none;outline:none;padding:0;margin:0;-webkit-appearance:none;appearance:none;border-radius:0;box-shadow:none}
+#app{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 80px);min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}
+.mo{font-size:17px;font-weight:600;display:flex;align-items:center;gap:5px}
+.mo i{font-size:16px;color:var(--mu)}
+.top .r{display:flex;gap:14px;align-items:center}.top .r i{font-size:18px;color:var(--mu)}
+.sync{font-size:8.5px;color:var(--dim)}
+.strip{display:flex;gap:4px;margin-bottom:14px}
+.strip .s{flex:1;text-align:center;padding:7px 0;font-size:9.5px;color:var(--mu);border-radius:10px;background:#FAFAF8}
+.strip .s b{display:block;font-size:13px;font-weight:600;color:var(--tx)}
+.strip .s.hol b{color:var(--hol)}
+.strip .s.td{box-shadow:inset 0 0 0 1px var(--ac)}
+.strip .s.on{background:var(--ink)}.strip .s.on,.strip .s.on b{color:var(--bg)}
+.strip .s.drop{background:#E6E4DF}
+.dh{display:flex;align-items:center;gap:6px;margin:0 2px 8px;min-height:18px}
+.dh b{font-size:16px;font-weight:600}.dh .w{font-size:10px;color:var(--mu)}
+.tag{font-size:9.5px;border-radius:6px;padding:1px 6px;background:#E6E4DF;color:#6B6964}
+.tag.h{background:#F3E2DF;color:var(--hol)}
+.dh .mv{margin-left:auto;font-size:10px;color:var(--mu);display:flex;align-items:center;gap:3px}
+#list{min-height:55vh;touch-action:pan-y}
+.card{display:block;border-radius:12px;padding:0 13px;margin-bottom:8px;background:var(--card);box-shadow:var(--sh);position:relative;user-select:none;-webkit-user-select:none}
+.card .row1{display:flex;align-items:center;gap:12px;height:46px}
+.card .ck{width:16px;height:16px;border-radius:5px;border:1.4px solid #D2D0CA;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--bg)}
+.card.x .ck{background:var(--ac);border-color:var(--ac)}.card.x .tx{text-decoration:line-through;color:var(--dim)}
+.card .ckw{padding:10px 4px 10px 0;margin-left:-2px}
+.card .tx{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .mt{font-size:10px;max-width:42%;overflow:hidden;color:var(--mu);flex-shrink:0;display:flex;gap:4px;align-items:center}
+.card .mt i{font-size:11px}.card .mt .pl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .det{border-top:1px solid #EFEDE9;padding:8px 0 11px 28px;font-size:11px;color:#5E5C57}
+.card .det div{display:flex;gap:8px;align-items:flex-start;margin-bottom:4px;line-height:1.5}
+.card .det i{font-size:13px;color:var(--mu);margin-top:1px}
+.card .det .none{color:var(--dim)}
+.card .eb{margin-top:6px;font-size:11px;font-weight:600;color:var(--tx);padding:5px 12px;border-radius:8px;background:#F2F1EE;display:inline-flex;gap:4px;align-items:center}
+.card .bar{width:4px;height:20px;border-radius:2px;flex-shrink:0;opacity:.55}
+.card.dragging{opacity:.95;box-shadow:0 8px 20px rgba(60,50,40,.18);z-index:5}
+.card.ph{opacity:.25}
+.card.new{background:var(--card);border:1px solid #D2D0CA;box-shadow:none;display:flex;align-items:center;gap:12px;height:46px}
+.card.new input{flex:1;min-width:0;height:22px;font-size:12px;caret-color:var(--ac)}
+.tools{display:flex;gap:16px;margin:4px 4px 10px;font-size:16px;color:var(--mu);align-items:center}
+.tools .on{color:var(--ac)}
+.tools .sp{flex:1}
+.tools .cx,.tools .ok{font-size:12px}.tools .ok{color:var(--ac);font-weight:600}
+.tools .del{color:#C98}
+.pane{margin:0 4px 10px}
+.line{display:flex;align-items:center;gap:8px}
+.line i{font-size:11px;color:var(--ac);width:12px}
+.line input{flex:1;font-size:12px;line-height:22px;border-bottom:1px solid #D6D0C7;caret-color:var(--ac)}
+.line input:focus{border-bottom-color:var(--ac)}
+.sw{display:flex;gap:7px;flex-wrap:wrap}
+.sw span{width:20px;height:20px;border-radius:5px;opacity:.75}
+.sw span.on{outline:1.2px solid var(--ac);outline-offset:2px}
+.sw .none{border:1px solid #D2D0CA;background:#fff;opacity:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips span{font-size:11px;padding:5px 12px;border-radius:8px;background:var(--card);color:var(--mu)}
+.chips span.on{background:var(--ink);color:var(--bg)}
+.wheel{position:relative;display:flex;justify-content:center;gap:18px;height:90px;overflow:hidden}
+.wheel .hl{position:absolute;left:25%;right:25%;top:36px;height:18px;border-top:1px solid #E0DAD1;border-bottom:1px solid #E0DAD1;pointer-events:none}
+.wheel .col{height:90px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;width:42px;text-align:center;-webkit-mask-image:linear-gradient(transparent,#000 35%,#000 65%,transparent);mask-image:linear-gradient(transparent,#000 35%,#000 65%,transparent)}
+.wheel .col::-webkit-scrollbar{display:none}
+.wheel .col div{height:18px;line-height:18px;scroll-snap-align:center;font-size:12.5px;color:var(--mu)}
+.wheel .col div.sel{color:var(--tx);font-size:12px}
+.wheel .colon{line-height:90px;color:var(--mu)}
+.wf{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px}.wf .set{color:var(--ac)}.wf button{color:var(--mu)}
+.empty{color:var(--dim);text-align:center;padding:32px 0;font-size:12px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 18px);width:48px;height:48px;border-radius:14px;background:var(--ink);color:var(--bg);font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(60,50,40,.25);z-index:10}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 70px);background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 14px;font-size:12px;display:flex;gap:16px;align-items:center;z-index:30;box-shadow:0 4px 14px rgba(60,50,40,.25);max-width:90vw}
+.toast button{color:var(--ac2);font-weight:500}
+.ov{position:fixed;inset:0;background:var(--bg);z-index:20;padding:calc(env(safe-area-inset-top) + 14px) 14px 20px;overflow-y:auto}
+.ov .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ov .h b{font-weight:600;font-size:15px}.ov .h i{font-size:16px;color:var(--ac);padding:4px 8px}
+.wk,.mg{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.wk span{font-size:10px;color:var(--mu);padding-bottom:6px}
+.mg div{padding:10px 0 6px;font-size:13px;border-radius:10px}
+.mg div.on{background:var(--ink);color:var(--bg)}
+.mg div.td{box-shadow:inset 0 0 0 1px var(--ac)}
+.mg div.hol{color:var(--hol)}
+.mg div.sel{background:#E6E4DF}
+.mg .d{display:block;width:4px;height:4px;border-radius:2px;background:#9B9993;margin:2px auto 0;opacity:.8}
+.mg div.on .d{background:var(--bg)}
+.ov .note{margin-top:16px;text-align:center;font-size:11px;color:var(--mu)}
+.ov .btn{display:block;margin:16px auto 0;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 18px;font-weight:500}
+.sr{display:flex;align-items:center;gap:8px;border-bottom:1px solid #D6D0C7;padding-bottom:4px;margin-bottom:12px}
+.sr i{color:var(--ac);font-size:16px}.sr input{flex:1;font-size:14px}
+.res{display:flex;gap:10px;padding:10px 11px;margin-bottom:7px;background:var(--card);border-radius:10px}
+.res .dt{color:var(--mu);font-size:11px;width:54px;flex-shrink:0}
+.res.x .t{text-decoration:line-through;color:var(--dim)}
+/* 橫拿：整週 */
+#week{display:none}
+@media (orientation:landscape) and (min-width:560px){
+  #app{max-width:none;padding-bottom:20px}
+  #day,.fab{display:none!important}
+  #week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .wc{background:var(--card);border-radius:10px;padding:7px;min-height:70vh}
+  .wc .h{font-size:9px;color:var(--mu);margin-bottom:5px;display:flex;justify-content:space-between}
+  .wc .h b{color:var(--tx);font-size:11px;font-weight:500}
+  .wc.td{box-shadow:inset 0 0 0 1.5px var(--ac)}
+  .wc.hol .h b{color:var(--hol)}
+  .wc .p{font-size:9.5px;border-radius:6px;padding:3px 6px;margin-bottom:4px;background:#F2F1EE;line-height:1.35;word-break:break-all}
+  .wc .p.x{text-decoration:line-through;opacity:.45}
+  .wc .hn{font-size:8px;color:var(--hol);margin-bottom:4px}
+}
 
-  *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-  }
+/* 放大觸控範圍（手機好按） */
+html,body{font-size:14px}
+.mo{font-size:19px}.top .r{gap:20px}.top .r i{font-size:22px}.top .r button,.mo{padding:6px 0}
+.strip .s{padding:9px 0;font-size:10.5px}.strip .s b{font-size:15px}
+.dh b{font-size:18px}.dh .w,.dh .mv{font-size:11.5px}.tag{font-size:10.5px;padding:2px 7px}
+.card .row1{height:56px;gap:14px}.card .ck{width:20px;height:20px;border-radius:6px;font-size:11px}
+.card .ckw{padding:16px 10px 16px 2px;margin-left:-4px}
+.card .mt{font-size:11.5px}.card .mt i{font-size:13px}.card .bar{height:24px;width:5px}
+.card .det{font-size:13px;padding-left:34px}.card .eb{font-size:13px;padding:8px 16px}
+.card.new{height:56px}.card.new input{font-size:14px;height:26px}
+.tools{gap:6px;font-size:20px}.tools button{min-width:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+.tools .cx,.tools .ok{font-size:14px;min-width:48px}
+.line input{font-size:14px;line-height:30px}.sw span{width:28px;height:28px;border-radius:8px}.sw{gap:12px}
+.chips span{font-size:13px;padding:8px 16px}
+.wheel{height:150px}.wheel .col{height:150px;width:60px}.wheel .col div{height:30px;line-height:30px;font-size:16px}.wheel .colon{line-height:150px}.wheel .hl{top:60px;height:30px}
+.wf{font-size:14px}.wf button{padding:8px 0}
+.fab{width:58px;height:58px;font-size:26px;border-radius:16px}
+.toast{font-size:14px;padding:12px 18px}
+.mg div{padding:13px 0 8px;font-size:15px}.wk span{font-size:11.5px}.ov .h b{font-size:17px}.ov .h i{font-size:22px}
+.res{padding:14px}.res .dt{font-size:12.5px;width:60px}.sr input{font-size:16px}
+.empty{font-size:14px}
 
-  .page{ max-width:1120px; margin:0 auto; padding:0 24px; }
+/* 編輯頁 */
+.ov.ed{padding-top:calc(env(safe-area-inset-top) + 8px)}
+.eh{display:flex;justify-content:space-between;align-items:center;height:52px;margin-bottom:6px}
+.eh b{font-size:16px;font-weight:600}
+.eh button{font-size:16px;color:var(--mu);padding:10px 4px;min-width:56px;text-align:left}
+.eh .ok{color:var(--tx);font-weight:600;text-align:right}
+.grp{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.grp .big{width:100%;font-size:18px;padding:16px;line-height:1.4}
+.rw{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-bottom:1px solid #EFEDE9;width:100%;text-align:left;font-size:15px}
+.rw:last-child{border-bottom:none}
+.rw.top{align-items:flex-start;padding-top:16px;padding-bottom:12px}
+.rw>i{font-size:20px;color:var(--mu);flex-shrink:0}
+.rw .k{width:44px;flex-shrink:0;color:var(--mu);font-size:14px}
+.rw input,.rw textarea{flex:1;min-width:0;font:inherit;font-size:15px;color:var(--tx);background:transparent;border:none;outline:none;resize:none;padding:0;line-height:1.5}
+.rw .v{flex:1;font-size:15px}.rw .v.ph{color:var(--dim)}
+.rw .ch{font-size:18px;color:var(--dim)}
+.rw .x{width:30px;height:30px;border-radius:15px;background:#EFEDE9;color:var(--mu);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.rw .sw{flex:1;gap:12px}.rw .sw span{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.rw .sw .none{color:var(--dim);font-size:16px}
+.rw .chips{flex:1;gap:6px;flex-wrap:nowrap}.rw .chips span{background:#F2F1EE;font-size:12.5px;padding:8px 10px;white-space:nowrap}.rw .chips span.on{background:var(--ink);color:#fff}
+.rw.act{font-size:15px;color:var(--tx);gap:12px}.rw.act i{font-size:20px;color:var(--mu)}
+.rw.del,.rw.del i{color:var(--hol)}
+.ed .pane{padding:4px 14px 12px;border-bottom:1px solid #EFEDE9}
 
-  /* ---------- Intro ---------- */
-  .intro{
-    text-align:center;
-    padding:56px 24px 28px;
-    border-bottom:1px solid var(--border);
-  }
-  .avatar-ring{
-    width:100px; height:100px; border-radius:50%;
-    padding:3px;
-    background:conic-gradient(from 200deg, var(--accent), transparent 55%, var(--accent));
-    margin:0 auto 20px;
-    box-shadow:var(--shadow-soft);
-  }
-  .avatar-inner{
-    width:100%; height:100%; border-radius:50%;
-    background:var(--surface);
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden;
-  }
-  .avatar-inner img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .avatar-inner .initial{
-    font-size:32px; font-weight:600; color:var(--accent);
-  }
-  .name{
-    font-size:26px; font-weight:700; margin:0 0 12px;
-    letter-spacing:0.5px;
-  }
-  .role-badge{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family:var(--font-mono);
-    font-size:12.5px; letter-spacing:0.04em;
-    color:var(--text-secondary);
-    border:1px solid var(--border);
-    padding:6px 16px; border-radius:999px;
-  }
-  .role-badge .dot{
-    width:5px; height:5px; border-radius:50%; background:var(--accent); flex-shrink:0;
-  }
-  .role-note{
-    display:flex; align-items:center; justify-content:center; gap:6px;
-    width:fit-content;
-    margin:14px auto 0; padding:8px 18px;
-    background:var(--accent-light); border-radius:999px;
-    font-size:12.5px; color:var(--accent-deep);
-    line-height:1.6;
-  }
-  .role-note .dot2{
-    width:4px; height:4px; border-radius:50%; background:var(--accent-deep); flex-shrink:0;
-  }
-
-  /* ---------- Main Tabs ---------- */
-  .main-tabs{
-    display:inline-flex; justify-content:flex-start;
-    gap:4px;
-    margin:22px auto 0;
-    padding:6px;
-    max-width:100%;
-    overflow-x:auto;
-    scrollbar-width:none;
-    background:var(--surface);
-    border-radius:999px;
-    box-shadow:var(--shadow-inset);
-  }
-  .main-tabs-row{ display:flex; justify-content:center; padding:0 8px; }
-  .main-tabs::-webkit-scrollbar{ display:none; }
-  .main-tab-btn{
-    appearance:none; border:none; background:none;
-    cursor:pointer;
-    font-family:inherit;
-    font-size:15px; font-weight:600;
-    color:var(--text-secondary);
-    padding:10px 18px;
-    border-radius:999px;
-    white-space:nowrap;
-    transition:background .15s ease, color .15s ease;
-  }
-  .main-tab-btn:hover{ color:var(--text); }
-  .main-tab-btn.active{
-    background:var(--accent-light);
-    color:var(--accent);
-  }
-
-  /* ---------- Sub Tabs ---------- */
-  .sub-tabs{
-    display:flex; justify-content:flex-start;
-    gap:24px; flex-wrap:wrap;
-    padding:18px 18px 0;
-  }
-  .sub-tabs:empty{ padding:0; }
-  .sub-tab-btn{
-    appearance:none; cursor:pointer;
-    font-family:inherit;
-    font-size:14px; font-weight:500;
-    color:var(--text-secondary);
-    background:none;
-    border:none;
-    border-bottom:2px solid transparent;
-    padding:4px 0 8px;
-    transition:all .15s ease;
-    white-space:nowrap;
-  }
-  .sub-tab-btn:hover{ color:var(--accent); }
-  .sub-tab-btn.active{
-    color:var(--accent);
-    font-weight:700;
-    border-bottom-color:var(--accent);
-  }
-
-  /* ---------- Grid ---------- */
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:24px;
-    padding:36px 8px 72px;
-  }
-  @media (max-width:900px){
-    .grid{ grid-template-columns:repeat(2, 1fr); }
-  }
-  @media (max-width:640px){
-    .grid{ grid-template-columns:1fr; padding:28px 8px 56px; }
-    .intro{ padding:48px 20px 32px; }
-  }
-
-  /* ---------- Card ---------- */
-  .card{
-    background:var(--surface);
-    border-radius:var(--radius);
-    overflow:hidden;
-    display:flex; flex-direction:column;
-    box-shadow:var(--shadow-card);
-    transition:box-shadow .2s ease, transform .2s ease;
-  }
-  .card:hover{
-    box-shadow:var(--shadow-card-hover);
-    transform:translateY(-2px);
-  }
-  .video-wrap{
-    position:relative;
-    width:100%;
-    aspect-ratio:4 / 5; /* 跟 IG Reels 封面同比例，裁切位置才會對 */
-    background:#111;
-    overflow:hidden;
-    cursor:pointer;
-  }
-  .video-wrap.full-reveal{
-    aspect-ratio:16 / 9; /* 長影音維持原始比例，縮圖完整露出不裁切 */
-  }
-  .video-wrap.full-reveal .thumb-img{
-    object-fit:contain;
-  }
-  .thumb-img{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-    object-fit:cover;
-    z-index:1;
-  }
-  .play-btn{
-    position:absolute; top:50%; left:50%;
-    transform:translate(-50%,-50%);
-    width:56px; height:56px; border-radius:50%;
-    background:rgba(255,255,255,0.92);
-    border:none;
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 4px 18px rgba(0,0,0,0.28);
-    transition:transform .15s ease;
-    padding:0;
-    z-index:3;
-  }
-  .play-btn svg{ width:20px; height:20px; fill:var(--accent); margin-left:3px; }
-  .video-wrap:hover .play-btn{ transform:translate(-50%,-50%) scale(1.08); }
-  .video-wrap iframe{
-    position:absolute; inset:0;
-    width:100%; height:100%; border:0;
-  }
-  .card-body{
-    padding:18px 18px 20px;
-    display:flex; flex-direction:column; gap:10px;
-    flex:1;
-  }
-  .card-client{
-    font-size:12px; font-weight:600; margin:0;
-    color:var(--accent);
-    letter-spacing:0.02em;
-  }
-  .card-title{
-    font-size:16px; font-weight:700; margin:0;
-    color:var(--text);
-    line-height:1.35;
-    min-height:2.7em;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-  }
-  .card-desc{
-    font-size:13.5px; color:var(--text-secondary);
-    margin:0;
-  }
-  .tags{
-    display:flex; flex-wrap:wrap; gap:6px;
-  }
-  .tag{
-    font-size:12px; font-weight:600;
-    padding:3px 10px;
-    border-radius:999px;
-    white-space:nowrap;
-  }
-  .card-meta{
-    margin-top:auto;
-    padding-top:8px;
-    min-height:29px;
-    display:flex; align-items:center; flex-wrap:wrap;
-    gap:10px;
-    font-size:13px;
-  }
-  .watch-link{
-    margin-left:auto;
-    color:var(--accent);
-    font-weight:600;
-    text-decoration:none;
-    white-space:nowrap;
-  }
-  .watch-link:hover{ text-decoration:underline; }
-
-  /* ---------- Empty state card ---------- */
-  .card-empty{
-    background:var(--accent-light);
-    border:none;
-    box-shadow:none;
-  }
-  .card-empty:hover{ transform:none; box-shadow:none; }
-  .card-empty .video-wrap{
-    background:transparent;
-    cursor:default;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .card-empty .card-body{
-    align-items:center; justify-content:flex-start;
-    text-align:center;
-    padding-top:20px;
-  }
-  .empty-icon{
-    width:36px; height:36px; border-radius:50%;
-    background:#fff;
-    display:flex; align-items:center; justify-content:center;
-    gap:3px;
-  }
-  .empty-icon span{
-    width:5px; height:5px; border-radius:50%; background:var(--accent-deep);
-  }
-  .card-empty p{
-    margin:0; font-size:14px; font-weight:600; color:var(--accent-deep);
-  }
-
-  /* ---------- Footer ---------- */
-  .contact{
-    border-top:1px solid var(--border);
-    text-align:center;
-    padding:48px 24px 64px;
-  }
-  .contact h2{
-    font-size:18px; font-weight:700; margin:0 0 18px;
-  }
-  .contact-info{
-    display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;
-    margin-bottom:28px; max-width:760px; margin-left:auto; margin-right:auto;
-  }
-  @media (max-width:480px){
-    .contact-info{ grid-template-columns:repeat(2, 1fr); }
-  }
-  .contact-card{
-    background:var(--bg);
-    border:1px solid var(--border);
-    border-radius:var(--radius-sm);
-    padding:16px 6px;
-    display:flex; flex-direction:column; align-items:center; gap:8px;
-    text-decoration:none;
-    transition:border-color .15s ease, background .15s ease;
-  }
-  a.contact-card:hover{ border-color:var(--accent); background:var(--accent-light); }
-  .contact-icon{
-    width:36px; height:36px; border-radius:50%;
-    background:var(--accent-light); color:var(--accent-deep);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .contact-icon svg{ width:18px; height:18px; }
-  .contact-label{ font-size:11.5px; color:var(--text-tertiary); }
-  .contact-value{ font-size:12.5px; font-weight:600; color:var(--text); white-space:nowrap; overflow-wrap:normal; }
-  .resume-btn{
-    display:inline-block;
-    background:var(--accent-light);
-    color:var(--accent-deep);
-    font-weight:600;
-    font-size:14.5px;
-    text-decoration:none;
-    padding:12px 28px;
-    border-radius:999px;
-    border:1px solid rgba(101,90,124,0.14);
-    box-shadow:0 2px 8px rgba(101,90,124,0.10);
-    transition:background .15s ease, box-shadow .15s ease, transform .15s ease;
-  }
-  .resume-btn:hover{
-    background:#E9E0F0;
-    box-shadow:0 4px 14px rgba(101,90,124,0.16);
-    transform:translateY(-1px);
-  }
-
-  /* ---------- Source link icon ---------- */
-  .watch-link.src-link{
-    width:28px; height:28px;
-    display:inline-flex; align-items:center; justify-content:center;
-    border-radius:50%;
-    color:var(--text-tertiary);
-    transition:background .15s ease, color .15s ease;
-  }
-  .watch-link.src-link:hover{ color:var(--accent-deep); background:var(--accent-light); text-decoration:none; }
-  .watch-link.src-link svg{ width:17px; height:17px; }
-
-  /* ---------- Creators strip ---------- */
-  .creators{ padding:22px 0 6px; border-bottom:1px solid var(--border); }
-  .cr-head{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-    margin-bottom:20px; text-align:center;
-  }
-  .cr-head .t{ font-size:22px; font-weight:700; color:var(--text); letter-spacing:0.08em; }
-  .cr-head .t::after{ content:""; display:block; width:38px; height:3px; border-radius:3px; background:var(--accent); margin:9px auto 0; }
-  .cr-head .s{ font-size:12.5px; color:var(--text-secondary); letter-spacing:0.04em; margin-top:6px; }
-  .cr-wrap{ position:relative; max-width:1120px; margin:0 auto; }
-  .cr-row{
-    display:flex; gap:18px; overflow-x:auto;
-    scroll-snap-type:x proximity; scroll-padding:0 40px;
-    padding:4px 40px 14px;
-    scrollbar-width:none; -webkit-overflow-scrolling:touch;
-    -webkit-mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent);
-            mask-image:linear-gradient(to right,transparent,#000 36px,#000 calc(100% - 36px),transparent);
-  }
-  .cr-row::-webkit-scrollbar{ display:none; }
-  .cr-item{ flex:0 0 auto; width:72px; display:flex; flex-direction:column; align-items:center; gap:8px; scroll-snap-align:start; }
-  .cr-av{
-    position:relative; width:60px; height:60px; border-radius:50%; overflow:hidden;
-    background:var(--accent-light); color:var(--accent-deep);
-    display:flex; align-items:center; justify-content:center;
-    font-size:15px; font-weight:700;
-    border:1px solid rgba(171,146,191,0.35);
-    box-shadow:var(--shadow-card);
-  }
-  .cr-av img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
-  .cr-name{ font-size:11.5px; color:var(--text-secondary); text-align:center; line-height:1.3; max-width:72px; }
-  .cr-arrow{
-    position:absolute; top:15px; width:30px; height:30px; border-radius:50%;
-    border:1px solid var(--border); background:var(--surface); color:var(--accent-deep);
-    box-shadow:var(--shadow-card); cursor:pointer; padding:0;
-    display:flex; align-items:center; justify-content:center; font-size:15px; line-height:1;
-    z-index:2; transition:opacity .15s ease;
-  }
-  .cr-arrow.l{ left:6px; } .cr-arrow.r{ right:6px; }
-  .cr-arrow.hide{ opacity:0; pointer-events:none; }
-  @media (max-width:640px){ .cr-arrow{ display:none; } }
-
-  /* ---------- Play loading spinner ---------- */
-  .play-btn.loading{ pointer-events:none; }
-  .play-btn.loading svg{ display:none; }
-  .play-btn.loading::after{
-    content:""; width:24px; height:24px; border-radius:50%;
-    border:3px solid var(--accent-light); border-top-color:var(--accent);
-    animation:playspin .8s linear infinite;
-  }
-  @keyframes playspin{ to{ transform:rotate(360deg); } }
-  .play-btn svg.ext{ fill:none; stroke:var(--accent); margin-left:0; }
-
-  /* ---------- Mobile: show the work sooner ---------- */
-  @media (max-width:640px){
-    .intro{ padding:24px 16px 16px; }
-    .avatar-ring{ width:76px; height:76px; margin-bottom:12px; }
-    .name{ font-size:22px; margin-bottom:8px; }
-    .role-badge{ font-size:12px; padding:5px 14px; }
-    .role-note{ margin-top:10px; padding:7px 14px; font-size:12px; }
-    .creators{ padding:14px 0 2px; }
-    .cr-head{ margin-bottom:12px; gap:3px; }
-    .cr-head .t{ font-size:18px; }
-    .cr-head .t::after{ width:30px; margin-top:7px; }
-    .cr-head .s{ font-size:11.5px; margin-top:4px; }
-    .cr-row{ gap:14px; padding-bottom:8px; }
-    .cr-item{ width:70px; gap:6px; }
-    .cr-av{ width:52px; height:52px; font-size:13px; }
-    .cr-name{ font-size:11px; max-width:70px; }
-    .main-tabs{ margin-top:14px; }
-    .sub-tabs{ padding-top:12px; }
-    .grid{ padding-top:16px; }
-  }
+/* 動態與觸控 */
+#app{overflow-x:hidden;overflow-x:clip}
+button,.strip .s,.chips span,.sw span,.mg div,.res{transition:transform .12s ease,opacity .12s}
+button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active,.res:active{transform:scale(.93);opacity:.7}
+.rw:active{opacity:.6}
+.fab{transition:transform .15s}
+.fab:active{transform:translateX(-50%) scale(.9);opacity:1}
+.cw{position:relative;margin-bottom:8px;border-radius:12px;transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.cw .card{margin:0;z-index:1;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .2s,background .2s}
+.cw.press .card{transform:scale(.975);background:#FAFAF8}
+.sa{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;padding:0 26px;font-size:22px;color:#fff;opacity:0;transition:opacity .15s}
+.sa.l{background:#6E7F5C;justify-content:flex-start}
+.sa.r{background:var(--hol);justify-content:flex-end}
+.cw.dragging{z-index:5;transition:none}
+.cw.dragging .card{transform:scale(1.03);box-shadow:0 14px 30px rgba(60,50,40,.22)}
+.card.x .tx{text-decoration:none}
+.card .tx span{background:linear-gradient(currentColor,currentColor) no-repeat 0 56%/0 1.3px}
+.card.x .tx span{background-size:100% 1.3px}
+.card.pop.x .tx span{animation:strike .32s ease-out}
+.card.pop:not(.x) .tx span{animation:unstrike .22s ease-in}
+.card.pop .ck{animation:ckpop .38s cubic-bezier(.3,1.7,.5,1)}
+@keyframes strike{from{background-size:0 1.3px}}
+@keyframes unstrike{from{background-size:100% 1.3px}}
+@keyframes ckpop{0%{transform:scale(.55)}100%{transform:scale(1)}}
+.card .det{overflow:hidden}
+.ov.ed.in{animation:edup .36s cubic-bezier(.2,.85,.25,1)}
+@keyframes edup{from{transform:translateY(100%)}}
+.grab{width:38px;height:5px;border-radius:3px;background:#D6D3CD;margin:0 auto 2px}
+.toast{animation:tin .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes tin{from{opacity:0;transform:translate(-50%,14px)}}
 </style>
 </head>
 <body>
-
-<div class="page">
-  <header class="intro">
-    <div class="avatar-ring">
-      <div class="avatar-inner"><img src="頭貼.jpg" alt="趙辰心"></div>
-    </div>
-    <h1 class="name">趙辰心</h1>
-    <p class="role-badge"><span class="dot"></span>剪輯師 / 影像設計 / 專案管理</p>
-    <p class="role-note"><span class="dot2"></span>以下作品皆為本人親自剪輯；標籤僅標示個別影片中額外參與的項目。</p>
-  </header>
-  <section class="creators" aria-label="合作過的創作者">
-    <div class="cr-head"><span class="t">合作過的創作者</span><span class="s">醫師、診所、Podcast 與內容創作者</span></div>
-    <div class="cr-wrap">
-      <button class="cr-arrow l hide" id="crPrev" type="button" aria-label="向左">&#8249;</button>
-      <div class="cr-row" id="crRow"></div>
-      <button class="cr-arrow r" id="crNext" type="button" aria-label="向右">&#8250;</button>
-    </div>
-  </section>
-
-  <div class="main-tabs-row"><nav class="main-tabs" id="mainTabs"></nav></div>
-  <nav class="sub-tabs" id="subTabs"></nav>
-  <main class="grid" id="cardGrid"></main>
-
-  <footer class="contact">
-    <h2>聯絡我</h2>
-    <div class="contact-info">
-      <a class="contact-card" href="mailto:easyjaw@gmail.com">
-        <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg></span>
-        <span class="contact-label">Email</span>
-        <span class="contact-value">easyjaw@gmail.com</span>
-      </a>
-      <div class="contact-card">
-        <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-        <span class="contact-label">電話</span>
-        <span class="contact-value">0928-253-231</span>
-      </div>
-      <a class="contact-card" href="https://www.instagram.com/zhao.cx_/" target="_blank" rel="noopener">
-        <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/></svg></span>
-        <span class="contact-label">Instagram</span>
-        <span class="contact-value">@zhao.cx_</span>
-      </a>
-      <a class="contact-card" href="https://line.me/ti/p/6Cres4_N0O" target="_blank" rel="noopener">
-        <span class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-        <span class="contact-label">LINE</span>
-        <span class="contact-value">加好友</span>
-      </a>
-    </div>
-    <a class="resume-btn" href="resume.pdf" target="_blank" rel="noopener">下載履歷 PDF</a>
-  </footer>
+<div id="app">
+  <div class="top"><button class="mo" id="moBtn"><i class="ti ti-calendar-month"></i><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="srBtn"><i class="ti ti-search"></i></button><button id="tdBtn"><i class="ti ti-calendar-event"></i></button></div></div>
+  <div class="strip" id="strip"></div>
+  <div id="day"><div class="dh" id="dh"></div><div id="list"></div></div>
+  <div id="week"></div>
 </div>
-
+<button class="fab" id="fab"><i class="ti ti-plus"></i></button>
+<div id="ovl"></div>
+<div id="toast"></div>
 <script>
-/* ============ 標籤設定 ============ */
-// 依優先順序排序（企劃 > 外包協作 > 拍攝 > 字卡設計/畫面設計，主持企劃頁另用 主持/企劃）
-const TAG_PRIORITY = ["企劃","委託剪輯","拍攝","字卡設計","畫面設計","主持"];
-const TAG_COLORS = {
-  "企劃":     { bg:"#FBEEF2", color:"#A34D6B" },
-  "委託剪輯": { bg:"#FBF3EA", color:"#A3733E" },
-  "拍攝":     { bg:"#EAF5F1", color:"#3E8A73" },
-  "字卡設計": { bg:"#EEF1FC", color:"#4C5FD5" },
-  "畫面設計": { bg:"#FDEEEE", color:"#C2554B" },
-  // 「主持」配色未於需求中指定，暫用與強調色同色系的淺紫，確認排版後可再調整
-  "主持":     { bg:"#F1EEFC", color:"#6C4AB6" }
-};
+// 試算表裡的顏色一律換成 4 種低彩度色調顯示；App 裡選色時寫回對應的淡色
+const TONES=[['#4f6b73','#cfe0e6'],['#6e5c78','#e2d6ea'],['#87634f','#f0dccf'],['#5e6b4a','#dfe6cf']];
+function tone(hex){if(!hex||!/^#[0-9a-f]{6}$/i.test(hex))return '';const n=parseInt(hex.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;if(dl<0.06||(l>0.97))return '';const sat=dl/(1-Math.abs(2*l-1));if(sat<0.12)return '';let h=mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;if(h>=170&&h<245)return TONES[0][0];if(h>=245&&h<345)return TONES[1][0];if(h>=70&&h<170)return TONES[3][0];return TONES[2][0]}
+const WD='日一二三四五六';
+const M={};               // 已載入的月份資料
+const T=new Date();
+let cur={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};
+let edit=null;            // 正在編輯的待辦
+let openIdx=-1;           // 展開看詳細的卡片
+let pending=0;
+let POP=-1,JO=-1,ED_IN=false,SW=null,SLIDING=false;  // 動畫狀態：剛打勾、剛展開、編輯頁剛打開、左滑露出刪除、換天中
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+// iPhone 網頁沒有震動 API；iOS 18 起點一下「開關」核取方塊會有輕微觸感
+let HP=null;
+function haptic(){try{if(navigator.vibrate){navigator.vibrate(12);return}if(!HP){HP=document.createElement('label');HP.style.display='none';HP.innerHTML='<input type="checkbox" switch>';document.body.appendChild(HP)}HP.click()}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ym=(y,m)=>y+'-'+m;
+const keyOf=o=>o.y+'-'+o.m+'-'+o.d;
+const addDays=(o,n)=>{const t=new Date(o.y,o.m-1,o.d+n);return {y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()}};
+const isToday=o=>o.y===T.getFullYear()&&o.m===T.getMonth()+1&&o.d===T.getDate();
+const same=(a,b)=>a.y===b.y&&a.m===b.m&&a.d===b.d;
+const dayItems=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.days[o.d]?mm.days[o.d]:[]};
+const setItems=(o,list)=>{const k=ym(o.y,o.m);if(!M[k])M[k]={y:o.y,m:o.m,exists:true,days:{},holidays:{}};M[k].days[o.d]=list};
+const holiday=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.holidays?mm.holidays[o.d]:''};
+const sig=l=>l.map(i=>String(i.text).trim()+'|'+(i.done?1:0));
+const clone=x=>JSON.parse(JSON.stringify(x));
 
-/* ============ 合作過的創作者（頭貼放 創作者/<名稱>.jpg，沒有就顯示文字圓圈） ============ */
-const CREATORS = [
-  ["High咖","High咖與品妤Baby"],["嗨咖","嗨咖"],["品妤","品妤"],["阿瑞","阿瑞"],
-  ["徐詣","徐詣醫師"],["徐瑩","徐瑩醫師"],["劉馥萱","劉馥萱牙醫師"],["甯寓","甯寓美學"],
-  ["雙人徐","雙人徐醫師"],["劉昌杰","劉昌杰醫師"],["曾憶純","曾憶純醫師"],["小艾","小艾醫師"],
-  ["張鈞凱","張鈞凱醫師"],["卓越","卓越健康診所"],["小麥","小麥營養師"],["蕭家杰","蕭家杰醫師"],
-  ["玩美","玩美牙醫"],["林弘慈","林弘慈醫師"],["直男","直男營養師"],["玥玥","玥玥癒室"],
-  ["侯鈞元","侯鈞元"]
-];
-function renderCreators(){
-  const row = document.getElementById("crRow");
-  if(!row) return;
-  row.innerHTML = CREATORS.map(([ini,name])=>
-    `<div class="cr-item"><span class="cr-av"><span>${ini}</span><img src="創作者/${name}.jpg" alt="${name}" loading="lazy" onerror="this.remove()"></span><span class="cr-name">${name}</span></div>`
-  ).join("");
-  const prev = document.getElementById("crPrev"), next = document.getElementById("crNext");
-  const upd = ()=>{
-    prev.classList.toggle("hide", row.scrollLeft < 4);
-    next.classList.toggle("hide", row.scrollLeft + row.clientWidth >= row.scrollWidth - 4);
-  };
-  row.addEventListener("scroll", upd, {passive:true});
-  window.addEventListener("resize", upd);
-  prev.onclick = ()=>row.scrollBy({left:-row.clientWidth*0.7, behavior:"smooth"});
-  next.onclick = ()=>row.scrollBy({left: row.clientWidth*0.7, behavior:"smooth"});
-  upd();
+// 後端 API（Google Apps Script）。金鑰只存在這支手機/電腦，不在程式碼裡
+const API='https://script.google.com/macros/s/AKfycbxkTq8peIBj3mjRBetSUJw4mDtBmyNt0WGsFx7RBk9J2EdvEAF89xSWXao5TWIdniwPmA/exec';
+function getKey(){
+  const h=location.hash.match(/k=([0-9a-f]+)/);
+  if(h){try{localStorage.setItem('calkey',h[1])}catch(e){}return h[1]}
+  try{return localStorage.getItem('calkey')||''}catch(e){return ''}
+}
+let KEY=getKey();
+addEventListener('hashchange',()=>{if(getKey()){KEY=getKey();location.reload()}});
+function askKey(){const k=prompt('請貼上月曆金鑰');if(k){KEY=k.trim();try{localStorage.setItem('calkey',KEY)}catch(e){}}return KEY}
+async function call(action,payload){
+  if(!KEY)KEY=getKey();
+  if(!KEY&&!askKey())throw new Error('沒有金鑰');
+  pending++;syncTxt();
+  try{
+    const res=await fetch(API,{method:'POST',body:JSON.stringify({t:KEY,action,payload:payload||{}})});
+    const r=await res.json();
+    if(r.auth===false){try{localStorage.removeItem('calkey')}catch(e){}KEY='';throw new Error('金鑰錯誤，請重新整理後再貼一次')}
+    if(r.ok||r.conflict)return r;
+    throw new Error(r.error);
+  }finally{pending--;syncTxt()}
+}
+function syncTxt(){$('#sync').textContent=pending?'同步中…':''}
+function absorb(r){if(r&&r.months)Object.keys(r.months).forEach(k=>M[k]=r.months[k])}
+const INF={};
+async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force)return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=r.month;return M[k]}).finally(()=>delete INF[k]);return INF[k]}
+
+// ---- 備註（時間/地點/備註）存在試算表附註 ----
+function parseNote(n){const o={tm:'',pl:'',nt:''},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
+function makeNote(o){return [o.tm?'時間：'+o.tm:'',o.pl?'地點：'+o.pl:'',o.nt?'備註：'+o.nt:''].filter(Boolean).join('\n')}
+const tint=c=>'';
+
+// ---- 存檔（先更新畫面，再寫回試算表） ----
+async function save(list){ // list:[{o,items}]
+  const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items}));
+  const backup=list.map(x=>({o:x.o,items:clone(dayItems(x.o))}));
+  list.forEach(x=>setItems(x.o,clone(x.items)));render();
+  try{const r=await call('save',{changes});absorb(r);if(r.conflict)toast('試算表在別處被改過，已重新整理');render()}
+  catch(e){backup.forEach(x=>setItems(x.o,x.items));render();toast('沒存成功：'+(e.message||e))}
 }
 
-/* ============ 假資料（之後直接替換這裡即可） ============ */
-const DATA = {
-  short: {
-    label: "短影音",
-    subtabs: {
-      professional: {
-        label: "專業內容",
-        showEmpty: true,
-        items: [
-          {
-            youtubeId: "OqCgbyJZqz0",
-            vertical: true,
-            thumb: "縮圖/OqCgbyJZqz0.webp",
-            client: "劉馥萱牙醫師",
-            title: "美白貼片是商人的陰謀",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "5.3萬",
-            link: "https://www.instagram.com/dentist_angelaliu/reel/DWQ1vUlDAnl/"
-          },
-          {
-            youtubeId: "THtiXjx2kws",
-            vertical: true,
-            thumb: "縮圖/THtiXjx2kws.webp",
-            client: "劉馥萱牙醫師",
-            title: "冷光美白過程全紀錄",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "2.1萬",
-            link: "https://www.instagram.com/dentist_angelaliu/reel/DYWu77JgeOD/"
-          },
-          {
-            youtubeId: "WGiGUTNS7RA",
-            vertical: true,
-            thumb: "縮圖/WGiGUTNS7RA.webp",
-            client: "劉馥萱牙醫師",
-            title: "牙醫預防職業傷害",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "",
-            link: "https://www.instagram.com/p/DcLWa0Ok2zr/"
-          },
-          {
-            youtubeId: "5l6_H9kuVJM",
-            vertical: true,
-            thumb: "縮圖/5l6_H9kuVJM.webp",
-            client: "小艾醫師",
-            title: "音波艾好者",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "2,264",
-            link: "https://www.instagram.com/reel/DYUKH72jc4F/"
-          },
-          {
-            youtubeId: "MyYtlrrwz6M",
-            vertical: true,
-            thumb: "縮圖/MyYtlrrwz6M.webp",
-            client: "小艾醫師",
-            title: "肉毒cp值好選擇",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "1,983",
-            link: "https://www.instagram.com/reel/DZFFLdmjV5e/"
-          },
-          {
-            youtubeId: "Q1W_JgG4_7g",
-            vertical: true,
-            thumb: "縮圖/Q1W_JgG4_7g.webp",
-            client: "劉昌杰醫師",
-            title: "案例專訪 Before/After",
-            desc: "",
-            tags: ["字卡設計","委託剪輯"],
-            views: "1萬",
-            link: "https://www.instagram.com/dr.tomjliu/reel/DSw0jaOiX-v/"
-          },
-          {
-            youtubeId: "w9af-_r96UM",
-            vertical: true,
-            client: "徐詣醫師",
-            title: "經典的結紮+龜頭增大",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "9,945",
-            link: "https://www.instagram.com/reel/DVTCj5iDHkt/"
-          },
-          {
-            youtubeId: "tHili0-thH4",
-            vertical: true,
-            client: "徐詣醫師",
-            title: "皮片開箱處理",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "7,468",
-            link: "https://www.instagram.com/reel/DV8PLRqFA8s/"
-          },
-          {
-            youtubeId: "zWDFW7Vd9q0",
-            vertical: true,
-            client: "徐詣醫師",
-            title: "入珠給你看",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "1.9萬",
-            link: "https://www.instagram.com/reel/DWgSVN-ABmM/"
-          },
-          {
-            youtubeId: "3OmDYstF0Ak",
-            vertical: true,
-            thumb: "縮圖/3OmDYstF0Ak.webp",
-            client: "蕭家杰醫師",
-            title: "水晶體置換手術",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "3.3萬",
-            link: "https://www.youtube.com/shorts/3OmDYstF0Ak"
-          },
-          {
-            youtubeId: "MhOnEC_aqKk",
-            vertical: true,
-            thumb: "縮圖/MhOnEC_aqKk.webp",
-            client: "玩美牙醫",
-            title: "牙齦外露不是暴牙",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "3萬",
-            link: "https://www.instagram.com/ismile.dental/reel/DQY5iaDCAes/"
-          },
-          {
-            youtubeId: "O6gnNkG40tg",
-            vertical: true,
-            thumb: "縮圖/O6gnNkG40tg.webp",
-            client: "張鈞凱醫師",
-            title: "脂肪的奇妙旅程",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "3,795",
-            link: "https://www.youtube.com/shorts/O6gnNkG40tg"
-          },
-          {
-            youtubeId: "vNtaYQcGH-c",
-            vertical: true,
-            thumb: "縮圖/vNtaYQcGH-c.webp",
-            client: "張鈞凱醫師",
-            title: "開刀前聊聊猛健樂",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "1,913",
-            link: "https://www.instagram.com/reel/DSCeFyDj0zW/"
-          },
-          {
-            youtubeId: "DeBy-1UlJL2",
-            vertical: true,
-            thumb: "縮圖/［曾憶純醫師］封面製作_263.webp",
-            client: "曾憶純醫師",
-            title: "男女私密處手術大不同",
-            desc: "",
-            tags: ["畫面設計", "字卡設計"],
-            views: "",
-            link: "https://www.instagram.com/reel/DeBy-1UlJL2/"
-          }
-        ]
-      },
-      podcast: {
-        label: "Podcast 精華",
-        showEmpty: true,
-        items: [
-          {
-            youtubeId: "uIqbphn92y0",
-            vertical: true,
-            thumb: "縮圖/uIqbphn92y0.webp",
-            client: "High咖與品妤Baby",
-            title: "不婚不生",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "39.2萬",
-            link: "https://www.instagram.com/reel/Dah2MFhyreh/"
-          },
-          {
-            youtubeId: "TvQTiSypTuI",
-            vertical: true,
-            thumb: "縮圖/TvQTiSypTuI.webp",
-            client: "High咖與品妤Baby",
-            title: "鬼留言",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "1.4萬",
-            link: "https://www.instagram.com/reel/DasSHrjy3yY/"
-          },
-          {
-            youtubeId: "MuZSFV63tXg",
-            vertical: true,
-            thumb: "縮圖/MuZSFV63tXg.webp",
-            client: "劉昌杰醫師人生進化題庫",
-            title: "我在路邊接生女兒",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "25.4萬",
-            link: "https://www.instagram.com/reel/DX8--3DifEI/"
-          },
-          {
-            youtubeId: "BaW6AVBUBqI",
-            vertical: true,
-            thumb: "縮圖/BaW6AVBUBqI.webp",
-            client: "劉昌杰醫師人生進化題庫",
-            title: "醫院都講晶晶體",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "14.9萬",
-            link: "https://www.instagram.com/reel/DXJfOajiInU/"
-          },
-          {
-            youtubeId: "BISAIf_cN14",
-            vertical: true,
-            thumb: "縮圖/BISAIf_cN14.webp",
-            client: "甯寓的三樓秘密基地",
-            title: "2026年擁有各優勢的星座",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "14.1萬",
-            link: "https://www.instagram.com/reel/DTuq5ZHDjFp/"
-          },
-          {
-            youtubeId: "2HSongaALnQ",
-            vertical: true,
-            thumb: "縮圖/2HSongaALnQ.webp",
-            client: "甯寓的三樓秘密基地",
-            title: "怎麼評估好看的下巴",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "7,919",
-            link: "https://www.youtube.com/shorts/2HSongaALnQ"
-          },
-          {
-            youtubeId: "XYgv5oQdn4M",
-            vertical: true,
-            thumb: "縮圖/XYgv5oQdn4M.webp",
-            client: "夜漏洗褲 林弘慈醫師",
-            title: "男醫師不懂女生的痛",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "",
-            link: "https://www.instagram.com/p/DcSbialFQ-G/"
-          },
-          {
-            youtubeId: "EcOaRoYMDB8",
-            vertical: true,
-            thumb: "縮圖/EcOaRoYMDB8.webp",
-            client: "雙人徐醫師 整形外科父子檔",
-            title: "最會抓蒼蠅的父子",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "4,945",
-            link: "https://www.youtube.com/shorts/EcOaRoYMDB8"
-          },
-          {
-            youtubeId: "PGKiecdI7hQ",
-            vertical: true,
-            thumb: "縮圖/PGKiecdI7hQ.webp",
-            client: "雙人徐醫師 整形外科父子檔",
-            title: "隆乳太大會往下掉",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "55.3萬",
-            link: "https://www.instagram.com/reel/DZFFPj_gZL4/"
-          },
-          {
-            youtubeId: "dNLPdQvxyCQ",
-            vertical: true,
-            thumb: "縮圖/dNLPdQvxyCQ.webp",
-            client: "雙人徐醫師 整形外科父子檔",
-            title: "我就是有背景的",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "2.6萬",
-            link: "https://www.instagram.com/reel/DaNLhiXFGxH/"
-          },
-          {
-            youtubeId: "zCpHW0B6_88",
-            vertical: true,
-            thumb: "縮圖/zCpHW0B6_88.webp",
-            client: "小艾醫師",
-            title: "可以把自己整成貓嗎",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "4,613",
-            link: "https://www.instagram.com/reel/DaxVfYNEf2v/"
-          },
-          {
-            youtubeId: "TA7Ssre5yoA",
-            vertical: true,
-            thumb: "縮圖/TA7Ssre5yoA.webp",
-            client: "直男營養師",
-            title: "離開彰化的控肉飯不是控肉飯",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "8.5萬",
-            link: "https://www.instagram.com/reel/DU73TP3k3Bf/"
-          },
-          {
-            youtubeId: "DrfKgHc53OY",
-            vertical: true,
-            thumb: "縮圖/DrfKgHc53OY.webp",
-            client: "玥玥癒室",
-            title: "6歲就能進紅玥緬因貓藝廊",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "3,115",
-            link: "https://www.instagram.com/reel/DNGFCp0NNtY/"
-          },
-          {
-            youtubeId: "tZAHIh0cc3w",
-            vertical: true,
-            thumb: "縮圖/tZAHIh0cc3w.webp",
-            client: "麥菜阿姨",
-            title: "Podcast會看到更真實的小麥",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "1.1萬",
-            link: "https://www.instagram.com/reel/DJTHFDbKqHU/"
-          }
-        ]
-      },
-      daily: {
-        label: "日常",
-        showEmpty: true,
-        items: [
-          {
-            youtubeId: "vu5FE56Vv_g",
-            vertical: true,
-            thumb: "縮圖/vu5FE56Vv_g.webp",
-            client: "劉馥萱牙醫師",
-            title: "害怕看牙的患者來補蛀牙",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "1.9萬",
-            link: "https://www.instagram.com/dentist_angelaliu/reel/DZFFPPmDIdR/"
-          },
-          {
-            youtubeId: "cypwYc8AiOY",
-            vertical: true,
-            thumb: "縮圖/cypwYc8AiOY.webp",
-            client: "劉馥萱牙醫師",
-            title: "猜猜這張值多少？",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "1.5萬",
-            link: "https://www.instagram.com/reel/DZpIZGCn9dr/"
-          },
-          {
-            youtubeId: "au8dEdBpAfk",
-            vertical: true,
-            thumb: "縮圖/au8dEdBpAfk.webp",
-            client: "劉馥萱牙醫師",
-            title: "登出台灣去當阿米啦",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "1.5萬",
-            link: "https://www.instagram.com/dentist_angelaliu/reel/DXY7xHCD5jz/"
-          },
-          {
-            youtubeId: "Lp8u2HjhJaY",
-            vertical: true,
-            client: "阿瑞",
-            title: "沒事不要生病",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "2.6萬",
-            link: "https://www.instagram.com/reel/DUaY_Vbk3T0/"
-          },
-          {
-            youtubeId: "OK-IlTOpTcU",
-            vertical: true,
-            client: "徐詣醫師",
-            title: "製造腹肌",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "5,107",
-            link: "https://www.instagram.com/reel/Dbfk1qtIP-e/"
-          },
-          {
-            youtubeId: "7Z4woJQffvw",
-            vertical: true,
-            thumb: "縮圖/7Z4woJQffvw.webp",
-            client: "侯鈞元第四季日常",
-            title: "我去打了猛健樂",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "",
-            link: "https://www.youtube.com/shorts/7Z4woJQffvw"
-          },
-          {
-            youtubeId: "dvLwKeZvD-o",
-            vertical: true,
-            thumb: "縮圖/dvLwKeZvD-o.webp",
-            client: "小麥營養師",
-            title: "砸鍋賣鐵買廚具 開箱雙人牌廚具",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "7,696",
-            link: "https://www.instagram.com/reel/DYliXs4j8RN/"
-          },
-          {
-            youtubeId: "eUjKi_N_fls",
-            vertical: true,
-            thumb: "縮圖/eUjKi_N_fls.webp",
-            client: "曾憶純醫師",
-            title: "手術無影燈真的無影",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "5,613",
-            link: "https://www.youtube.com/shorts/eUjKi_N_fls"
-          },
-          {
-            youtubeId: "RwyquRIi48A",
-            vertical: true,
-            thumb: "縮圖/RwyquRIi48A.webp",
-            client: "曾憶純醫師",
-            title: "醫師本人的術後心得",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "2,135",
-            link: "https://www.instagram.com/reel/DSXEcMQAQ7T/"
-          }
-        ]
-      },
-      drama: {
-        label: "短劇",
-        showEmpty: true,
-        items: [
-          {
-            youtubeId: "-z123HPeOYE",
-            vertical: true,
-            thumb: "縮圖/-z123HPeOYE.webp",
-            client: "曾憶純醫師",
-            title: "假體容易破嗎？",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "3,150",
-            link: "https://www.instagram.com/reel/DScOAN4jfs6/"
-          },
-          {
-            youtubeId: "hKYNMO6BxsM",
-            vertical: true,
-            client: "阿瑞",
-            title: "阿瑞表情包",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "2.9萬",
-            link: "https://www.instagram.com/reel/DSrq2LbDuqU/"
-          },
-          {
-            youtubeId: "Ro40GzyPUlY",
-            vertical: true,
-            thumb: "縮圖/Ro40GzyPUlY.webp",
-            client: "徐瑩醫師",
-            title: "當家長說小孩很怕痛",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "1.4萬",
-            link: "https://www.instagram.com/dr.yumi_hsu/reel/DOaurGPjWiM/"
-          },
-          {
-            youtubeId: "mgfOTiiDA_s",
-            vertical: true,
-            thumb: "縮圖/mgfOTiiDA_s.webp",
-            client: "曾憶純醫師",
-            title: "外科醫師的各種手勢",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "6,210",
-            link: "https://www.instagram.com/reel/DPTX5hVEeOW/"
-          },
-          {
-            youtubeId: "XgFnt2V7Y6U",
-            vertical: true,
-            thumb: "縮圖/XgFnt2V7Y6U.webp",
-            client: "曾憶純醫師",
-            title: "野馬波不敢給女醫師打怎麼辦",
-            desc: "",
-            tags: ["字卡設計"],
-            views: "4,773",
-            link: "https://www.instagram.com/reel/DZ2ASBwjevu/"
-          },
-          {
-            youtubeId: "M1fi73jtKgc",
-            vertical: true,
-            thumb: "縮圖/M1fi73jtKgc.webp",
-            client: "曾憶純醫師",
-            title: "Dr.Dancing Good Good",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "4,556",
-            link: "https://www.instagram.com/reel/DVVnNCxiVCJ/"
-          }
-        ]
-      }
-    }
-  },
-  long: {
-    label: "長影音",
-    subtabs: {
-      professional: {
-        label: "專業內容",
-        showEmpty: true,
-        items: [
-          {
-            youtubeId: "OAshAuqXtek",
-            thumb: "縮圖/OAshAuqXtek.webp",
-            client: "徐詣醫師 新世紀男性福音戰士",
-            title: "【筋膜摺疊手術大公開】不放異物，用自己的筋膜就能增粗！｜徐詣整形外科醫師",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "1,594",
-            link: "https://www.youtube.com/watch?v=nOPJUmqtX8g"
-          },
-          {
-            youtubeId: "o0aizRTGgaU",
-            thumb: "縮圖/o0aizRTGgaU.webp",
-            client: "徐詣醫師 新世紀男性福音戰士",
-            title: "【二次增大全紀錄】大到含不住！伴侶快不能呼吸了 ft. LM兄｜徐詣整形外科醫師 露臉個案系列",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "1.4萬",
-            link: "https://www.youtube.com/watch?v=h71J2X-zxHA&t=216s"
-          },
-          {
-            youtubeId: "HMjtjZSvhSo",
-            thumb: "縮圖/HMjtjZSvhSo.webp",
-            client: "徐詣醫師 新世紀男性福音戰士",
-            title: "【陰莖增大全紀錄】小孩才做選擇，我全都要！ ft. 小黑｜徐詣整形外科醫師 露臉個案系列",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "3.6萬",
-            link: "https://www.youtube.com/watch?v=PouwvtXMF2s&t=5s"
-          },
-          {
-            youtubeId: "KfNroGhys9c",
-            thumb: "縮圖/KfNroGhys9c.webp",
-            client: "徐詣醫師 新世紀男性福音戰士",
-            title: "【陰莖增大露臉全紀錄】訂製皮片的天選之人 ft. 月月｜徐詣整形外科醫師 露臉個案系列",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "1.3萬",
-            link: "https://www.youtube.com/watch?v=-XaZ-Hg3Ht4&t=234s"
-          },
-          {
-            youtubeId: "DIDHqDiNyF0",
-            thumb: "縮圖/DIDHqDiNyF0.webp",
-            client: "卓越健康診所",
-            title: "癌症治療不只是消滅腫瘤，養好體質是關鍵！",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "330",
-            link: "https://www.youtube.com/watch?v=Dd_Mk2cxrRI&t=90s"
-          },
-          {
-            youtubeId: "IgYjjPy2rIE",
-            thumb: "縮圖/IgYjjPy2rIE.webp",
-            client: "卓越健康診所",
-            title: "連呼吸都胖？功能醫學帶你打破「怎麼減都失敗」的惡性循環｜功能醫學 蕭伶茲醫師",
-            desc: "",
-            tags: ["字卡設計","畫面設計"],
-            views: "90",
-            link: "https://www.youtube.com/watch?v=QruvimbIuTw"
-          }
-        ]
-      },
-      daily: {
-        label: "日常",
-        showEmpty: true,
-        items: [
-          {
-            youtubeId: "1I5WT8o6_Ck",
-            thumb: "縮圖/1I5WT8o6_Ck.webp",
-            client: "徐詣醫師 新世紀男性福音戰士",
-            title: "【人生第一場春酒】從兩個人到一群人，0到1的小里程碑｜徐詣整形外科醫師",
-            desc: "",
-            tags: ["委託剪輯"],
-            views: "474",
-            link: "https://www.youtube.com/watch?v=N4Wuz4cqqtM"
-          },
-          {
-            youtubeId: "KFdwz9nVA5s",
-            thumb: "縮圖/KFdwz9nVA5s.webp",
-            client: "侯鈞元第四季",
-            title: "20瓶香水每天都換一個心情｜不算收藏 EP.1 男性香水",
-            desc: "",
-            tags: ["字卡設計","畫面設計","拍攝"],
-            views: "173",
-            link: "https://www.youtube.com/watch?v=Cn2Le1l4StE"
-          },
-          {
-            youtubeId: "wdXRMmDk2qA",
-            thumb: "縮圖/wdXRMmDk2qA.webp",
-            client: "侯鈞元第四季",
-            title: "入坑銀飾最推薦買這四個東西｜不算收藏 EP.2 高CP值飾品",
-            desc: "",
-            tags: ["字卡設計","畫面設計","拍攝"],
-            views: "7,729",
-            link: "https://www.youtube.com/watch?v=lal2Pl8Q0S4&t=306s"
-          }
-        ]
-      }
-    }
-  },
-  ad: {
-  label: "業配",
-  showEmpty: true,
-  items: [
-    {
-      youtubeId: "83NOl6IPUJg",
-      vertical: true,
-      thumb: "縮圖/83NOl6IPUJg.webp",
-      client: "嗨咖 邱志恒",
-      title: "嗨咖 x 杜蕾斯",
-      desc: "",
-      tags: ["委託剪輯","字卡設計"],
-      views: "978萬",
-      link: "https://www.instagram.com/reel/DaxWmHApN3P/"
-    },
-    {
-      youtubeId: "oBw6jHP64Kw",
-      vertical: true,
-      client: "品妤",
-      title: "品妤 x POLYNIA",
-      desc: "",
-      tags: ["委託剪輯","字卡設計"],
-      thumb: "縮圖/oBw6jHP64Kw.webp",
-      views: "",
-      link: "https://www.instagram.com/reel/DblJYWYgMa1/"
-    },
-    {
-      youtubeId: "jDSly1tl6AA",
-      vertical: true,
-      thumb: "縮圖/jDSly1tl6AA.webp",
-      client: "品妤",
-      title: "品妤 x 康是美",
-      desc: "",
-      tags: ["委託剪輯","字卡設計"],
-      views: "",
-      link: "https://www.instagram.com/p/DclFgt7gyPZ/"
-    }
-  ]
-  },
-  host: {
-  label: "主持節目",
-  showEmpty: false,
-  items: [
-    {
-      youtubeId: "Z6xXP3eKAVs",
-      thumb: "縮圖/Z6xXP3eKAVs.webp",
-      client: "侯鈞元第四季",
-      title: "單身成癮俱樂部｜EP.107 資深單身前輩現身說法 feat.小趙同學",
-      desc: "",
-      tags: ["畫面設計","企劃","拍攝","主持"],
-      views: "1,675",
-      link: "https://www.youtube.com/watch?v=Z6xXP3eKAVs&t=2284s"
-    },
-    {
-      youtubeId: "LZGUa3g3qkk",
-      thumb: "縮圖/LZGUa3g3qkk.webp",
-      client: "侯鈞元第四季",
-      title: "談加薪不如談起薪｜EP.79 勞資不爽不幹ㄌ feat.小趙同學",
-      desc: "",
-      tags: ["畫面設計","企劃","拍攝","主持"],
-      views: "596",
-      link: "https://www.youtube.com/watch?v=LZGUa3g3qkk&t=245s"
-    },
-    {
-      youtubeId: "SCG700ayV8E",
-      thumb: "縮圖/SCG700ayV8E.webp",
-      client: "侯鈞元第四季",
-      title: "面相學還是有料，長得衰是真的會衰｜EP.109 識人技巧 feat.小趙同學",
-      desc: "",
-      tags: ["畫面設計","企劃","拍攝","主持"],
-      views: "1,106",
-      link: "https://www.youtube.com/watch?v=SCG700ayV8E&t=2212s"
-    },
-    {
-      youtubeId: "bkmQYRvNORw",
-      thumb: "縮圖/bkmQYRvNORw.webp",
-      client: "侯鈞元第四季",
-      title: "交友軟體之亂｜EP.82 拒絕說教 feat.小趙同學",
-      desc: "",
-      tags: ["畫面設計","企劃","拍攝","主持"],
-      views: "723",
-      link: "https://www.youtube.com/watch?v=bkmQYRvNORw&t=3069s"
-    },
-    {
-      youtubeId: "M9bShWzgdf0",
-      thumb: "縮圖/M9bShWzgdf0.webp",
-      client: "侯鈞元第四季",
-      title: "飯店說我是環保方案，不幫我打掃｜EP.100 元週報試錄集 feat.小趙同學",
-      desc: "",
-      tags: ["畫面設計","企劃","拍攝","主持"],
-      views: "217",
-      link: "https://www.youtube.com/watch?v=M9bShWzgdf0&t=270s"
-    },
-    {
-      youtubeId: "2E9KspG0fEo",
-      thumb: "縮圖/2E9KspG0fEo.webp",
-      client: "侯鈞元第四季",
-      title: "出國，先開嘖嘖募資？｜EP.104 元週報02 feat.小趙同學",
-      desc: "",
-      tags: ["畫面設計","企劃","拍攝","主持"],
-      views: "163",
-      link: "https://www.youtube.com/watch?v=2E9KspG0fEo&t=5144s"
-    }
-  ]
-  }
-};
-
-/* ============ 狀態 ============ */
-const mainTabKeys = Object.keys(DATA);
-let state = {
-  main: mainTabKeys[0],
-  sub: DATA[mainTabKeys[0]].subtabs ? Object.keys(DATA[mainTabKeys[0]].subtabs)[0] : null
-};
-
-/* ============ 渲染 ============ */
-function sortTags(tags){
-  return [...tags].sort((a,b) => TAG_PRIORITY.indexOf(a) - TAG_PRIORITY.indexOf(b));
+// ---- 畫面 ----
+function weekOf(o){const t=new Date(o.y,o.m-1,o.d),off=(t.getDay()+6)%7;return [...Array(7)].map((_,i)=>addDays(o,i-off))}
+function render(){
+  $('#moTxt').textContent=cur.y+' 年 '+cur.m+' 月';
+  const wk=weekOf(cur);
+  $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b></div>`).join('');
+  $('#strip').querySelectorAll('.s').forEach(s=>s.onclick=()=>slideGo(wk[+s.dataset.i]));
+  const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done).length;
+  $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
+  const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
+  let html=items.map((it,i)=>cardHTML(it,i)).join('');
+  if(!items.length)html='<div class="empty">這天還沒有安排</div>';
+  $('#list').innerHTML=html;
+  bindList();
+  if(JO>=0){const det=document.querySelector(`#list .cw[data-i="${JO}"] .det`);if(det){const h=det.offsetHeight;det.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'})}}
+  $('#fab').style.display=edit?'none':'flex';
+  renderWeek(wk);
+  if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();ED_IN=false;bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
+}
+function cardHTML(it,i){const n=parseNote(it.note);const t=tone(it.bg);const op=openIdx===i;
+  const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${!n.tm&&!n.pl&&!n.nt?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
+  return `<div class="cw" data-i="${i}"><div class="sa l"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''}"><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'✓':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span>${t?`<span class="bar" style="background:${t}"></span>`:''}</div>${det}</div></div>`}
+function renderWeek(wk){
+  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${t?'box-shadow:inset 3px 0 0 '+t+'8c':''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
 }
 
-function renderMainTabs(){
-  const el = document.getElementById("mainTabs");
-  el.innerHTML = mainTabKeys.map(key => `
-    <button class="main-tab-btn ${state.main===key?'active':''}" data-main="${key}">
-      ${DATA[key].label}
-    </button>
-  `).join("");
-  el.querySelectorAll(".main-tab-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      state.main = btn.dataset.main;
-      const section = DATA[state.main];
-      state.sub = section.subtabs ? Object.keys(section.subtabs)[0] : null;
-      renderAll();
-    });
+// ---- 編輯／新增 ----
+function sheetHTML(){const e=edit;const it=e.idx>=0?dayItems(cur)[e.idx]:null;const clr=f=>`<button class="x" data-clr="${f}" aria-label="清除"><i class="ti ti-x"></i></button>`;
+  return `<div class="ov ed ${ED_IN?'in':''}"><div class="grab"></div><div class="eh"><button id="edCx">取消</button><b>${it?'編輯':'新增'}　${cur.m}/${cur.d}</b><button class="ok" id="edOk">完成</button></div>
+  <div class="grp"><input id="edT" class="big" value="${esc(e.text)}"></div>
+  <div class="grp">
+   <div class="rw" id="rTm"><i class="ti ti-clock"></i><span class="k">時間</span><span class="v ${e.tm?'':'ph'}">${e.tm||'無'}</span>${e.tm?clr('tm'):'<i class="ti ti-chevron-right ch"></i>'}</div>
+   ${e.f==='tm'?`<div class="pane">${wheelHTML()}</div>`:''}
+   <div class="rw"><i class="ti ti-map-pin"></i><span class="k">地點</span><input id="edPl" value="${esc(e.pl)}">${e.pl?clr('pl'):''}</div>
+   <div class="rw top"><i class="ti ti-notes"></i><span class="k">備註</span><textarea id="edNt" rows="2">${esc(e.nt)}</textarea>${e.nt?clr('nt'):''}</div>
+  </div>
+  <div class="grp">
+   <div class="rw"><i class="ti ti-droplet"></i><span class="k">顏色</span><div class="sw">${TONES.map(c=>`<span data-col="${c[1]}" class="${tone(e.bg)===c[0]?'on':''}" style="background:${c[0]}"></span>`).join('')}<span data-col="" class="none ${!tone(e.bg)?'on':''}"><i class="ti ti-ban"></i></span></div></div>
+   <div class="rw"><i class="ti ti-repeat"></i><span class="k">重複</span><div class="chips">${[['','不重複'],['day','每天'],['week','每週'],['month','每月']].map(r=>`<span data-rp="${r[0]}" class="${(e.rp||'')===r[0]?'on':''}">${r[1]}</span>`).join('')}</div></div>
+  </div>
+  ${it?`<div class="grp"><button class="rw act" id="edCp"><i class="ti ti-copy"></i>複製到其他天</button><button class="rw act del" id="edDel"><i class="ti ti-trash"></i>刪除這件</button></div>`:''}
+  </div>`}
+function wheelHTML(){const e=edit,p=(e.tm||'14:00').split(':');e.wh=e.wh??+p[0];e.wm=e.wm??Math.round(+p[1]/5)*5%60;
+  return `<div class="wheel"><div class="hl"></div><div class="col" id="wh"><div></div><div></div>${[...Array(24)].map((_,i)=>`<div class="${i===e.wh?'sel':''}">${String(i).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div><div class="colon">:</div><div class="col" id="wm"><div></div><div></div>${[...Array(12)].map((_,i)=>`<div class="${i*5===e.wm?'sel':''}">${String(i*5).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div></div><div class="wf"><button id="wClr">不設時間</button><button class="set" id="wSet">設定 ${String(e.wh).padStart(2,'0')}:${String(e.wm).padStart(2,'0')}</button></div>`}
+function openEdit(idx){const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
+function syncEdit(){const t=$('#edT');if(t)edit.text=t.value;const pl=$('#edPl');if(pl)edit.pl=pl.value;const nt=$('#edNt');if(nt)edit.nt=nt.value}
+function bindEditor(){
+  const keep=(sync=true)=>{if(sync)syncEdit();const st=$('#ovl .ov')?$('#ovl .ov').scrollTop:0;render();const o=$('#ovl .ov');if(o)o.scrollTop=st};
+  $('#rTm').onclick=ev=>{if(ev.target.closest('[data-clr]'))return;edit.f=edit.f==='tm'?'':'tm';keep()};
+  document.querySelectorAll('[data-clr]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();syncEdit();edit[b.dataset.clr]='';if(b.dataset.clr==='tm')edit.f='';keep(false)});
+  document.querySelectorAll('[data-col]').forEach(x=>x.onclick=()=>{edit.bg=x.dataset.col;keep()});
+  document.querySelectorAll('[data-rp]').forEach(x=>x.onclick=()=>{edit.rp=x.dataset.rp;keep()});
+  $('#edCx').onclick=closeEdit;
+  const ov=$('#ovl .ed');let py=null,pdy=0;
+  const ps=e=>{if(ov.scrollTop>0)return;py=e.touches[0].clientY;pdy=0;ov.style.transition='none'};
+  const pm=e=>{if(py===null)return;pdy=Math.max(0,e.touches[0].clientY-py);if(pdy>4){e.preventDefault();ov.style.transform=`translateY(${pdy}px)`}};
+  const pe=()=>{if(py===null)return;py=null;if(pdy>110)closeEdit();else{ov.style.transition='transform .22s cubic-bezier(.2,.8,.2,1)';ov.style.transform=''}};
+  [$('#ovl .grab'),$('#ovl .eh')].forEach(el=>{el.addEventListener('touchstart',ps,{passive:true});el.addEventListener('touchmove',pm,{passive:false});el.addEventListener('touchend',pe)});
+  $('#edOk').onclick=finishEdit;
+  const t=$('#edT');t.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();finishEdit()}};
+  const d=$('#edDel');if(d)d.onclick=async()=>{const i=edit.idx;await slideOutEd();edit=null;$('#ovl').innerHTML='';removeAt(i)};
+  const cp=$('#edCp');if(cp)cp.onclick=()=>{syncEdit();openPicker('copy')};
+  const wh=$('#wh'),wm=$('#wm');
+  if(wh){wh.scrollTop=edit.wh*30;wm.scrollTop=(edit.wm/5)*30;let a,b;
+    const upd=()=>{$('#wSet').textContent='設定 '+String(edit.wh).padStart(2,'0')+':'+String(edit.wm).padStart(2,'0');[...wh.children].forEach((c,i)=>c.classList.toggle('sel',i-2===edit.wh));[...wm.children].forEach((c,i)=>c.classList.toggle('sel',(i-2)*5===edit.wm))};
+    wh.onscroll=()=>{clearTimeout(a);a=setTimeout(()=>{edit.wh=Math.max(0,Math.min(23,Math.round(wh.scrollTop/30)));upd()},60)};
+    wm.onscroll=()=>{clearTimeout(b);b=setTimeout(()=>{edit.wm=Math.max(0,Math.min(55,Math.round(wm.scrollTop/30)*5));upd()},60)};
+    $('#wSet').onclick=()=>{edit.tm=String(edit.wh).padStart(2,'0')+':'+String(edit.wm).padStart(2,'0');edit.f='';keep()};
+    $('#wClr').onclick=()=>{edit.tm='';edit.f='';keep()};}
+}
+function slideOutEd(){const o=$('#ovl .ed');if(!o)return Promise.resolve();o.style.transition='transform .24s cubic-bezier(.4,0,1,1)';o.style.transform='translateY(100%)';return wait(230)}
+async function closeEdit(){await slideOutEd();edit=null;$('#ovl').innerHTML='';render()}
+async function finishEdit(){syncEdit();const e=edit;const text=e.text.trim();if(!text){$('#edT').focus();return}
+  if(document.activeElement)document.activeElement.blur();await slideOutEd();
+  const items=clone(dayItems(cur));const note=makeNote(e);
+  edit=null;$('#ovl').innerHTML='';
+  if(e.idx===-1&&e.rp){render();try{const r=await call('repeat',{rule:{text,type:e.rp,start:keyOf(cur),bg:e.bg,note}});absorb(r);render();toast('已建立重複待辦')}catch(err){toast('沒存成功：'+(err.message||err))}return}
+  if(e.idx===-1)items.push({text,done:false,bg:e.bg,fc:'',bold:false,note});
+  else Object.assign(items[e.idx],{text,bg:e.bg,note});
+  await save([{o:cur,items}]);
+  if(e.idx>=0&&e.rp){try{const r=await call('repeat',{rule:{text,type:e.rp,start:keyOf(addDays(cur,1)),bg:e.bg,note}});absorb(r);render();toast('之後會重複出現')}catch(err){toast('重複沒設定成功')}}
+}
+function toggle(i){const items=clone(dayItems(cur));items[i].done=!items[i].done;POP=i;haptic();save([{o:cur,items}]);setTimeout(()=>{POP=-1},500)}
+let undoTimer;
+function removeAt(i){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);
+  toast('已刪除',()=>{const now=clone(dayItems(o));now.splice(Math.min(i,now.length),0,gone);save([{o,items:now}])})}
+async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.m);const items=clone(dayItems(cur));const keep=items.filter(i=>i.done),move=items.filter(i=>!i.done);
+  save([{o:{...cur},items:keep},{o:nx,items:clone(dayItems(nx)).concat(move)}]);toast(`已把 ${move.length} 件移到 ${nx.m}/${nx.d}`)}
+
+// ---- 列表互動：打勾、點開、長按拖曳、左滑刪除、右滑完成 ----
+function bindList(){
+  document.querySelectorAll('[data-ck]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();toggle(+c.dataset.ck)});
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();swipeDelete(b.closest('.cw'))});
+  document.querySelectorAll('#list .cw').forEach(cw=>{
+    const card=cw.querySelector('.card'),sl=cw.querySelector('.sa.l'),sr=cw.querySelector('.sa.r'),i=+cw.dataset.i;
+    let timer=null,dragging=false,sx=0,sy=0,lock=null,tgt=null,dx=0,base=0,t0=0,hit=false;
+    const setX=(x,anim)=>{card.style.transition=anim?'':'none';card.style.transform=x?`translateX(${x}px)`:'';sl.style.opacity=x>0?Math.min(1,x/80):0;sr.style.opacity=x<0?Math.min(1,-x/60):0};
+    const start=(x,y,t)=>{tgt=t;sx=x;sy=y;lock=null;dx=0;t0=Date.now();base=SW===cw?-88:0;if(SW&&SW!==cw)closeSwipe();cw.classList.add('press');
+      timer=setTimeout(()=>{if(lock)return;cw.classList.remove('press');dragging=true;haptic();beginDrag(cw,y)},420)};
+    const move=(x,y,ev)=>{if(dragging){ev.preventDefault();dragMove(x,y);return}
+      if(!lock&&(Math.abs(x-sx)>8||Math.abs(y-sy)>8)){lock=Math.abs(x-sx)>Math.abs(y-sy)?'h':'v';clearTimeout(timer);cw.classList.remove('press');hit=false}
+      if(lock==='h'){ev.preventDefault();dx=x-sx+base;setX(dx);const over=dx>80;if(over!==hit){hit=over;if(over)haptic()}}};
+    const end=()=>{clearTimeout(timer);cw.classList.remove('press');
+      if(dragging){dragging=false;dragEnd();return}
+      if(lock==='h'){const w=cw.offsetWidth,fast=Date.now()-t0<250;
+        if(dx>80||(fast&&dx>40&&!base)){setX(0,true);SW=null;toggle(i);return}
+        if(dx<-w*0.55){swipeDelete(cw);return}
+        if(dx<-50||(fast&&dx<-30)){setX(-88,true);SW=cw;return}
+        setX(0,true);if(SW===cw)SW=null;return}
+      if(lock==='v')return;
+      if(base){closeSwipe();return}
+      if(tgt&&tgt.closest&&tgt.closest('.eb')){openIdx=-1;openEdit(i);return}
+      setOpen(openIdx===i?-1:i)};
+    card.addEventListener('touchstart',ev=>{if(ev.target.closest('[data-ck]'))return;const t=ev.touches[0];start(t.clientX,t.clientY,ev.target)},{passive:true});
+    card.addEventListener('touchmove',ev=>{const t=ev.touches[0];move(t.clientX,t.clientY,ev)},{passive:false});
+    card.addEventListener('touchend',ev=>{if(ev.target.closest('[data-ck]'))return;ev.preventDefault();end()});
+    card.addEventListener('mousedown',ev=>{if(ev.target.closest('[data-ck]'))return;start(ev.clientX,ev.clientY,ev.target);const mm=e=>move(e.clientX,e.clientY,e),mu=()=>{document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);end()};document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu)});
   });
 }
+function closeSwipe(){if(!SW)return;const c=SW.querySelector('.card');c.style.transition='';c.style.transform='';SW.querySelectorAll('.sa').forEach(x=>x.style.opacity=0);SW=null}
+async function swipeDelete(cw){const i=+cw.dataset.i,c=cw.querySelector('.card');SW=null;haptic();
+  c.style.transition='transform .2s cubic-bezier(.4,0,1,1)';c.style.transform='translateX(-110%)';cw.querySelector('.sa.r').style.opacity=1;await wait(170);
+  cw.style.overflow='hidden';await cw.animate([{height:cw.offsetHeight+'px',marginBottom:'8px',opacity:1},{height:'0px',marginBottom:'0px',opacity:0}],{duration:200,easing:'ease-in',fill:'forwards'}).finished;
+  removeAt(i)}
+// 展開／收起：先把舊的收起來，再展開新的
+async function setOpen(n){const old=document.querySelector('#list .det');
+  if(old){const h=old.offsetHeight;await old.animate([{height:h+'px',opacity:1},{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0}],{duration:170,easing:'ease-in',fill:'forwards'}).finished}
+  openIdx=n;JO=n;render();JO=-1}
+let D=null;
+function beginDrag(cw,y){closeSwipe();const all=[...document.querySelectorAll('#list .cw')];const r=cw.getBoundingClientRect();
+  D={card:cw,from:+cw.dataset.i,offset:y-r.top,startTop:r.top,to:+cw.dataset.i,day:null,h:r.height+8,rects:all.map(c=>{const b=c.getBoundingClientRect();return {c,h:b.height+8,mid:b.top+b.height/2}})};cw.classList.add('dragging')}
+function dragMove(x,y){const dy=y-D.offset-D.startTop;D.card.style.transform=`translateY(${dy}px)`;
+  D.day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-10&&y<=b.bottom+10;s.classList.toggle('drop',hit);if(hit)D.day=+s.dataset.i});
+  const center=D.startTop+dy+(D.h-8)/2;
+  D.to=D.day!==null?D.from:D.rects.filter((r,j)=>j!==D.from&&center>r.mid).length;
+  D.rects.forEach((r,j)=>{if(j===D.from)return;let sh=0;if(D.from<D.to&&j>D.from&&j<=D.to)sh=-D.h;else if(D.from>D.to&&j>=D.to&&j<D.from)sh=D.h;r.c.style.transform=sh?`translateY(${sh}px)`:''})}
+async function dragEnd(){const d=D;D=null;document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));
+  const settle=async(t,op)=>{d.card.classList.remove('dragging');d.card.style.transition='transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s';d.card.style.transform=t;if(op!=null)d.card.style.opacity=op;await wait(200)};
+  if(d.day!==null){const target=weekOf(cur)[d.day];if(!same(target,cur)){haptic();await settle(d.card.style.transform+' scale(.6)',0);await loadMonth(target.y,target.m);const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];save([{o:{...cur},items},{o:target,items:clone(dayItems(target)).concat([it])}]);toast(`已移到 ${target.m}/${target.d}`);return}}
+  if(d.to!==d.from){let off=0;if(d.to>d.from)for(let j=d.from+1;j<=d.to;j++)off+=d.rects[j].h;else for(let j=d.to;j<d.from;j++)off-=d.rects[j].h;
+    await settle(`translateY(${off}px)`);const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];items.splice(d.to,0,it);save([{o:cur,items}]);return}
+  await settle('');render()}
 
-function renderSubTabs(){
-  const el = document.getElementById("subTabs");
-  const section = DATA[state.main];
-  if(!section.subtabs){ el.innerHTML = ""; return; }
-  const subKeys = Object.keys(section.subtabs);
-  el.innerHTML = subKeys.map(key => `
-    <button class="sub-tab-btn ${state.sub===key?'active':''}" data-sub="${key}">
-      ${section.subtabs[key].label}
-    </button>
-  `).join("");
-  el.querySelectorAll(".sub-tab-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      state.sub = btn.dataset.sub;
-      renderGrid();
-      syncHash();
-      el.querySelectorAll(".sub-tab-btn").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-    });
-  });
+// ---- 換天：畫面跟著手指走（卡片上的左右滑留給完成／刪除） ----
+async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day');if(el.offsetParent===null){go(o);return}
+  SLIDING=true;closeSwipe();const dir=new Date(o.y,o.m-1,o.d)>new Date(cur.y,cur.m-1,cur.d)?1:-1,dd=swipe?el.offsetWidth+16:44;
+  el.style.transition=`transform ${swipe?.2:.14}s cubic-bezier(.4,0,1,1),opacity .14s`;el.style.transform=`translateX(${-dir*dd}px)`;if(!swipe)el.style.opacity=0;
+  await wait(swipe?190:130);
+  el.style.transition='none';el.style.transform=`translateX(${dir*dd}px)`;el.style.opacity=swipe?1:0;
+  go(o);el.offsetWidth;
+  el.style.transition='transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s';el.style.transform='';el.style.opacity=1;
+  await wait(300);el.style.transition='';SLIDING=false}
+(()=>{const el=$('#day');let sx=0,sy=0,lock=null,dx=0,t0=0,on=false;
+  el.addEventListener('touchstart',e=>{if(edit||D||SLIDING||e.target.closest('.cw'))return;on=true;lock=null;dx=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
+  el.addEventListener('touchmove',e=>{if(!on)return;const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8))lock=Math.abs(x)>Math.abs(y)?'h':'v';if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
+  el.addEventListener('touchend',()=>{if(!on)return;on=false;if(lock!=='h')return;const fast=Date.now()-t0<250;
+    if(Math.abs(dx)>el.offsetWidth*0.25||(fast&&Math.abs(dx)>40))slideGo(addDays(cur,dx<0?1:-1),true);
+    else{el.style.transition='transform .24s cubic-bezier(.2,.8,.2,1)';el.style.transform=''}});
+  // 週列左右滑：換一整週
+  const st=$('#strip');let qx=0,qy=0;
+  st.addEventListener('touchstart',e=>{qx=e.touches[0].clientX;qy=e.touches[0].clientY},{passive:true});
+  st.addEventListener('touchend',e=>{if(D)return;const x=e.changedTouches[0].clientX-qx,y=e.changedTouches[0].clientY-qy;if(Math.abs(x)>50&&Math.abs(x)>Math.abs(y)*1.5)slideGo(addDays(cur,x<0?7:-7))},{passive:true});
+})();
+
+async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render()}
+
+// ---- 月曆總覽（跳到某天 / 複製到多天） ----
+let PK=null;
+function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})}
+function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
+  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
+  $('#pkPv').onclick=()=>{PK.m--;if(PK.m<1){PK.m=12;PK.y--}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
+  $('#pkNx').onclick=()=>{PK.m++;if(PK.m>12){PK.m=1;PK.y++}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
+  $('#pkCl').onclick=()=>{PK=null;drawPicker();if(edit)render()};
+  document.querySelectorAll('.mg [data-d]').forEach(c=>c.onclick=()=>{const o={y:PK.y,m:PK.m,d:+c.dataset.d};if(PK.mode==='jump'){PK=null;drawPicker();go(o)}else{const i=PK.sel.findIndex(s=>same(s,o));i>=0?PK.sel.splice(i,1):PK.sel.push(o);drawPicker()}});
+  const ok=$('#pkOk');if(ok)ok.onclick=async()=>{if(!PK.sel.length)return;const e=edit;const src=dayItems(cur)[e.idx];const item={text:e.text.trim()||src.text,done:false,bg:e.bg,fc:src?src.fc:'',bold:src?src.bold:false,note:makeNote(e)};const keys=PK.sel.map(keyOf);PK=null;drawPicker();edit=null;$('#ovl').innerHTML='';render();try{const r=await call('append',{keys,item});absorb(r);render();toast(`已複製到 ${keys.length} 天`)}catch(err){toast('沒複製成功：'+(err.message||err))}};
 }
 
-const ICON_IG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"/></svg>';
-const ICON_YT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></svg>';
+// ---- 搜尋 ----
+function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜尋</b><button id="srCl"><i class="ti ti-x"></i></button></div><div class="sr"><i class="ti ti-search"></i><input id="srIn"></div><div id="srRes"></div></div>`;
+  $('#srCl').onclick=()=>{$('#ovl').innerHTML=''};const inp=$('#srIn');inp.focus();let t;
+  inp.oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{const q=inp.value.trim();if(!q){$('#srRes').innerHTML='';return}$('#srRes').innerHTML='<div class="empty">搜尋中…</div>';try{const r=await call('search',{q});if(inp.value.trim()!==q)return;$('#srRes').innerHTML=r.results.length?r.results.map((x,i)=>`<div class="res ${x.done?'x':''}" data-i="${i}"><span class="dt">${x.y!==T.getFullYear()?x.y+'/':''}${x.m}/${x.d}</span><span class="t">${esc(x.text)}</span></div>`).join(''):'<div class="empty">找不到</div>';document.querySelectorAll('.res').forEach(el=>el.onclick=()=>{const x=r.results[+el.dataset.i];$('#ovl').innerHTML='';go({y:x.y,m:x.m,d:x.d})})}catch(e){$('#srRes').innerHTML='<div class="empty">搜尋失敗</div>'}},350)}}
 
-// 這些 IG 貼文目前無法內嵌（IG 回報貼文已移除或限制內嵌），點播放改為開啟原帖；修好後把代碼從這裡刪掉即可
-const NO_EMBED = new Set(["DVTCj5iDHkt","DWgSVN-ABmM"]);
-const ICON_EXT = '<svg class="ext" viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>';
-const ICON_PLAY = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+function toast(msg,undo){clearTimeout(undoTimer);$('#toast').innerHTML=`<div class="toast"><span>${esc(msg)}</span>${undo?'<button id="tUndo">復原</button>':''}</div>`;const u=$('#tUndo');if(u)u.onclick=()=>{$('#toast').innerHTML='';undo()};undoTimer=setTimeout(()=>$('#toast').innerHTML='',undo?6000:2500)}
 
-// 播放來源一律跟著「上架內容」連結走（創作者原帖），不使用自己頻道的複本
-function embedInfo(item){
-  const l = item.link || "";
-  let m = l.match(/instagram\.com\/(?:[^\/]+\/)?(reel|reels|p|tv)\/([\w-]+)/);
-  if(m){
-    const type = m[1] === "reels" ? "reel" : m[1];
-    const ext = NO_EMBED.has(m[2]);
-    return { kind:"ig", ext, src: ext ? "" : `https://www.instagram.com/${type}/${m[2]}/embed`, icon:ICON_IG, label:"前往 Instagram 原帖" };
-  }
-  m = l.match(/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/);
-  const id = m ? m[1] : item.youtubeId;
-  return { kind:"yt", src:`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`, icon:ICON_YT, label:"前往 YouTube 原片" };
-}
-
-function cardHTML(item, fullReveal){
-  const info = embedInfo(item);
-  const tagsHTML = (item.tags && item.tags.length)
-    ? `<div class="tags">${sortTags(item.tags).map(t=>{
-        const c = TAG_COLORS[t] || {bg:"#EEE", color:"#666"};
-        return `<span class="tag" style="background:${c.bg};color:${c.color}">${t}</span>`;
-      }).join("")}</div>`
-    : "";
-
-  const clientHTML = item.client ? `<p class="card-client">${item.client}</p>` : "";
-  const descHTML = item.desc ? `<p class="card-desc">${item.desc}</p>` : "";
-
-  const metaHTML = `
-    <div class="card-meta">
-      ${tagsHTML}
-      ${item.link ? `<a class="watch-link src-link" href="${item.link}" target="_blank" rel="noopener" title="${info.label}" aria-label="${info.label}">${info.icon}</a>` : ""}
-    </div>`;
-
-  return `
-    <div class="card">
-      <div class="video-wrap ${fullReveal ? 'full-reveal' : ''} ${item.thumb ? '' : 'auto-thumb'}" data-embed="${info.src}"${info.ext ? ` data-href="${item.link}"` : ""}>
-        <img class="thumb-img" src="${item.thumb ? item.thumb : 'https://i.ytimg.com/vi/' + item.youtubeId + '/hqdefault.jpg'}" alt="${item.title}" loading="lazy">
-        <button class="play-btn" aria-label="播放影片" type="button">
-          ${info.ext ? ICON_EXT : ICON_PLAY}
-        </button>
-      </div>
-      <div class="card-body">
-        ${clientHTML}
-        <h3 class="card-title">${item.title}</h3>
-        ${descHTML}
-        ${metaHTML}
-      </div>
-    </div>
-  `;
-}
-
-function emptyCardHTML(fullReveal){
-  return `
-    <div class="card card-empty">
-      <div class="video-wrap ${fullReveal ? 'full-reveal' : ''}">
-        <div class="empty-icon"><span></span><span></span><span></span></div>
-      </div>
-      <div class="card-body">
-        <p>更多作品集持續更新中</p>
-      </div>
-    </div>
-  `;
-}
-
-function renderGrid(){
-  const el = document.getElementById("cardGrid");
-  const section = DATA[state.main];
-  let items, showEmpty;
-
-  if(section.subtabs){
-    const sub = section.subtabs[state.sub];
-    items = sub.items;
-    showEmpty = sub.showEmpty;
-  } else {
-    items = section.items;
-    showEmpty = section.showEmpty;
-  }
-
-  const fullReveal = state.main === "long" || state.main === "host";
-  let html = items.map(item => cardHTML(item, fullReveal)).join("");
-  if(showEmpty) html += emptyCardHTML(fullReveal);
-  el.innerHTML = html;
-}
-
-function applyHash(){
-  const [m, s] = decodeURIComponent(location.hash.slice(1)).split("/");
-  if(!m || !DATA[m]) return;
-  state.main = m;
-  const subs = DATA[m].subtabs;
-  state.sub = subs ? (subs[s] ? s : Object.keys(subs)[0]) : null;
-}
-function syncHash(){
-  const isDefault = state.main === mainTabKeys[0] &&
-    (!DATA[state.main].subtabs || state.sub === Object.keys(DATA[state.main].subtabs)[0]);
-  const h = isDefault ? "" : "#" + state.main + (state.sub ? "/" + state.sub : "");
-  try { history.replaceState(null, "", location.pathname + location.search + h); } catch(e){}
-}
-
-function renderAll(){
-  renderMainTabs();
-  renderSubTabs();
-  renderGrid();
-  syncHash();
-}
-
-document.getElementById("cardGrid").addEventListener("click", (e)=>{
-  const wrap = e.target.closest(".video-wrap");
-  if(wrap && wrap.dataset.href){ window.open(wrap.dataset.href, "_blank", "noopener"); return; }
-  if(!wrap || !wrap.dataset.embed || wrap.classList.contains("playing")) return;
-  wrap.classList.add("playing");
-  const src = wrap.dataset.embed;
-  const ig = src.includes("instagram.com");
-  const btn = wrap.querySelector(".play-btn");
-  if(btn) btn.classList.add("loading");
-
-  const f = document.createElement("iframe");
-  f.title = "影片播放";
-  f.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-  f.allowFullscreen = true;
-  if(ig) f.setAttribute("scrolling", "no");
-  f.style.cssText = "opacity:0; pointer-events:none; z-index:2; transition:opacity .25s ease;";
-
-  let shown = false;
-  const reveal = ()=>{
-    if(shown) return; shown = true;
-    f.style.opacity = "1"; f.style.pointerEvents = "auto";
-    setTimeout(()=>wrap.querySelectorAll(".thumb-img,.play-btn").forEach(n=>n.remove()), 300);
-  };
-  // IG 內嵌載入完成後還要再幾秒才會畫出影片，先保留封面與轉圈
-  f.addEventListener("load", ()=>setTimeout(reveal, ig ? 2500 : 800));
-  setTimeout(reveal, 15000);
-  f.src = src;
-  wrap.appendChild(f);
-});
-
-applyHash();
-renderAll();
-renderCreators();
-window.addEventListener("hashchange", ()=>{ applyHash(); renderAll(); });
+$('#fab').onclick=()=>openEdit(-1);
+$('#moBtn').onclick=()=>openPicker('jump');
+$('#srBtn').onclick=openSearch;
+$('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
+window.addEventListener('resize',render);
+go(cur);
 </script>
 </body>
 </html>
