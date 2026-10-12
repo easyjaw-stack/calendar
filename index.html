@@ -198,13 +198,40 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .card.tn .mt{color:rgba(38,38,36,.5)}
 .card .ck i{font-size:14px;-webkit-text-stroke:.6px currentColor}
 .card.x.tn .ck{background:var(--ac);border-color:var(--ac)}
+.inc{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:18px}
+.inc div{background:var(--card);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--mu)}
+.inc b{display:block;font-size:24px;font-weight:600;color:var(--tx);margin-top:2px}
+.inc div.hi{background:#EBE2F1}
+.mh{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}.mh b{font-size:15px;font-weight:600}.mh span{font-size:11px;color:var(--mu)}
+.mb{background:var(--card);border-radius:12px;padding:8px 14px}
+.mr{display:grid;grid-template-columns:38px 1fr;gap:4px 10px;align-items:center;padding:7px 0;font-size:13px}
+.mr .tk{height:10px;border-radius:5px;background:#F2F1EE;overflow:hidden;position:relative}
+.mr .tk i{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.mr .v{grid-column:2;font-size:12px;color:var(--mu);margin-top:-2px}.mr .v b{color:var(--tx);font-weight:600}
+.mr.now .m{font-weight:600}
+.pend-h{display:flex;align-items:center;gap:8px;width:100%;margin:18px 2px 8px;font-size:13px;color:var(--mu)}
+.pend-h b{background:var(--ink);color:#fff;border-radius:9px;padding:1px 7px;font-size:11px;font-weight:600}
+.pend-h i{margin-left:auto;font-size:16px;transition:transform .2s}.pend-h.cl i{transform:rotate(-90deg)}
+.pi{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;margin-bottom:8px;border-radius:12px;background:#FAFAF8;border:1px solid #E6E4DF;user-select:none;-webkit-user-select:none;transition:transform .15s,opacity .15s}
+.pi:active{transform:scale(.98)}
+.pi .pt{flex:1;min-width:0}.pi .pt small{display:block;font-size:11px;color:var(--mu)}.pi .pt span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+.pi .du{font-size:11px;color:var(--mu);flex-shrink:0;text-align:right}.pi .du.soon{color:var(--hol);font-weight:600}
+.pi .gr{color:var(--dim);font-size:18px}
+.pghost{position:fixed;z-index:40;pointer-events:none;box-shadow:0 14px 30px rgba(60,50,40,.22);transform:scale(1.03);background:#fff;opacity:.97}
+.sheet{position:fixed;inset:0;z-index:35;background:rgba(38,38,36,.28);display:flex;align-items:flex-end;animation:fdin .2s}
+.sheet .bx{width:100%;background:var(--bg);border-radius:18px 18px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 14px);animation:edup .3s cubic-bezier(.2,.85,.25,1)}
+.sheet .tt{font-size:12px;color:var(--mu);padding:2px 4px 10px}.sheet .tt b{display:block;font-size:15px;color:var(--tx);font-weight:600;margin-top:2px}
+.sheet button{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:0 14px;background:#fff;border-radius:12px;margin-bottom:8px;font-size:15px}
+.sheet button i{font-size:19px;color:var(--mu)}.sheet button.cx{justify-content:center;background:none;color:var(--mu)}
+@keyframes fdin{from{opacity:0}}
+#day.hasp #list{min-height:0}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="top"><button class="mo" id="moBtn"><i class="ti ti-calendar-month"></i><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="srBtn"><i class="ti ti-search"></i></button><button id="tdBtn"><i class="ti ti-calendar-event"></i></button></div></div>
+  <div class="top"><button class="mo" id="moBtn"><i class="ti ti-calendar-month"></i><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button><button id="tdBtn"><i class="ti ti-calendar-event"></i></button></div></div>
   <div class="strip" id="strip"></div>
-  <div id="day"><div class="dh" id="dh"></div><div id="list"></div></div>
+  <div id="day"><div class="dh" id="dh"></div><div id="list"></div><div id="pend"></div></div>
   <div id="week"></div>
 </div>
 <button class="fab" id="fab"><i class="ti ti-plus"></i></button>
@@ -222,6 +249,7 @@ let cur={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};
 let edit=null;            // 正在編輯的待辦
 let openIdx=-1;           // 展開看詳細的卡片
 let pending=0;
+let PEND=[],POPEN=true;try{POPEN=localStorage.getItem('pendOpen')!=='0'}catch(e){}
 let POP=-1,JO=-1,ED_IN=false,SW=null,SLIDING=false;  // 動畫狀態：剛打勾、剛展開、編輯頁剛打開、左滑露出刪除、換天中
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 // iPhone 網頁沒有震動 API；iOS 18 起點一下「開關」核取方塊會有輕微觸感
@@ -295,6 +323,7 @@ function render(){
   if(!items.length)html='<div class="empty">這天還沒有安排</div>';
   $('#list').innerHTML=html;
   bindList();
+  renderPend();
   if(JO>=0){const det=document.querySelector(`#list .cw[data-i="${JO}"] .det`);if(det){const h=det.offsetHeight;det.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'})}}
   $('#fab').style.display=edit?'none':'flex';
   renderWeek(wk);
@@ -434,7 +463,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   el.style.transition='transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s';el.style.transform='';el.style.opacity=1;
   await wait(300);el.style.transition='';SLIDING=false}
 (()=>{const el=$('#day');let sx=0,sy=0,lock=null,dx=0,t0=0,on=false;
-  el.addEventListener('touchstart',e=>{if(edit||D||SLIDING||e.target.closest('.cw'))return;on=true;lock=null;dx=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
+  el.addEventListener('touchstart',e=>{if(edit||D||SLIDING||e.target.closest('.cw,.pi'))return;on=true;lock=null;dx=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
   el.addEventListener('touchmove',e=>{if(!on)return;const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8))lock=Math.abs(x)>Math.abs(y)?'h':'v';if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
   el.addEventListener('touchend',()=>{if(!on)return;on=false;if(lock!=='h')return;const fast=Date.now()-t0<250;
     if(Math.abs(dx)>el.offsetWidth*0.25||(fast&&Math.abs(dx)>40))slideGo(addDays(cur,dx<0?1:-1),true);
@@ -451,13 +480,53 @@ async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all(
 let PK=null;
 function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})}
 function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
-  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
+  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':PK.mode==='pend'?'點一天，把這件案子排過去':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
   $('#pkPv').onclick=()=>{PK.m--;if(PK.m<1){PK.m=12;PK.y--}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
   $('#pkNx').onclick=()=>{PK.m++;if(PK.m>12){PK.m=1;PK.y++}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
   $('#pkCl').onclick=()=>{PK=null;drawPicker();if(edit)render()};
-  document.querySelectorAll('.mg [data-d]').forEach(c=>c.onclick=()=>{const o={y:PK.y,m:PK.m,d:+c.dataset.d};if(PK.mode==='jump'){PK=null;drawPicker();go(o)}else{const i=PK.sel.findIndex(s=>same(s,o));i>=0?PK.sel.splice(i,1):PK.sel.push(o);drawPicker()}});
+  document.querySelectorAll('.mg [data-d]').forEach(c=>c.onclick=()=>{const o={y:PK.y,m:PK.m,d:+c.dataset.d};if(PK.mode==='jump'){PK=null;drawPicker();go(o)}else if(PK.mode==='pend'){const it=PK.item;PK=null;drawPicker();schedule(it,o)}else{const i=PK.sel.findIndex(s=>same(s,o));i>=0?PK.sel.splice(i,1):PK.sel.push(o);drawPicker()}});
   const ok=$('#pkOk');if(ok)ok.onclick=async()=>{if(!PK.sel.length)return;const e=edit;const src=dayItems(cur)[e.idx];const item={text:e.text.trim()||src.text,done:false,bg:e.bg,fc:src?src.fc:'',bold:src?src.bold:false,note:makeNote(e)};const keys=PK.sel.map(keyOf);PK=null;drawPicker();edit=null;$('#ovl').innerHTML='';render();try{const r=await call('append',{keys,item});absorb(r);render();toast(`已複製到 ${keys.length} 天`)}catch(err){toast('沒複製成功：'+(err.message||err))}};
 }
+
+// ---- 待排：剪輯表裡還沒排進月曆的案子 ----
+async function loadPending(){try{const r=await call('pending',{});PEND=r.pending||[];renderPend()}catch(e){}}
+function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return false;const t=new Date(T.getFullYear(),+m[1]-1,+m[2]);return (t-T)/864e5<=3}
+function renderPend(){const el=$('#pend');if(!el)return;$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){el.innerHTML='';return}
+  el.innerHTML=`<button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b>剪輯表裡還沒排進月曆的案子<i class="ti ti-chevron-down"></i></button>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
+  $('#pendH').onclick=()=>{POPEN=!POPEN;try{localStorage.setItem('pendOpen',POPEN?'1':'0')}catch(e){}renderPend()};
+  el.querySelectorAll('.pi').forEach(bindPend)}
+function bindPend(el){const p=PEND[+el.dataset.p];let timer,sx,sy,moved=false,dragging=false,ghost=null,off=0,day=null;
+  const start=(x,y)=>{sx=x;sy=y;moved=false;timer=setTimeout(()=>{dragging=true;haptic();const r=el.getBoundingClientRect();off=y-r.top;ghost=el.cloneNode(true);ghost.className='pi pghost';Object.assign(ghost.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px'});document.body.appendChild(ghost);el.style.opacity=.3},380)};
+  const move=(x,y,ev)=>{if(dragging){ev.preventDefault();ghost.style.top=(y-off)+'px';day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-12&&y<=b.bottom+12;s.classList.toggle('drop',hit);if(hit)day=+s.dataset.i});return}
+    if(Math.abs(x-sx)>8||Math.abs(y-sy)>8){moved=true;clearTimeout(timer)}};
+  const end=(x,y)=>{clearTimeout(timer);if(dragging){dragging=false;document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));ghost.remove();el.style.opacity='';
+      if(day!==null)schedule(p,weekOf(cur)[day]);else{const lb=$('#list').getBoundingClientRect();if(y<lb.bottom+30)schedule(p,{...cur})}return}
+    if(!moved)pendMenu(p)};
+  el.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY)},{passive:true});
+  el.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY,e)},{passive:false});
+  el.addEventListener('touchend',e=>{e.preventDefault();const t=e.changedTouches[0];end(t.clientX,t.clientY)});
+  el.addEventListener('mousedown',e=>{start(e.clientX,e.clientY);const mm=ev=>move(ev.clientX,ev.clientY,ev),mu=ev=>{document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);end(ev.clientX,ev.clientY)};document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu)})}
+function pendMenu(p){$('#toast').innerHTML='';const box=document.createElement('div');box.className='sheet';
+  box.innerHTML=`<div class="bx"><div class="tt">${esc(p.client)}${p.due?'・交期 '+esc(p.due):''}<b>${esc(p.title)}</b></div><button data-a="here"><i class="ti ti-calendar-plus"></i>排到 ${cur.m}/${cur.d}</button><button data-a="pick"><i class="ti ti-calendar-month"></i>選其他日期…</button><button data-a="skip"><i class="ti ti-eye-off"></i>不用排（不再顯示）</button><button class="cx" data-a="cx">取消</button></div>`;
+  document.body.appendChild(box);const close=()=>box.remove();
+  box.onclick=e=>{if(e.target===box)close()};
+  box.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{const a=b.dataset.a;close();
+    if(a==='here')schedule(p,{...cur});
+    else if(a==='pick'){openPicker('pend');PK.item=p;drawPicker()}
+    else if(a==='skip'){PEND=PEND.filter(x=>x.id!==p.id);renderPend();toast('之後不會再出現');try{await call('pendSkip',{id:p.id})}catch(e){}}})}
+async function schedule(p,o){PEND=PEND.filter(x=>x.id!==p.id);renderPend();await loadMonth(o.y,o.m);
+  const items=clone(dayItems(o)).concat([{text:p.text,done:false,bg:'',fc:'',bold:false,note:p.due&&/\d/.test(p.due)?'備註：交期 '+p.due:''}]);
+  await save([{o,items}]);toast(`已排到 ${o.m}/${o.d}`)}
+
+// ---- 收入（讀剪輯表的結算分頁） ----
+async function openIncome(){$('#ovl').innerHTML=`<div class="ov in"><div class="h"><b>收入</b><button id="icCl"><i class="ti ti-x"></i></button></div><div id="icB"><div class="empty">讀取中…</div></div></div>`;
+  $('#icCl').onclick=()=>{$('#ovl').innerHTML=''};
+  try{const r=await call('income',{});if(!$('#icB'))return;const mx=Math.max(1,...r.months.map(x=>x.all)),nm=T.getMonth()+1;
+    $('#icB').innerHTML=`<div class="inc">${r.top.map((t,i)=>`<div class="${i===0?'hi':''}">${esc(t.label)}<b>${esc(t.value)}</b></div>`).join('')}</div>
+    <div class="mh"><b>每月做了多少</b><span>深色＝已完成　淺色＝已排還沒做完</span></div>
+    <div class="mb">${r.months.filter(x=>x.all>0||x.m<=nm).map(x=>`<div class="mr ${x.m===nm?'now':''}"><span class="m">${x.m} 月</span><div class="tk"><i style="width:${x.all/mx*100}%;background:#EDE3F1"></i><i style="width:${x.done/mx*100}%;background:#C5AECF"></i></div><span class="v"><b>NT$${x.done.toLocaleString()}</b>${x.all>x.done?`（已排 ${x.all.toLocaleString()}）`:''}</span></div>`).join('')}</div>`;
+  const ov=$('#ovl .ov');if(ov)ov.scrollTop=0}
+  catch(e){if($('#icB'))$('#icB').innerHTML='<div class="empty">讀取失敗：'+esc(e.message||e)+'</div>'}}
 
 // ---- 搜尋 ----
 function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜尋</b><button id="srCl"><i class="ti ti-x"></i></button></div><div class="sr"><i class="ti ti-search"></i><input id="srIn"></div><div id="srRes"></div></div>`;
@@ -469,9 +538,12 @@ function toast(msg,undo){clearTimeout(undoTimer);$('#toast').innerHTML=`<div cla
 $('#fab').onclick=()=>openEdit(-1);
 $('#moBtn').onclick=()=>openPicker('jump');
 $('#srBtn').onclick=openSearch;
+$('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
 window.addEventListener('resize',render);
 go(cur);
+loadPending();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadPending()});
 </script>
 </body>
 </html>
