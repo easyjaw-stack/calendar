@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="月曆">
+<meta name="theme-color" content="#F2F1EE">
+<title>月曆</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--bg:#F2F1EE;--card:#FFFFFF;--line:#E6E4DF;--tx:#262624;--mu:#9B9993;--dim:#B8B8B4;--ac:#262624;--ac2:#C5AECF;--ink:#262624;--hol:#B5584E;--sh:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:12px/1.45 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+input{font:inherit;color:var(--tx);background:transparent;border:none;outline:none;padding:0;margin:0;-webkit-appearance:none;appearance:none;border-radius:0;box-shadow:none}
+#app{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 80px);min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}
+.mo{font-size:17px;font-weight:600;display:flex;align-items:center;gap:5px}
+.mo i{font-size:16px;color:var(--mu)}
+.top .r{display:flex;gap:14px;align-items:center}.top .r i{font-size:18px;color:var(--mu)}
+.sync{font-size:8.5px;color:var(--dim)}
+.strip{display:flex;gap:4px;margin-bottom:14px}
+.strip .s{flex:1;text-align:center;padding:7px 0;font-size:9.5px;color:var(--mu);border-radius:10px;background:#FAFAF8}
+.strip .s b{display:block;font-size:13px;font-weight:600;color:var(--tx)}
+.strip .s.hol b{color:var(--hol)}
+.strip .s.td{box-shadow:inset 0 0 0 1px var(--ac)}
+.strip .s.on{background:var(--ink)}.strip .s.on,.strip .s.on b{color:var(--bg)}
+.strip .s.drop{background:#E6E4DF}
+.dh{display:flex;align-items:center;gap:6px;margin:0 2px 8px;min-height:18px}
+.dh b{font-size:16px;font-weight:600}.dh .w{font-size:10px;color:var(--mu)}
+.tag{font-size:9.5px;border-radius:6px;padding:1px 6px;background:#E6E4DF;color:#6B6964}
+.tag.h{background:#F3E2DF;color:var(--hol)}
+.dh .mv{margin-left:auto;font-size:10px;color:var(--mu);display:flex;align-items:center;gap:3px}
+#list{min-height:55vh;touch-action:pan-y}
+.card{display:block;border-radius:12px;padding:0 13px;margin-bottom:8px;background:var(--card);box-shadow:var(--sh);position:relative;user-select:none;-webkit-user-select:none}
+.card .row1{display:flex;align-items:center;gap:12px;height:46px}
+.card .ck{width:16px;height:16px;border-radius:5px;border:1.4px solid #D2D0CA;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--bg)}
+.card.x .ck{background:var(--ac);border-color:var(--ac)}.card.x .tx{text-decoration:line-through;color:var(--dim)}
+.card .ckw{padding:10px 4px 10px 0;margin-left:-2px}
+.card .tx{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .mt{font-size:10px;max-width:42%;overflow:hidden;color:var(--mu);flex-shrink:0;display:flex;gap:4px;align-items:center}
+.card .mt i{font-size:11px}.card .mt .pl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .det{border-top:1px solid #EFEDE9;padding:8px 0 11px 28px;font-size:11px;color:#5E5C57}
+.card .det div{display:flex;gap:8px;align-items:flex-start;margin-bottom:4px;line-height:1.5}
+.card .det i{font-size:13px;color:var(--mu);margin-top:1px}
+.card .det .none{color:var(--dim)}
+.card .eb{margin-top:6px;font-size:11px;font-weight:600;color:var(--tx);padding:5px 12px;border-radius:8px;background:#F2F1EE;display:inline-flex;gap:4px;align-items:center}
+.card .bar{width:4px;height:20px;border-radius:2px;flex-shrink:0;opacity:.55}
+.card.dragging{opacity:.95;box-shadow:0 8px 20px rgba(60,50,40,.18);z-index:5}
+.card.ph{opacity:.25}
+.card.new{background:var(--card);border:1px solid #D2D0CA;box-shadow:none;display:flex;align-items:center;gap:12px;height:46px}
+.card.new input{flex:1;min-width:0;height:22px;font-size:12px;caret-color:var(--ac)}
+.tools{display:flex;gap:16px;margin:4px 4px 10px;font-size:16px;color:var(--mu);align-items:center}
+.tools .on{color:var(--ac)}
+.tools .sp{flex:1}
+.tools .cx,.tools .ok{font-size:12px}.tools .ok{color:var(--ac);font-weight:600}
+.tools .del{color:#C98}
+.pane{margin:0 4px 10px}
+.line{display:flex;align-items:center;gap:8px}
+.line i{font-size:11px;color:var(--ac);width:12px}
+.line input{flex:1;font-size:12px;line-height:22px;border-bottom:1px solid #D6D0C7;caret-color:var(--ac)}
+.line input:focus{border-bottom-color:var(--ac)}
+.sw{display:flex;gap:7px;flex-wrap:wrap}
+.sw span{width:20px;height:20px;border-radius:5px;opacity:.75}
+.sw span.on{outline:1.2px solid var(--ac);outline-offset:2px}
+.sw .none{border:1px solid #D2D0CA;background:#fff;opacity:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips span{font-size:11px;padding:5px 12px;border-radius:8px;background:var(--card);color:var(--mu)}
+.chips span.on{background:var(--ink);color:var(--bg)}
+.wheel{position:relative;display:flex;justify-content:center;gap:18px;height:90px;overflow:hidden}
+.wheel .hl{position:absolute;left:25%;right:25%;top:36px;height:18px;border-top:1px solid #E0DAD1;border-bottom:1px solid #E0DAD1;pointer-events:none}
+.wheel .col{height:90px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;width:42px;text-align:center;-webkit-mask-image:linear-gradient(transparent,#000 35%,#000 65%,transparent);mask-image:linear-gradient(transparent,#000 35%,#000 65%,transparent)}
+.wheel .col::-webkit-scrollbar{display:none}
+.wheel .col div{height:18px;line-height:18px;scroll-snap-align:center;font-size:12.5px;color:var(--mu)}
+.wheel .col div.sel{color:var(--tx);font-size:12px}
+.wheel .colon{line-height:90px;color:var(--mu)}
+.wf{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px}.wf .set{color:var(--ac)}.wf button{color:var(--mu)}
+.empty{color:var(--dim);text-align:center;padding:32px 0;font-size:12px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 18px);width:48px;height:48px;border-radius:14px;background:var(--ink);color:var(--bg);font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(60,50,40,.25);z-index:10}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 70px);background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 14px;font-size:12px;display:flex;gap:16px;align-items:center;z-index:30;box-shadow:0 4px 14px rgba(60,50,40,.25);max-width:90vw}
+.toast button{color:var(--ac2);font-weight:500}
+.ov{position:fixed;inset:0;background:var(--bg);z-index:20;padding:calc(env(safe-area-inset-top) + 14px) 14px 20px;overflow-y:auto}
+.ov .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ov .h b{font-weight:600;font-size:15px}.ov .h i{font-size:16px;color:var(--ac);padding:4px 8px}
+.wk,.mg{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.wk span{font-size:10px;color:var(--mu);padding-bottom:6px}
+.mg div{padding:10px 0 6px;font-size:13px;border-radius:10px}
+.mg div.on{background:var(--ink);color:var(--bg)}
+.mg div.td{box-shadow:inset 0 0 0 1px var(--ac)}
+.mg div.hol{color:var(--hol)}
+.mg div.sel{background:#E6E4DF}
+.mg .d{display:block;width:4px;height:4px;border-radius:2px;background:#9B9993;margin:2px auto 0;opacity:.8}
+.mg div.on .d{background:var(--bg)}
+.ov .note{margin-top:16px;text-align:center;font-size:11px;color:var(--mu)}
+.ov .btn{display:block;margin:16px auto 0;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 18px;font-weight:500}
+.sr{display:flex;align-items:center;gap:8px;border-bottom:1px solid #D6D0C7;padding-bottom:4px;margin-bottom:12px}
+.sr i{color:var(--ac);font-size:16px}.sr input{flex:1;font-size:14px}
+.res{display:flex;gap:10px;padding:10px 11px;margin-bottom:7px;background:var(--card);border-radius:10px}
+.res .dt{color:var(--mu);font-size:11px;width:54px;flex-shrink:0}
+.res.x .t{text-decoration:line-through;color:var(--dim)}
+/* 橫拿：整週 */
+#week{display:none}
+@media (orientation:landscape) and (min-width:560px){
+  #app{max-width:none;padding-bottom:20px}
+  #day,.fab{display:none!important}
+  #week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .wc{background:var(--card);border-radius:10px;padding:7px;min-height:70vh}
+  .wc .h{font-size:9px;color:var(--mu);margin-bottom:5px;display:flex;justify-content:space-between}
+  .wc .h b{color:var(--tx);font-size:11px;font-weight:500}
+  .wc.td{box-shadow:inset 0 0 0 1.5px var(--ac)}
+  .wc.hol .h b{color:var(--hol)}
+  .wc .p{font-size:9.5px;border-radius:6px;padding:3px 6px;margin-bottom:4px;background:#F2F1EE;line-height:1.35;word-break:break-all}
+  .wc .p.x{text-decoration:line-through;opacity:.45}
+  .wc .hn{font-size:8px;color:var(--hol);margin-bottom:4px}
+}
+
+/* 放大觸控範圍（手機好按） */
+html,body{font-size:14px}
+.mo{font-size:19px}.top .r{gap:20px}.top .r i{font-size:22px}.top .r button,.mo{padding:6px 0}
+.strip .s{padding:9px 0;font-size:10.5px}.strip .s b{font-size:15px}
+.dh b{font-size:18px}.dh .w,.dh .mv{font-size:11.5px}.tag{font-size:10.5px;padding:2px 7px}
+.card .row1{height:56px;gap:14px}.card .ck{width:20px;height:20px;border-radius:6px;font-size:11px}
+.card .ckw{padding:16px 10px 16px 2px;margin-left:-4px}
+.card .mt{font-size:11.5px}.card .mt i{font-size:13px}.card .bar{height:24px;width:5px}
+.card .det{font-size:13px;padding-left:34px}.card .eb{font-size:13px;padding:8px 16px}
+.card.new{height:56px}.card.new input{font-size:14px;height:26px}
+.tools{gap:6px;font-size:20px}.tools button{min-width:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+.tools .cx,.tools .ok{font-size:14px;min-width:48px}
+.line input{font-size:14px;line-height:30px}.sw span{width:28px;height:28px;border-radius:8px}.sw{gap:12px}
+.chips span{font-size:13px;padding:8px 16px}
+.wheel{height:150px}.wheel .col{height:150px;width:60px}.wheel .col div{height:30px;line-height:30px;font-size:16px}.wheel .colon{line-height:150px}.wheel .hl{top:60px;height:30px}
+.wf{font-size:14px}.wf button{padding:8px 0}
+.fab{width:58px;height:58px;font-size:26px;border-radius:16px}
+.toast{font-size:14px;padding:12px 18px}
+.mg div{padding:13px 0 8px;font-size:15px}.wk span{font-size:11.5px}.ov .h b{font-size:17px}.ov .h i{font-size:22px}
+.res{padding:14px}.res .dt{font-size:12.5px;width:60px}.sr input{font-size:16px}
+.empty{font-size:14px}
+
+/* 編輯頁 */
+.ov.ed{padding-top:calc(env(safe-area-inset-top) + 8px)}
+.eh{display:flex;justify-content:space-between;align-items:center;height:52px;margin-bottom:6px}
+.eh b{font-size:16px;font-weight:600}
+.eh button{font-size:16px;color:var(--mu);padding:10px 4px;min-width:56px;text-align:left}
+.eh .ok{color:var(--tx);font-weight:600;text-align:right}
+.grp{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.grp .big{width:100%;font-size:18px;padding:16px;line-height:1.4}
+.rw{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-bottom:1px solid #EFEDE9;width:100%;text-align:left;font-size:15px}
+.rw:last-child{border-bottom:none}
+.rw.top{align-items:flex-start;padding-top:16px;padding-bottom:12px}
+.rw>i{font-size:20px;color:var(--mu);flex-shrink:0}
+.rw .k{width:44px;flex-shrink:0;color:var(--mu);font-size:14px}
+.rw input,.rw textarea{flex:1;min-width:0;font:inherit;font-size:15px;color:var(--tx);background:transparent;border:none;outline:none;resize:none;padding:0;line-height:1.5}
+.rw .v{flex:1;font-size:15px}.rw .v.ph{color:var(--dim)}
+.rw .ch{font-size:18px;color:var(--dim)}
+.rw .x{width:30px;height:30px;border-radius:15px;background:#EFEDE9;color:var(--mu);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.rw .sw{flex:1;gap:12px}.rw .sw span{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.rw .sw .none{color:var(--dim);font-size:16px}
+.rw .chips{flex:1;gap:6px;flex-wrap:nowrap}.rw .chips span{background:#F2F1EE;font-size:12.5px;padding:8px 10px;white-space:nowrap}.rw .chips span.on{background:var(--ink);color:#fff}
+.rw.act{font-size:15px;color:var(--tx);gap:12px}.rw.act i{font-size:20px;color:var(--mu)}
+.rw.del,.rw.del i{color:var(--hol)}
+.ed .pane{padding:4px 14px 12px;border-bottom:1px solid #EFEDE9}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top"><button class="mo" id="moBtn"><i class="ti ti-calendar-month"></i><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="srBtn"><i class="ti ti-search"></i></button><button id="tdBtn"><i class="ti ti-calendar-event"></i></button></div></div>
+  <div class="strip" id="strip"></div>
+  <div id="day"><div class="dh" id="dh"></div><div id="list"></div></div>
+  <div id="week"></div>
+</div>
+<button class="fab" id="fab"><i class="ti ti-plus"></i></button>
+<div id="ovl"></div>
+<div id="toast"></div>
+<script>
+// 試算表裡的顏色一律換成 4 種低彩度色調顯示；App 裡選色時寫回對應的淡色
+const TONES=[['#4f6b73','#cfe0e6'],['#6e5c78','#e2d6ea'],['#87634f','#f0dccf'],['#5e6b4a','#dfe6cf']];
+function tone(hex){if(!hex||!/^#[0-9a-f]{6}$/i.test(hex))return '';const n=parseInt(hex.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;if(dl<0.06||(l>0.97))return '';const sat=dl/(1-Math.abs(2*l-1));if(sat<0.12)return '';let h=mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;if(h>=170&&h<245)return TONES[0][0];if(h>=245&&h<345)return TONES[1][0];if(h>=70&&h<170)return TONES[3][0];return TONES[2][0]}
+const WD='日一二三四五六';
+const M={};               // 已載入的月份資料
+const T=new Date();
+let cur={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};
+let edit=null;            // 正在編輯的待辦
+let openIdx=-1;           // 展開看詳細的卡片
+let pending=0;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ym=(y,m)=>y+'-'+m;
+const keyOf=o=>o.y+'-'+o.m+'-'+o.d;
+const addDays=(o,n)=>{const t=new Date(o.y,o.m-1,o.d+n);return {y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()}};
+const isToday=o=>o.y===T.getFullYear()&&o.m===T.getMonth()+1&&o.d===T.getDate();
+const same=(a,b)=>a.y===b.y&&a.m===b.m&&a.d===b.d;
+const dayItems=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.days[o.d]?mm.days[o.d]:[]};
+const setItems=(o,list)=>{const k=ym(o.y,o.m);if(!M[k])M[k]={y:o.y,m:o.m,exists:true,days:{},holidays:{}};M[k].days[o.d]=list};
+const holiday=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.holidays?mm.holidays[o.d]:''};
+const sig=l=>l.map(i=>String(i.text).trim()+'|'+(i.done?1:0));
+const clone=x=>JSON.parse(JSON.stringify(x));
+
+// 後端 API（Google Apps Script）。金鑰只存在這支手機/電腦，不在程式碼裡
+const API='https://script.google.com/macros/s/AKfycbxkTq8peIBj3mjRBetSUJw4mDtBmyNt0WGsFx7RBk9J2EdvEAF89xSWXao5TWIdniwPmA/exec';
+function getKey(){
+  const h=location.hash.match(/k=([0-9a-f]+)/);
+  if(h){try{localStorage.setItem('calkey',h[1])}catch(e){}return h[1]}
+  try{return localStorage.getItem('calkey')||''}catch(e){return ''}
+}
+let KEY=getKey();
+addEventListener('hashchange',()=>{if(getKey()){KEY=getKey();location.reload()}});
+function askKey(){const k=prompt('請貼上月曆金鑰');if(k){KEY=k.trim();try{localStorage.setItem('calkey',KEY)}catch(e){}}return KEY}
+async function call(action,payload){
+  if(!KEY)KEY=getKey();
+  if(!KEY&&!askKey())throw new Error('沒有金鑰');
+  pending++;syncTxt();
+  try{
+    const res=await fetch(API,{method:'POST',body:JSON.stringify({t:KEY,action,payload:payload||{}})});
+    const r=await res.json();
+    if(r.auth===false){try{localStorage.removeItem('calkey')}catch(e){}KEY='';throw new Error('金鑰錯誤，請重新整理後再貼一次')}
+    if(r.ok||r.conflict)return r;
+    throw new Error(r.error);
+  }finally{pending--;syncTxt()}
+}
+function syncTxt(){$('#sync').textContent=pending?'同步中…':''}
+function absorb(r){if(r&&r.months)Object.keys(r.months).forEach(k=>M[k]=r.months[k])}
+const INF={};
+async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force)return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=r.month;return M[k]}).finally(()=>delete INF[k]);return INF[k]}
+
+// ---- 備註（時間/地點/備註）存在試算表附註 ----
+function parseNote(n){const o={tm:'',pl:'',nt:''},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
+function makeNote(o){return [o.tm?'時間：'+o.tm:'',o.pl?'地點：'+o.pl:'',o.nt?'備註：'+o.nt:''].filter(Boolean).join('\n')}
+const tint=c=>'';
+
+// ---- 存檔（先更新畫面，再寫回試算表） ----
+async function save(list){ // list:[{o,items}]
+  const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items}));
+  const backup=list.map(x=>({o:x.o,items:clone(dayItems(x.o))}));
+  list.forEach(x=>setItems(x.o,clone(x.items)));render();
+  try{const r=await call('save',{changes});absorb(r);if(r.conflict)toast('試算表在別處被改過，已重新整理');render()}
+  catch(e){backup.forEach(x=>setItems(x.o,x.items));render();toast('沒存成功：'+(e.message||e))}
+}
+
+// ---- 畫面 ----
+function weekOf(o){const t=new Date(o.y,o.m-1,o.d),off=(t.getDay()+6)%7;return [...Array(7)].map((_,i)=>addDays(o,i-off))}
+function render(){
+  $('#moTxt').textContent=cur.y+' 年 '+cur.m+' 月';
+  const wk=weekOf(cur);
+  $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b></div>`).join('');
+  $('#strip').querySelectorAll('.s').forEach(s=>s.onclick=()=>go(wk[+s.dataset.i]));
+  const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done).length;
+  $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
+  const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
+  let html=items.map((it,i)=>cardHTML(it,i)).join('');
+  if(!items.length)html='<div class="empty">這天還沒有安排</div>';
+  $('#list').innerHTML=html;
+  bindList();
+  $('#fab').style.display=edit?'none':'flex';
+  renderWeek(wk);
+  if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
+}
+function cardHTML(it,i){const n=parseNote(it.note);const t=tone(it.bg);const op=openIdx===i;
+  const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${!n.tm&&!n.pl&&!n.nt?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
+  return `<div class="card ${it.done?'x':''}" data-i="${i}"><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'✓':''}</span></span><span class="tx">${esc(it.text)}</span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span>${t?`<span class="bar" style="background:${t}"></span>`:''}</div>${det}</div>`}
+function renderWeek(wk){
+  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${t?'box-shadow:inset 3px 0 0 '+t+'8c':''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
+}
+
+// ---- 編輯／新增 ----
+function sheetHTML(){const e=edit;const it=e.idx>=0?dayItems(cur)[e.idx]:null;const clr=f=>`<button class="x" data-clr="${f}" aria-label="清除"><i class="ti ti-x"></i></button>`;
+  return `<div class="ov ed"><div class="eh"><button id="edCx">取消</button><b>${it?'編輯':'新增'}　${cur.m}/${cur.d}</b><button class="ok" id="edOk">完成</button></div>
+  <div class="grp"><input id="edT" class="big" value="${esc(e.text)}"></div>
+  <div class="grp">
+   <div class="rw" id="rTm"><i class="ti ti-clock"></i><span class="k">時間</span><span class="v ${e.tm?'':'ph'}">${e.tm||'無'}</span>${e.tm?clr('tm'):'<i class="ti ti-chevron-right ch"></i>'}</div>
+   ${e.f==='tm'?`<div class="pane">${wheelHTML()}</div>`:''}
+   <div class="rw"><i class="ti ti-map-pin"></i><span class="k">地點</span><input id="edPl" value="${esc(e.pl)}">${e.pl?clr('pl'):''}</div>
+   <div class="rw top"><i class="ti ti-notes"></i><span class="k">備註</span><textarea id="edNt" rows="2">${esc(e.nt)}</textarea>${e.nt?clr('nt'):''}</div>
+  </div>
+  <div class="grp">
+   <div class="rw"><i class="ti ti-droplet"></i><span class="k">顏色</span><div class="sw">${TONES.map(c=>`<span data-col="${c[1]}" class="${tone(e.bg)===c[0]?'on':''}" style="background:${c[0]}"></span>`).join('')}<span data-col="" class="none ${!tone(e.bg)?'on':''}"><i class="ti ti-ban"></i></span></div></div>
+   <div class="rw"><i class="ti ti-repeat"></i><span class="k">重複</span><div class="chips">${[['','不重複'],['day','每天'],['week','每週'],['month','每月']].map(r=>`<span data-rp="${r[0]}" class="${(e.rp||'')===r[0]?'on':''}">${r[1]}</span>`).join('')}</div></div>
+  </div>
+  ${it?`<div class="grp"><button class="rw act" id="edCp"><i class="ti ti-copy"></i>複製到其他天</button><button class="rw act del" id="edDel"><i class="ti ti-trash"></i>刪除這件</button></div>`:''}
+  </div>`}
+function wheelHTML(){const e=edit,p=(e.tm||'14:00').split(':');e.wh=e.wh??+p[0];e.wm=e.wm??Math.round(+p[1]/5)*5%60;
+  return `<div class="wheel"><div class="hl"></div><div class="col" id="wh"><div></div><div></div>${[...Array(24)].map((_,i)=>`<div class="${i===e.wh?'sel':''}">${String(i).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div><div class="colon">:</div><div class="col" id="wm"><div></div><div></div>${[...Array(12)].map((_,i)=>`<div class="${i*5===e.wm?'sel':''}">${String(i*5).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div></div><div class="wf"><button id="wClr">不設時間</button><button class="set" id="wSet">設定 ${String(e.wh).padStart(2,'0')}:${String(e.wm).padStart(2,'0')}</button></div>`}
+function openEdit(idx){const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,rp:'',f:''};render();const t=$('#edT');if(t&&idx<0)t.focus()}
+function syncEdit(){const t=$('#edT');if(t)edit.text=t.value;const pl=$('#edPl');if(pl)edit.pl=pl.value;const nt=$('#edNt');if(nt)edit.nt=nt.value}
+function bindEditor(){
+  const keep=(sync=true)=>{if(sync)syncEdit();const st=$('#ovl .ov')?$('#ovl .ov').scrollTop:0;render();const o=$('#ovl .ov');if(o)o.scrollTop=st};
+  $('#rTm').onclick=ev=>{if(ev.target.closest('[data-clr]'))return;edit.f=edit.f==='tm'?'':'tm';keep()};
+  document.querySelectorAll('[data-clr]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();syncEdit();edit[b.dataset.clr]='';if(b.dataset.clr==='tm')edit.f='';keep(false)});
+  document.querySelectorAll('[data-col]').forEach(x=>x.onclick=()=>{edit.bg=x.dataset.col;keep()});
+  document.querySelectorAll('[data-rp]').forEach(x=>x.onclick=()=>{edit.rp=x.dataset.rp;keep()});
+  $('#edCx').onclick=()=>{edit=null;$('#ovl').innerHTML='';render()};
+  $('#edOk').onclick=finishEdit;
+  const t=$('#edT');t.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();finishEdit()}};
+  const d=$('#edDel');if(d)d.onclick=()=>{const i=edit.idx;edit=null;$('#ovl').innerHTML='';removeAt(i)};
+  const cp=$('#edCp');if(cp)cp.onclick=()=>{syncEdit();openPicker('copy')};
+  const wh=$('#wh'),wm=$('#wm');
+  if(wh){wh.scrollTop=edit.wh*30;wm.scrollTop=(edit.wm/5)*30;let a,b;
+    const upd=()=>{$('#wSet').textContent='設定 '+String(edit.wh).padStart(2,'0')+':'+String(edit.wm).padStart(2,'0');[...wh.children].forEach((c,i)=>c.classList.toggle('sel',i-2===edit.wh));[...wm.children].forEach((c,i)=>c.classList.toggle('sel',(i-2)*5===edit.wm))};
+    wh.onscroll=()=>{clearTimeout(a);a=setTimeout(()=>{edit.wh=Math.max(0,Math.min(23,Math.round(wh.scrollTop/30)));upd()},60)};
+    wm.onscroll=()=>{clearTimeout(b);b=setTimeout(()=>{edit.wm=Math.max(0,Math.min(55,Math.round(wm.scrollTop/30)*5));upd()},60)};
+    $('#wSet').onclick=()=>{edit.tm=String(edit.wh).padStart(2,'0')+':'+String(edit.wm).padStart(2,'0');edit.f='';keep()};
+    $('#wClr').onclick=()=>{edit.tm='';edit.f='';keep()};}
+}
+async function finishEdit(){syncEdit();const e=edit;const text=e.text.trim();if(!text){$('#edT').focus();return}
+  const items=clone(dayItems(cur));const note=makeNote(e);
+  edit=null;$('#ovl').innerHTML='';
+  if(e.idx===-1&&e.rp){render();try{const r=await call('repeat',{rule:{text,type:e.rp,start:keyOf(cur),bg:e.bg,note}});absorb(r);render();toast('已建立重複待辦')}catch(err){toast('沒存成功：'+(err.message||err))}return}
+  if(e.idx===-1)items.push({text,done:false,bg:e.bg,fc:'',bold:false,note});
+  else Object.assign(items[e.idx],{text,bg:e.bg,note});
+  await save([{o:cur,items}]);
+  if(e.idx>=0&&e.rp){try{const r=await call('repeat',{rule:{text,type:e.rp,start:keyOf(addDays(cur,1)),bg:e.bg,note}});absorb(r);render();toast('之後會重複出現')}catch(err){toast('重複沒設定成功')}}
+}
+function toggle(i){const items=clone(dayItems(cur));items[i].done=!items[i].done;save([{o:cur,items}])}
+let undoTimer;
+function removeAt(i){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);
+  toast('已刪除',()=>{const now=clone(dayItems(o));now.splice(Math.min(i,now.length),0,gone);save([{o,items:now}])})}
+async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.m);const items=clone(dayItems(cur));const keep=items.filter(i=>i.done),move=items.filter(i=>!i.done);
+  save([{o:{...cur},items:keep},{o:nx,items:clone(dayItems(nx)).concat(move)}]);toast(`已把 ${move.length} 件移到 ${nx.m}/${nx.d}`)}
+
+// ---- 列表互動：打勾、點開編輯、長按拖曳 ----
+function bindList(){
+  document.querySelectorAll('[data-ck]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();toggle(+c.dataset.ck)});
+  document.querySelectorAll('.card[data-i]').forEach(card=>{
+    let timer=null,dragging=false,sx=0,sy=0,startY=0,moved=false,tgt=null;
+    const start=(x,y,t)=>{tgt=t;sx=x;sy=y;moved=false;timer=setTimeout(()=>{dragging=true;beginDrag(card,y)},420)};
+    const move=(x,y,ev)=>{if(dragging){ev.preventDefault();dragMove(x,y);return}if(Math.abs(x-sx)>8||Math.abs(y-sy)>8){moved=true;clearTimeout(timer)}};
+    const end=(x,y)=>{clearTimeout(timer);if(dragging){dragging=false;dragEnd(x,y);return}if(moved)return;const i=+card.dataset.i;if(tgt&&tgt.closest&&tgt.closest('.eb')){openIdx=-1;openEdit(i);return}openIdx=openIdx===i?-1:i;render()};
+    card.addEventListener('touchstart',ev=>{if(ev.target.closest('[data-ck]'))return;const t=ev.touches[0];start(t.clientX,t.clientY,ev.target)},{passive:true});
+    card.addEventListener('touchmove',ev=>{const t=ev.touches[0];move(t.clientX,t.clientY,ev)},{passive:false});
+    card.addEventListener('touchend',ev=>{if(ev.target.closest('[data-ck]'))return;const t=ev.changedTouches[0];ev.preventDefault();end(t.clientX,t.clientY)});
+    card.addEventListener('mousedown',ev=>{if(ev.target.closest('[data-ck]'))return;start(ev.clientX,ev.clientY,ev.target);const mm=e=>move(e.clientX,e.clientY,e),mu=e=>{document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);end(e.clientX,e.clientY)};document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu)});
+  });
+}
+let D=null;
+function beginDrag(card,y){if(navigator.vibrate)navigator.vibrate(15);const r=card.getBoundingClientRect();D={card,from:+card.dataset.i,offset:y-r.top,startTop:r.top,to:+card.dataset.i,day:null};card.classList.add('dragging')}
+function dragMove(x,y){D.card.style.transform=`translateY(${y-D.offset-D.startTop}px)`;
+  const others=[...document.querySelectorAll('.card[data-i]')].filter(c=>c!==D.card);D.to=others.filter(c=>{const b=c.getBoundingClientRect();return y>b.top+b.height/2}).length;
+  D.day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-10&&y<=b.bottom+10;s.classList.toggle('drop',hit);if(hit)D.day=+s.dataset.i})}
+async function dragEnd(){const d=D;D=null;document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));
+  if(d.day!==null){const target=weekOf(cur)[d.day];if(!same(target,cur)){await loadMonth(target.y,target.m);const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];save([{o:{...cur},items},{o:target,items:clone(dayItems(target)).concat([it])}]);toast(`已移到 ${target.m}/${target.d}`);return}}
+  if(d.to!==d.from){const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];items.splice(d.to,0,it);save([{o:cur,items}]);return}render()}
+
+// ---- 左右滑換天 ----
+(()=>{let sx=0,sy=0,ok=false;const el=$('#day');
+  el.addEventListener('touchstart',e=>{if(edit||D)return;ok=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  el.addEventListener('touchend',e=>{if(!ok||edit||D)return;ok=false;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>60&&Math.abs(dy)<45)go(addDays(cur,dx<0?1:-1))},{passive:true});})();
+
+async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render()}
+
+// ---- 月曆總覽（跳到某天 / 複製到多天） ----
+let PK=null;
+function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})}
+function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
+  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
+  $('#pkPv').onclick=()=>{PK.m--;if(PK.m<1){PK.m=12;PK.y--}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
+  $('#pkNx').onclick=()=>{PK.m++;if(PK.m>12){PK.m=1;PK.y++}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
+  $('#pkCl').onclick=()=>{PK=null;drawPicker();if(edit)render()};
+  document.querySelectorAll('.mg [data-d]').forEach(c=>c.onclick=()=>{const o={y:PK.y,m:PK.m,d:+c.dataset.d};if(PK.mode==='jump'){PK=null;drawPicker();go(o)}else{const i=PK.sel.findIndex(s=>same(s,o));i>=0?PK.sel.splice(i,1):PK.sel.push(o);drawPicker()}});
+  const ok=$('#pkOk');if(ok)ok.onclick=async()=>{if(!PK.sel.length)return;const e=edit;const src=dayItems(cur)[e.idx];const item={text:e.text.trim()||src.text,done:false,bg:e.bg,fc:src?src.fc:'',bold:src?src.bold:false,note:makeNote(e)};const keys=PK.sel.map(keyOf);PK=null;drawPicker();edit=null;$('#ovl').innerHTML='';render();try{const r=await call('append',{keys,item});absorb(r);render();toast(`已複製到 ${keys.length} 天`)}catch(err){toast('沒複製成功：'+(err.message||err))}};
+}
+
+// ---- 搜尋 ----
+function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜尋</b><button id="srCl"><i class="ti ti-x"></i></button></div><div class="sr"><i class="ti ti-search"></i><input id="srIn"></div><div id="srRes"></div></div>`;
+  $('#srCl').onclick=()=>{$('#ovl').innerHTML=''};const inp=$('#srIn');inp.focus();let t;
+  inp.oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{const q=inp.value.trim();if(!q){$('#srRes').innerHTML='';return}$('#srRes').innerHTML='<div class="empty">搜尋中…</div>';try{const r=await call('search',{q});if(inp.value.trim()!==q)return;$('#srRes').innerHTML=r.results.length?r.results.map((x,i)=>`<div class="res ${x.done?'x':''}" data-i="${i}"><span class="dt">${x.y!==T.getFullYear()?x.y+'/':''}${x.m}/${x.d}</span><span class="t">${esc(x.text)}</span></div>`).join(''):'<div class="empty">找不到</div>';document.querySelectorAll('.res').forEach(el=>el.onclick=()=>{const x=r.results[+el.dataset.i];$('#ovl').innerHTML='';go({y:x.y,m:x.m,d:x.d})})}catch(e){$('#srRes').innerHTML='<div class="empty">搜尋失敗</div>'}},350)}}
+
+function toast(msg,undo){clearTimeout(undoTimer);$('#toast').innerHTML=`<div class="toast"><span>${esc(msg)}</span>${undo?'<button id="tUndo">復原</button>':''}</div>`;const u=$('#tUndo');if(u)u.onclick=()=>{$('#toast').innerHTML='';undo()};undoTimer=setTimeout(()=>$('#toast').innerHTML='',undo?6000:2500)}
+
+$('#fab').onclick=()=>openEdit(-1);
+$('#moBtn').onclick=()=>openPicker('jump');
+$('#srBtn').onclick=openSearch;
+$('#tdBtn').onclick=()=>go({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
+window.addEventListener('resize',render);
+go(cur);
+</script>
+</body>
+</html>
