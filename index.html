@@ -545,7 +545,11 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur);
 loadPending();
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadPending()});
+// 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
+const VER='20261012141100';
+async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/const VER='20261012141100']+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
+checkVer();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
 </script>
 </body>
 </html>
