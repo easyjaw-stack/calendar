@@ -225,6 +225,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .sheet button i{font-size:19px;color:var(--mu)}.sheet button.cx{justify-content:center;background:none;color:var(--mu)}
 @keyframes fdin{from{opacity:0}}
 #day.hasp #list{min-height:0}
+.sa{pointer-events:none}.sa.on{pointer-events:auto;z-index:0}
 </style>
 </head>
 <body>
@@ -331,7 +332,7 @@ function render(){
 }
 function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const op=openIdx===i;
   const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${!n.tm&&!n.pl&&!n.nt?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
-  return `<div class="cw" data-i="${i}"><div class="sa l"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
+  return `<div class="cw" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
   $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
 }
@@ -403,22 +404,22 @@ async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.
 function bindList(){
   document.querySelectorAll('[data-ck]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();toggle(+c.dataset.ck)});
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();swipeDelete(b.closest('.cw'))});
+  document.querySelectorAll('[data-done]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();closeSwipe();toggle(+b.dataset.done)});
   document.querySelectorAll('#list .cw').forEach(cw=>{
     const card=cw.querySelector('.card'),sl=cw.querySelector('.sa.l'),sr=cw.querySelector('.sa.r'),i=+cw.dataset.i;
     let timer=null,dragging=false,sx=0,sy=0,lock=null,tgt=null,dx=0,base=0,t0=0,hit=false;
-    const setX=(x,anim)=>{card.style.transition=anim?'':'none';card.style.transform=x?`translateX(${x}px)`:'';sl.style.opacity=x>0?Math.min(1,x/80):0;sr.style.opacity=x<0?Math.min(1,-x/60):0};
-    const start=(x,y,t)=>{tgt=t;sx=x;sy=y;lock=null;dx=0;t0=Date.now();base=SW===cw?-88:0;if(SW&&SW!==cw)closeSwipe();cw.classList.add('press');
+    const setX=(x,anim)=>{card.style.transition=anim?'':'none';card.style.transform=x?`translateX(${x}px)`:'';sl.style.opacity=x>0?Math.min(1,x/60):0;sr.style.opacity=x<0?Math.min(1,-x/60):0;sl.classList.toggle('on',x>0);sr.classList.toggle('on',x<0)};
+    const start=(x,y,t)=>{tgt=t;sx=x;sy=y;lock=null;dx=0;t0=Date.now();base=SW===cw?(+cw.dataset.off||0):0;if(SW&&SW!==cw)closeSwipe();cw.classList.add('press');
       timer=setTimeout(()=>{if(lock)return;cw.classList.remove('press');dragging=true;haptic();beginDrag(cw,y)},420)};
     const move=(x,y,ev)=>{if(dragging){ev.preventDefault();dragMove(x,y);return}
       if(!lock&&(Math.abs(x-sx)>8||Math.abs(y-sy)>8)){lock=Math.abs(x-sx)>Math.abs(y-sy)?'h':'v';clearTimeout(timer);cw.classList.remove('press');hit=false}
-      if(lock==='h'){ev.preventDefault();dx=x-sx+base;setX(dx);const over=dx>80;if(over!==hit){hit=over;if(over)haptic()}}};
+      if(lock==='h'){ev.preventDefault();dx=Math.max(-110,Math.min(110,x-sx+base));setX(dx);const over=Math.abs(dx)>50;if(over!==hit){hit=over;if(over)haptic()}}};
     const end=()=>{clearTimeout(timer);cw.classList.remove('press');
       if(dragging){dragging=false;dragEnd();return}
-      if(lock==='h'){const w=cw.offsetWidth,fast=Date.now()-t0<250;
-        if(dx>80||(fast&&dx>40&&!base)){setX(0,true);SW=null;toggle(i);return}
-        if(dx<-w*0.55){swipeDelete(cw);return}
-        if(dx<-50||(fast&&dx<-30)){setX(-88,true);SW=cw;return}
-        setX(0,true);if(SW===cw)SW=null;return}
+      if(lock==='h'){ // 只露出按鈕，要再點一下才完成／刪除
+        if(dx>50){setX(88,true);SW=cw;cw.dataset.off=88;return}
+        if(dx<-50){setX(-88,true);SW=cw;cw.dataset.off=-88;return}
+        setX(0,true);if(SW===cw)SW=null;cw.dataset.off=0;return}
       if(lock==='v')return;
       if(base){closeSwipe();return}
       if(tgt&&tgt.closest&&tgt.closest('.eb')){openIdx=-1;openEdit(i);return}
@@ -429,7 +430,7 @@ function bindList(){
     card.addEventListener('mousedown',ev=>{if(ev.target.closest('[data-ck]'))return;start(ev.clientX,ev.clientY,ev.target);const mm=e=>move(e.clientX,e.clientY,e),mu=()=>{document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);end()};document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu)});
   });
 }
-function closeSwipe(){if(!SW)return;const c=SW.querySelector('.card');c.style.transition='';c.style.transform='';SW.querySelectorAll('.sa').forEach(x=>x.style.opacity=0);SW=null}
+function closeSwipe(){if(!SW)return;SW.dataset.off=0;const c=SW.querySelector('.card');c.style.transition='';c.style.transform='';SW.querySelectorAll('.sa').forEach(x=>{x.style.opacity=0;x.classList.remove('on')});SW=null}
 async function swipeDelete(cw){const i=+cw.dataset.i,c=cw.querySelector('.card');SW=null;haptic();
   c.style.transition='transform .2s cubic-bezier(.4,0,1,1)';c.style.transform='translateX(-110%)';cw.querySelector('.sa.r').style.opacity=1;await wait(170);
   cw.style.overflow='hidden';await cw.animate([{height:cw.offsetHeight+'px',marginBottom:'8px',opacity:1},{height:'0px',marginBottom:'0px',opacity:0}],{duration:200,easing:'ease-in',fill:'forwards'}).finished;
