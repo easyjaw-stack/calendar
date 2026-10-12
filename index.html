@@ -17,7 +17,7 @@
 html,body{margin:0;background:var(--bg);color:var(--tx);font:12px/1.45 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
 input{font:inherit;color:var(--tx);background:transparent;border:none;outline:none;padding:0;margin:0;-webkit-appearance:none;appearance:none;border-radius:0;box-shadow:none}
-#app{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 80px);min-height:100vh}
+#app{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 26px) 12px calc(env(safe-area-inset-bottom) + 80px);min-height:100vh}
 .top{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}
 .mo{font-size:17px;font-weight:600;display:flex;align-items:center;gap:5px}
 .mo i{font-size:16px;color:var(--mu)}
@@ -83,7 +83,7 @@ input{font:inherit;color:var(--tx);background:transparent;border:none;outline:no
 .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 18px);width:48px;height:48px;border-radius:14px;background:var(--ink);color:var(--bg);font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(60,50,40,.25);z-index:10}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 70px);background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 14px;font-size:12px;display:flex;gap:16px;align-items:center;z-index:30;box-shadow:0 4px 14px rgba(60,50,40,.25);max-width:90vw}
 .toast button{color:var(--ac2);font-weight:500}
-.ov{position:fixed;inset:0;background:var(--bg);z-index:20;padding:calc(env(safe-area-inset-top) + 14px) 14px 20px;overflow-y:auto}
+.ov{position:fixed;inset:0;background:var(--bg);z-index:20;padding:calc(env(safe-area-inset-top) + 28px) 14px 20px;overflow-y:auto}
 .ov .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .ov .h b{font-weight:600;font-size:15px}.ov .h i{font-size:16px;color:var(--ac);padding:4px 8px}
 .wk,.mg{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
@@ -141,7 +141,7 @@ html,body{font-size:14px}
 .empty{font-size:14px}
 
 /* 編輯頁 */
-.ov.ed{padding-top:calc(env(safe-area-inset-top) + 8px)}
+.ov.ed{padding-top:calc(env(safe-area-inset-top) + 22px)}
 .eh{display:flex;justify-content:space-between;align-items:center;height:52px;margin-bottom:6px}
 .eh b{font-size:16px;font-weight:600}
 .eh button{font-size:16px;color:var(--mu);padding:10px 4px;min-width:56px;text-align:left}
@@ -194,6 +194,10 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .grab{width:38px;height:5px;border-radius:3px;background:#D6D3CD;margin:0 auto 2px}
 .toast{animation:tin .26s cubic-bezier(.2,.8,.2,1)}
 @keyframes tin{from{opacity:0;transform:translate(-50%,14px)}}
+.card.tn .ck{background:rgba(255,255,255,.6);border-color:rgba(0,0,0,.16)}
+.card.tn .mt{color:rgba(38,38,36,.5)}
+.card .ck i{font-size:14px;-webkit-text-stroke:.6px currentColor}
+.card.x.tn .ck{background:var(--ac);border-color:var(--ac)}
 </style>
 </head>
 <body>
@@ -208,8 +212,9 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 <div id="toast"></div>
 <script>
 // 試算表裡的顏色一律換成 4 種低彩度色調顯示；App 裡選色時寫回對應的淡色
-const TONES=[['#4f6b73','#cfe0e6'],['#6e5c78','#e2d6ea'],['#87634f','#f0dccf'],['#5e6b4a','#dfe6cf']];
-function tone(hex){if(!hex||!/^#[0-9a-f]{6}$/i.test(hex))return '';const n=parseInt(hex.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;if(dl<0.06||(l>0.97))return '';const sat=dl/(1-Math.abs(2*l-1));if(sat<0.12)return '';let h=mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;if(h>=170&&h<245)return TONES[0][0];if(h>=245&&h<345)return TONES[1][0];if(h>=70&&h<170)return TONES[3][0];return TONES[2][0]}
+const TONES=[['#B5665E','#F6DCD9'],['#A27A62','#F5E6DC'],['#768462','#E6EEDB'],['#5F7F89','#DDE9ED'],['#86739A','#EBE2F1']]; // [色票, 卡片底色＝寫回試算表的顏色]：紅、橘棕、綠、藍、紫
+function tone(hex){if(!hex||!/^#[0-9a-f]{6}$/i.test(hex))return '';const n=parseInt(hex.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;if(dl<0.06||(l>0.97))return '';const sat=dl/(1-Math.abs(2*l-1));if(sat<0.12)return '';let h=mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;const i=(h>=345||h<18)?0:h<70?1:h<170?2:h<245?3:4;return TONES[i][0]}
+const fillOf=hex=>{const t=tone(hex);const c=TONES.find(x=>x[0]===t);return c?c[1]:''};
 const WD='日一二三四五六';
 const M={};               // 已載入的月份資料
 const T=new Date();
@@ -295,11 +300,11 @@ function render(){
   renderWeek(wk);
   if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();ED_IN=false;bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
 }
-function cardHTML(it,i){const n=parseNote(it.note);const t=tone(it.bg);const op=openIdx===i;
+function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const op=openIdx===i;
   const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${!n.tm&&!n.pl&&!n.nt?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
-  return `<div class="cw" data-i="${i}"><div class="sa l"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''}"><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'✓':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span>${t?`<span class="bar" style="background:${t}"></span>`:''}</div>${det}</div></div>`}
+  return `<div class="cw" data-i="${i}"><div class="sa l"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
-  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${t?'box-shadow:inset 3px 0 0 '+t+'8c':''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
+  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
 }
 
 // ---- 編輯／新增 ----
