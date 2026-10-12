@@ -229,6 +229,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 #backZone{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 14px);height:64px;z-index:30;border-radius:16px;border:1.5px solid #C9C6BF;background:rgba(250,250,248,.95);display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--mu);animation:tin .2s;transition:background .15s,color .15s,transform .15s}
 #backZone i{font-size:20px}
 #backZone.hot{background:var(--ink);color:#fff;border-color:var(--ink);transform:scale(1.03)}
+.rw .sw{gap:9px;flex-wrap:nowrap}.rw .sw span{width:29px;height:29px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -559,7 +560,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261013011302';
+const VER=/*VER*/'20261013011510';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
