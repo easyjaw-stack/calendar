@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="月曆">
 <meta name="theme-color" content="#F2F1EE">
 <title>月曆</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
@@ -560,7 +562,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261013011510';
+const VER=/*VER*/'20261014004530';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});

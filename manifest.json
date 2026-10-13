@@ -3,5 +3,17 @@
   "short_name": "月曆",
   "display": "standalone",
   "background_color": "#F2F1EE",
-  "theme_color": "#F2F1EE"
+  "theme_color": "#F2F1EE",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
 }
