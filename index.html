@@ -309,8 +309,23 @@ try{const c=JSON.parse(localStorage.getItem('calcache')||'{}');Object.keys(c).fo
 async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force&&!STALE[k])return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=r.month;delete STALE[k];persist();return M[k]}).finally(()=>delete INF[k]);return INF[k]}
 
 // ---- 備註（時間/地點/備註）存在試算表附註 ----
-function parseNote(n){const o={tm:'',pl:'',nt:''},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
-function makeNote(o){return [o.tm?'時間：'+o.tm:'',o.pl?'地點：'+o.pl:'',o.nt?'備註：'+o.nt:''].filter(Boolean).join('\n')}
+function parseNote(n){const o={tm:'',pl:'',nt:'',per:''},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^期間[:：]\s*(.*)$/))o.per=t[1].trim();else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
+function makeNote(o){return [o.tm?'時間：'+o.tm:'',o.pl?'地點：'+o.pl:'',o.nt?'備註：'+o.nt:'',o.per?'期間：'+o.per:''].filter(Boolean).join('\n')}
+// 「期間：12/2–12/6」→ 每一天（年份用目前看的日子推算，可跨年）
+function perDays(per,ref){const m=String(per||'').match(/^(\d{1,2})\/(\d{1,2})\s*[–\-~～]\s*(\d{1,2})\/(\d{1,2})$/);if(!m)return [];
+  let s=new Date(ref.y,+m[1]-1,+m[2]);if(s>new Date(ref.y,ref.m-1,ref.d))s=new Date(ref.y-1,+m[1]-1,+m[2]);
+  let e=new Date(s.getFullYear(),+m[3]-1,+m[4]);if(e<s)e=new Date(s.getFullYear()+1,+m[3]-1,+m[4]);
+  const out=[];for(let t=new Date(s);t<=e&&out.length<400;t.setDate(t.getDate()+1))out.push({y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()});return out}
+const perOf=it=>parseNote(it&&it.note).per;
+// 底部選單，回傳選到的 key
+function choose(title,opts){return new Promise(res=>{const box=document.createElement('div');box.className='sheet';
+  box.innerHTML=`<div class="bx"><div class="tt"><b>${esc(title)}</b></div>${opts.map(o=>`<button data-k="${o[0]}">${o[1]}</button>`).join('')}<button class="cx" data-k="">取消</button></div>`;
+  document.body.appendChild(box);box.onclick=e=>{if(e.target===box){box.remove();res('')}};
+  box.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{box.remove();res(b.dataset.k)})})}
+// 對整串（同名稱＋同期間）的每一天做同一件事：fn(items,idx) 回傳新的 items
+async function eachInSeries(text,per,fn){const days=perDays(per,cur);await Promise.all([...new Set(days.map(o=>ym(o.y,o.m)))].map(k=>{const [y,m]=k.split('-').map(Number);return loadMonth(y,m).catch(()=>{})}));
+  const ch=[];days.forEach(o=>{const items=clone(dayItems(o));const i=items.findIndex(x=>!x.span&&String(x.text).trim()===String(text).trim()&&perOf(x)===per);if(i>=0)ch.push({o,items:fn(items,i)})});
+  if(ch.length)await save(ch);return ch.length}
 const tint=c=>'';
 
 // ---- 存檔（先更新畫面，再寫回試算表） ----
@@ -343,8 +358,8 @@ function render(){
   if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();ED_IN=false;bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
 }
 function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const op=openIdx===i;
-  const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${!n.tm&&!n.pl&&!n.nt?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
-  return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span>${it.span?'<span class="tag sp">多天</span>':''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
+  const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${n.per?`<div><i class="ti ti-arrows-right"></i>期間 ${esc(n.per)}</div>`:''}${!n.tm&&!n.pl&&!n.nt&&!n.per?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
+  return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span>${it.span||n.per?'<span class="tag sp">多天</span>':''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
   $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
 }
@@ -361,13 +376,14 @@ function sheetHTML(){const e=edit;const it=e.idx>=0?dayItems(cur)[e.idx]:null;co
   </div>
   <div class="grp">
    <div class="rw"><i class="ti ti-droplet"></i><span class="k">顏色</span><div class="sw">${TONES.map(c=>`<span data-col="${c[1]}" class="${tone(e.bg)===c[0]?'on':''}" style="background:${c[0]}"></span>`).join('')}<span data-col="" class="none ${!tone(e.bg)?'on':''}"><i class="ti ti-ban"></i></span></div></div>
+   ${e.per?`<div class="rw"><i class="ti ti-arrows-right"></i><span class="k">期間</span><span class="v">${esc(e.per)}</span></div>`:`<div class="rw" id="rUn"><i class="ti ti-arrows-right"></i><span class="k">持續到</span><span class="v ${e.until?'':'ph'}">${e.until?e.until.m+'/'+e.until.d:'不持續'}</span>${e.until?clr('until'):'<i class="ti ti-chevron-right ch"></i>'}</div>`}
    <div class="rw"><i class="ti ti-repeat"></i><span class="k">重複</span><div class="chips">${[['','不重複'],['day','每天'],['week','每週'],['month','每月']].map(r=>`<span data-rp="${r[0]}" class="${(e.rp||'')===r[0]?'on':''}">${r[1]}</span>`).join('')}</div></div>
   </div>
   ${it?`<div class="grp"><button class="rw act" id="edCp"><i class="ti ti-copy"></i>複製到其他天</button><button class="rw act del" id="edDel"><i class="ti ti-trash"></i>刪除這件</button></div>`:''}
   </div>`}
 function wheelHTML(){const e=edit,p=(e.tm||'14:00').split(':');e.wh=e.wh??+p[0];e.wm=e.wm??Math.round(+p[1]/5)*5%60;
   return `<div class="wheel"><div class="hl"></div><div class="col" id="wh"><div></div><div></div>${[...Array(24)].map((_,i)=>`<div class="${i===e.wh?'sel':''}">${String(i).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div><div class="colon">:</div><div class="col" id="wm"><div></div><div></div>${[...Array(12)].map((_,i)=>`<div class="${i*5===e.wm?'sel':''}">${String(i*5).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div></div><div class="wf"><button id="wClr">不設時間</button><button class="set" id="wSet">設定 ${String(e.wh).padStart(2,'0')}:${String(e.wm).padStart(2,'0')}</button></div>`}
-function openEdit(idx){const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
+function openEdit(idx){const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,per:n.per,until:null,orig:it?it.text:'',rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
 function syncEdit(){const t=$('#edT');if(t)edit.text=t.value;const pl=$('#edPl');if(pl)edit.pl=pl.value;const nt=$('#edNt');if(nt)edit.nt=nt.value}
 function bindEditor(){
   const keep=(sync=true)=>{if(sync)syncEdit();const st=$('#ovl .ov')?$('#ovl .ov').scrollTop:0;render();const o=$('#ovl .ov');if(o)o.scrollTop=st};
@@ -383,8 +399,12 @@ function bindEditor(){
   [$('#ovl .grab'),$('#ovl .eh')].forEach(el=>{el.addEventListener('touchstart',ps,{passive:true});el.addEventListener('touchmove',pm,{passive:false});el.addEventListener('touchend',pe)});
   $('#edOk').onclick=finishEdit;
   const t=$('#edT');t.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();finishEdit()}};
-  const d=$('#edDel');if(d)d.onclick=async()=>{const i=edit.idx;await slideOutEd();edit=null;$('#ovl').innerHTML='';removeAt(i)};
+  const d=$('#edDel');if(d)d.onclick=async()=>{const i=edit.idx,per=edit.per,orig=edit.orig;let k='one';
+    if(per){k=await choose('這是多天的行程（'+per+'）',[['one','只刪這天'],['all','整串刪除']]);if(!k)return}
+    await slideOutEd();edit=null;$('#ovl').innerHTML='';
+    if(k==='all'){const n=await eachInSeries(orig,per,(items,j)=>{items.splice(j,1);return items});toast(`已刪除 ${n} 天`)}else removeAt(i)};
   const cp=$('#edCp');if(cp)cp.onclick=()=>{syncEdit();openPicker('copy')};
+  const un=$('#rUn');if(un)un.onclick=ev=>{if(ev.target.closest('[data-clr]'))return;syncEdit();openPicker('until')};
   const wh=$('#wh'),wm=$('#wm');
   if(wh){wh.scrollTop=edit.wh*30;wm.scrollTop=(edit.wm/5)*30;let a,b;
     const upd=()=>{$('#wSet').textContent='設定 '+String(edit.wh).padStart(2,'0')+':'+String(edit.wm).padStart(2,'0');[...wh.children].forEach((c,i)=>c.classList.toggle('sel',i-2===edit.wh));[...wm.children].forEach((c,i)=>c.classList.toggle('sel',(i-2)*5===edit.wm))};
@@ -396,7 +416,17 @@ function bindEditor(){
 function slideOutEd(){const o=$('#ovl .ed');if(!o)return Promise.resolve();o.style.transition='transform .24s cubic-bezier(.4,0,1,1)';o.style.transform='translateY(100%)';return wait(230)}
 async function closeEdit(){await slideOutEd();edit=null;$('#ovl').innerHTML='';render()}
 async function finishEdit(){syncEdit();const e=edit;const text=e.text.trim();if(!text){$('#edT').focus();return}
-  if(document.activeElement)document.activeElement.blur();await slideOutEd();
+  if(document.activeElement)document.activeElement.blur();
+  let scope='one';
+  if(e.idx>=0&&e.per){scope=await choose('這是多天的行程（'+e.per+'）',[['one','只改這天'],['all','整串一起改']]);if(!scope)return}
+  await slideOutEd();
+  if(e.until&&!e.per&&!e.rp){const days=[];for(let o={...cur};new Date(o.y,o.m-1,o.d)<=new Date(e.until.y,e.until.m-1,e.until.d)&&days.length<400;o=addDays(o,1))days.push(o);
+    const per=`${cur.m}/${cur.d}–${e.until.m}/${e.until.d}`,note=makeNote({...e,per});
+    const base=e.idx>=0?dayItems(cur)[e.idx]:null,item={text,done:false,bg:e.bg,fc:base?base.fc:'',bold:base?base.bold:false,note};
+    edit=null;$('#ovl').innerHTML='';
+    if(e.idx>=0){const items=clone(dayItems(cur));Object.assign(items[e.idx],{text,bg:e.bg,note});await save([{o:cur,items}]);days.shift()}
+    render();try{const r=await call('append',{keys:days.map(keyOf),item});absorb(r);render();toast(`已排到 ${per}`)}catch(err){toast('沒存成功：'+(err.message||err))}return}
+  if(scope==='all'){const note=makeNote(e);edit=null;$('#ovl').innerHTML='';const n=await eachInSeries(e.orig,e.per,(items,j)=>{Object.assign(items[j],{text,bg:e.bg,note});return items});toast(`已改 ${n} 天`);return}
   const items=clone(dayItems(cur));const note=makeNote(e);
   edit=null;$('#ovl').innerHTML='';
   if(e.idx===-1&&e.rp){render();try{const r=await call('repeat',{rule:{text,type:e.rp,start:keyOf(cur),bg:e.bg,note}});absorb(r);render();toast('已建立重複待辦')}catch(err){toast('沒存成功：'+(err.message||err))}return}
@@ -498,11 +528,11 @@ async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all(
 let PK=null;
 function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})}
 function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
-  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':PK.mode==='pend'?'點一天，把這件案子排過去':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
+  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':PK.mode==='pend'?'點一天，把這件案子排過去':PK.mode==='until'?'點選結束的那一天':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
   $('#pkPv').onclick=()=>{PK.m--;if(PK.m<1){PK.m=12;PK.y--}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
   $('#pkNx').onclick=()=>{PK.m++;if(PK.m>12){PK.m=1;PK.y++}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
   $('#pkCl').onclick=()=>{PK=null;drawPicker();if(edit)render()};
-  document.querySelectorAll('.mg [data-d]').forEach(c=>c.onclick=()=>{const o={y:PK.y,m:PK.m,d:+c.dataset.d};if(PK.mode==='jump'){PK=null;drawPicker();go(o)}else if(PK.mode==='pend'){const it=PK.item;PK=null;drawPicker();schedule(it,o)}else{const i=PK.sel.findIndex(s=>same(s,o));i>=0?PK.sel.splice(i,1):PK.sel.push(o);drawPicker()}});
+  document.querySelectorAll('.mg [data-d]').forEach(c=>c.onclick=()=>{const o={y:PK.y,m:PK.m,d:+c.dataset.d};if(PK.mode==='jump'){PK=null;drawPicker();go(o)}else if(PK.mode==='pend'){const it=PK.item;PK=null;drawPicker();schedule(it,o)}else if(PK.mode==='until'){if(new Date(o.y,o.m-1,o.d)<=new Date(cur.y,cur.m-1,cur.d)){toast('要選 '+cur.m+'/'+cur.d+' 之後的日子');return}edit.until=o;PK=null;drawPicker();render()}else{const i=PK.sel.findIndex(s=>same(s,o));i>=0?PK.sel.splice(i,1):PK.sel.push(o);drawPicker()}});
   const ok=$('#pkOk');if(ok)ok.onclick=async()=>{if(!PK.sel.length)return;const e=edit;const src=dayItems(cur)[e.idx];const item={text:e.text.trim()||src.text,done:false,bg:e.bg,fc:src?src.fc:'',bold:src?src.bold:false,note:makeNote(e)};const keys=PK.sel.map(keyOf);PK=null;drawPicker();edit=null;$('#ovl').innerHTML='';render();try{const r=await call('append',{keys,item});absorb(r);render();toast(`已複製到 ${keys.length} 天`)}catch(err){toast('沒複製成功：'+(err.message||err))}};
 }
 
@@ -565,7 +595,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261016224313';
+const VER=/*VER*/'20261016224700';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
