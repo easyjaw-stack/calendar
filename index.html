@@ -232,6 +232,8 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 #backZone i{font-size:20px}
 #backZone.hot{background:var(--ink);color:#fff;border-color:var(--ink);transform:scale(1.03)}
 .rw .sw{gap:9px;flex-wrap:nowrap}.rw .sw span{width:29px;height:29px;flex-shrink:0}
+.tag.sp{flex-shrink:0;background:rgba(38,38,36,.08);color:#6B6964}
+.cw.spn .ck{opacity:.35}
 </style>
 </head>
 <body>
@@ -327,7 +329,7 @@ function render(){
   const wk=weekOf(cur);
   $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b></div>`).join('');
   $('#strip').querySelectorAll('.s').forEach(s=>s.onclick=()=>slideGo(wk[+s.dataset.i]));
-  const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done).length;
+  const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done&&!i.span).length;
   $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
   const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
   let html=items.map((it,i)=>cardHTML(it,i)).join('');
@@ -342,7 +344,7 @@ function render(){
 }
 function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const op=openIdx===i;
   const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${!n.tm&&!n.pl&&!n.nt?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
-  return `<div class="cw" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span><span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
+  return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span>${it.span?'<span class="tag sp">多天</span>':''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
   $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
 }
@@ -407,15 +409,16 @@ function toggle(i){const items=clone(dayItems(cur));items[i].done=!items[i].done
 let undoTimer;
 function removeAt(i){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);
   toast('已刪除',()=>{const now=clone(dayItems(o));now.splice(Math.min(i,now.length),0,gone);save([{o,items:now}])})}
-async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.m);const items=clone(dayItems(cur));const keep=items.filter(i=>i.done),move=items.filter(i=>!i.done);
+async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.m);const items=clone(dayItems(cur));const keep=items.filter(i=>i.done||i.span),move=items.filter(i=>!i.done&&!i.span);
   save([{o:{...cur},items:keep},{o:nx,items:clone(dayItems(nx)).concat(move)}]);toast(`已把 ${move.length} 件移到 ${nx.m}/${nx.d}`)}
 
 // ---- 列表互動：打勾、點開、長按拖曳、左滑刪除、右滑完成 ----
 function bindList(){
-  document.querySelectorAll('[data-ck]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();toggle(+c.dataset.ck)});
+  document.querySelectorAll('[data-ck]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();if(dayItems(cur)[+c.dataset.ck]?.span){toast('跨多天的行程，請在電腦的表格修改');return}toggle(+c.dataset.ck)});
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();swipeDelete(b.closest('.cw'))});
   document.querySelectorAll('[data-done]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();closeSwipe();toggle(+b.dataset.done)});
-  document.querySelectorAll('#list .cw').forEach(cw=>{
+  document.querySelectorAll('#list .cw.spn').forEach(cw=>{cw.querySelector('.card').onclick=ev=>{ev.stopPropagation();toast('跨多天的行程，請在電腦的表格修改')}});
+  document.querySelectorAll('#list .cw:not(.spn)').forEach(cw=>{
     const card=cw.querySelector('.card'),sl=cw.querySelector('.sa.l'),sr=cw.querySelector('.sa.r'),i=+cw.dataset.i;
     let timer=null,dragging=false,sx=0,sy=0,lock=null,tgt=null,dx=0,base=0,t0=0,hit=false;
     const setX=(x,anim)=>{card.style.transition=anim?'':'none';card.style.transform=x?`translateX(${x}px)`:'';sl.style.opacity=x>0?Math.min(1,x/60):0;sr.style.opacity=x<0?Math.min(1,-x/60):0;sl.classList.toggle('on',x>0);sr.classList.toggle('on',x<0)};
@@ -562,7 +565,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261014004530';
+const VER=/*VER*/'20261016224313';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
