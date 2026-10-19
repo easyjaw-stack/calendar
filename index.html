@@ -268,7 +268,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .rc .r{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
 .rc .tot{font-size:16px;font-weight:700}.rc .mu{color:var(--mu)}
 .rc .bc{height:32px;margin-top:14px;background:repeating-linear-gradient(90deg,#262624 0 2px,transparent 2px 4px,#262624 4px 5px,transparent 5px 8px,#262624 8px 11px,transparent 11px 13px)}
-.rvb{margin-bottom:18px}
+.rvb{margin:22px 0 10px}
 .rvm{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .rvm button{background:var(--card);border-radius:10px;padding:8px 12px;font-size:13px}.rvm small{display:block;font-size:10px;color:var(--mu)}
 .yrb{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#262624;color:#F2F1EE;border-radius:14px;padding:16px;font-size:15px;font-weight:600;margin-bottom:14px}
@@ -680,9 +680,9 @@ async function openIncome(){$('#ovl').innerHTML=`<div class="ov in"><div class="
   $('#icCl').onclick=()=>{$('#ovl').innerHTML=''};
   try{const r=await call('income',{});if(!$('#icB'))return;const mx=Math.max(1,...r.months.map(x=>x.all)),nm=T.getMonth()+1;
     $('#icB').innerHTML=`<div class="inc">${r.top.map((t,i)=>`<div class="${i===0?'hi':''}">${esc(t.label)}<b>${esc(t.value)}</b></div>`).join('')}</div>
-    ${(()=>{const y=T.getFullYear(),m=T.getMonth()+1,season=(m===12&&T.getDate()>=15)||m===1,yy=m===1?y-1:y;return `<div class="rvb">${season?`<button class="yrb" data-yr="${yy}"><i class="ti ti-sparkles"></i>${yy} 年度回顧</button>`:''}<div class="mh"><b>月回顧</b><span>點月份看收據</span></div><div class="rvm">${[...Array(m)].map((_,i)=>`<button data-rm="${i+1}">${i+1} 月${i+1===m?'<small>到目前</small>':''}</button>`).join('')}</div>${season?'':`<button class="yrs" data-yr="${y}">${y} 年度回顧（到目前為止）</button>`}</div>`})()}
     <div class="mh"><b>每月做了多少</b><span>深色＝已完成　淺色＝已排還沒做完</span></div>
-    <div class="mb">${r.months.filter(x=>x.all>0||x.m<=nm).map(x=>`<div class="mr ${x.m===nm?'now':''}"><span class="m">${x.m} 月</span><div class="tk"><i style="width:${x.all/mx*100}%;background:#EDE3F1"></i><i style="width:${x.done/mx*100}%;background:#C5AECF"></i></div><span class="v"><b>NT$${x.done.toLocaleString()}</b>${x.all>x.done?`（已排 ${x.all.toLocaleString()}）`:''}</span></div>`).join('')}</div>`;
+    <div class="mb">${r.months.filter(x=>x.all>0||x.m<=nm).map(x=>`<div class="mr ${x.m===nm?'now':''}"><span class="m">${x.m} 月</span><div class="tk"><i style="width:${x.all/mx*100}%;background:#EDE3F1"></i><i style="width:${x.done/mx*100}%;background:#C5AECF"></i></div><span class="v"><b>NT$${x.done.toLocaleString()}</b>${x.all>x.done?`（已排 ${x.all.toLocaleString()}）`:''}</span></div>`).join('')}</div>
+    ${(()=>{const y=T.getFullYear(),m=T.getMonth()+1,season=(m===12&&T.getDate()>=15)||m===1,yy=m===1?y-1:y;return `<div class="rvb">${season?`<button class="yrb" data-yr="${yy}"><i class="ti ti-sparkles"></i>${yy} 年度回顧</button>`:''}<div class="mh"><b>月回顧</b><span>點月份看收據</span></div><div class="rvm">${[...Array(m)].map((_,i)=>`<button data-rm="${i+1}">${i+1} 月</button>`).join('')}</div>${season?'':`<button class="yrs" data-yr="${y}">${y} 年度回顧（到目前為止）</button>`}</div>`})()}`;
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>openReceipt(T.getFullYear(),+b.dataset.rm));document.querySelectorAll('[data-yr]').forEach(b=>b.onclick=()=>openYear(+b.dataset.yr));
   const ov=$('#ovl .ov');if(ov)ov.scrollTop=0}
   catch(e){if($('#icB'))$('#icB').innerHTML='<div class="empty">讀取失敗：'+esc(e.message||e)+'</div>'}}
@@ -733,7 +733,7 @@ window.addEventListener('resize',render);
 go(cur).then(loadPending);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019220049';
+const VER=/*VER*/'20261019220335';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
