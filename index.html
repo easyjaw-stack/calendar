@@ -285,12 +285,31 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .yr p{font-size:15px;color:#B8B8B4;margin:8px 0;line-height:1.7}
 .yr .mb{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:16px}.yr .mb span{flex:1;background:#4a4a46;border-radius:4px 4px 0 0}.yr .mb span.hi{background:#C5AECF}
 .yr .rk div{display:flex;justify-content:space-between;font-size:17px;padding:11px 0;border-bottom:1px solid #3a3a37}.yr .rk b{color:#C5AECF;font-weight:600}
+#pull{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;gap:8px;font-size:12px;color:var(--mu);padding-bottom:6px}
+#pull i{display:block;width:18px;height:6px;border-radius:3px;background:#C5AECF;opacity:.7}
+#pull.ing i{animation:pls .7s ease-in-out infinite alternate}
+@keyframes pls{from{opacity:.3}to{opacity:1}}
+.skel{height:56px;border-radius:12px;margin-bottom:8px;background:linear-gradient(90deg,#E9E7E2 25%,#F4F3F0 50%,#E9E7E2 75%);background-size:300% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{from{background-position:100% 0}to{background-position:-200% 0}}
+.cw.src{opacity:.25}
+.ghost{position:fixed;z-index:40;pointer-events:none;margin:0!important}
+.ghost .card{transform:scale(1.03);box-shadow:0 14px 30px rgba(60,50,40,.22)}
+.edgeHint{position:fixed;top:0;bottom:0;width:30px;z-index:39;display:flex;align-items:center;justify-content:center;color:#86739A;font-size:20px;background:rgba(197,174,207,.28);opacity:0;transition:opacity .2s;pointer-events:none}
+.edgeHint.l{left:0}.edgeHint.r{right:0}.edgeHint.on{opacity:1}
+.strip .s{position:relative}
+.strip .s .bd{position:absolute;top:-7px;right:-3px;background:#C5AECF;color:#fff;font-size:10px;font-weight:600;border-radius:8px;padding:0 5px;line-height:16px}
+.sheet{flex-direction:column;justify-content:flex-end;align-items:stretch}
+.sheet.blur{background:rgba(242,241,238,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sheet .pvw{margin:0 14px 12px;pointer-events:none;animation:pvin .25s cubic-bezier(.2,.8,.2,1)}
+.sheet .pvw .card{transform:scale(1.03);box-shadow:0 14px 30px rgba(60,50,40,.2)}
+@keyframes pvin{from{transform:scale(.96);opacity:.6}}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="top"><button class="mo" id="moBtn"><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="tdBtn" aria-label="月曆"><i class="ti ti-calendar-month"></i></button><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button></div></div>
   <div class="strip" id="strip"></div>
+  <div id="pull"><i></i><span>往下拉重新整理</span></div>
   <div id="day"><div class="dh" id="dh"></div><div id="list"></div><div id="pend"></div></div>
   <div id="week"></div>
 </div>
@@ -369,8 +388,8 @@ function perDays(per,ref){const m=String(per||'').match(/^(\d{1,2})\/(\d{1,2})\s
   const out=[];for(let t=new Date(s);t<=e&&out.length<400;t.setDate(t.getDate()+1))out.push({y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()});return out}
 const perOf=it=>parseNote(it&&it.note).per;
 // 底部選單，回傳選到的 key
-function choose(title,opts){return new Promise(res=>{const box=document.createElement('div');box.className='sheet';
-  box.innerHTML=`<div class="bx"><div class="tt"><b>${esc(title)}</b></div>${opts.map(o=>`<button data-k="${o[0]}">${o[1]}</button>`).join('')}<button class="cx" data-k="">取消</button></div>`;
+function choose(title,opts,preview){return new Promise(res=>{const box=document.createElement('div');box.className='sheet'+(preview?' blur':'');
+  box.innerHTML=`${preview?`<div class="pvw">${preview}</div>`:''}<div class="bx"><div class="tt"><b>${esc(title)}</b></div>${opts.map(o=>`<button data-k="${o[0]}">${o[1]}</button>`).join('')}<button class="cx" data-k="">取消</button></div>`;
   document.body.appendChild(box);box.onclick=e=>{if(e.target===box){box.remove();res('')}};
   box.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{box.remove();res(b.dataset.k)})})}
 // 對整串（同名稱＋同期間）的每一天做同一件事：fn(items,idx) 回傳新的 items
@@ -399,10 +418,11 @@ function render(){
   $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
   const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
   let html=items.map((it,i)=>cardHTML(it,i)).join('');
-  if(!items.length)html='<div class="empty">這天還沒有安排</div>';
+  if(!items.length)html=M[ym(cur.y,cur.m)]?'<div class="empty">這天還沒有安排</div>':'<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div>';
   $('#list').innerHTML=html;
   bindList();
   renderPend();
+  markSrc();
   if(JO>=0){const det=document.querySelector(`#list .cw[data-i="${JO}"] .det`);if(det){const h=det.offsetHeight;det.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'})}}
   $('#fab').style.display=edit?'none':'flex';
   renderWeek(wk);
@@ -560,8 +580,8 @@ function bindList(){
   });
 }
 // 長按卡片的選單
-async function cardMenu(i){const it=dayItems(cur)[i];if(!it)return;const per=perOf(it);
-  const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],['edit','<i class="ti ti-pencil"></i>編輯'],['copy','<i class="ti ti-copy"></i>複製到其他天'],['del','<i class="ti ti-trash"></i>刪除']]);
+async function cardMenu(i){const it=dayItems(cur)[i];if(!it)return;const per=perOf(it);const src=document.querySelector(`#list .cw[data-i="${i}"] .card`);
+  const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],['edit','<i class="ti ti-pencil"></i>編輯'],['copy','<i class="ti ti-copy"></i>複製到其他天'],['del','<i class="ti ti-trash"></i>刪除']],src?src.outerHTML:'');
   if(k==='done')toggle(i);
   else if(k==='edit')openEdit(i);
   else if(k==='copy'){openEdit(i);openPicker('copy')}
@@ -577,22 +597,45 @@ async function setOpen(n){const old=document.querySelector('#list .det');
   if(old){const h=old.offsetHeight;await old.animate([{height:h+'px',opacity:1},{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0}],{duration:170,easing:'ease-in',fill:'forwards'}).finished}
   openIdx=n;JO=n;render();JO=-1}
 let D=null;
-function beginDrag(cw,y){closeSwipe();const cs=caseOf((dayItems(cur)[+cw.dataset.i]||{}).text||'');if(cs){const z=document.createElement('div');z.id='backZone';z.innerHTML='<i class="ti ti-arrow-back-up"></i>拖到這裡放回待排';document.body.appendChild(z)}const all=[...document.querySelectorAll('#list .cw')];const r=cw.getBoundingClientRect();
-  D={card:cw,from:+cw.dataset.i,offset:y-r.top,startTop:r.top,to:+cw.dataset.i,day:null,h:r.height+8,rects:all.map(c=>{const b=c.getBoundingClientRect();return {c,h:b.height+8,mid:b.top+b.height/2}})};cw.classList.add('dragging')}
-function dragMove(x,y){const bz=$('#backZone');D.back=false;if(bz){const b=bz.getBoundingClientRect();D.back=y>=b.top-10;bz.classList.toggle('hot',D.back)}const dy=y-D.offset-D.startTop;D.card.style.transform=`translateY(${dy}px)`;
-  D.day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-10&&y<=b.bottom+10;s.classList.toggle('drop',hit);if(hit)D.day=+s.dataset.i});
-  const center=D.startTop+dy+(D.h-8)/2;
-  D.to=D.day!==null?D.from:D.rects.filter((r,j)=>j!==D.from&&center>r.mid).length;
-  D.rects.forEach((r,j)=>{if(j===D.from)return;let sh=0;if(D.from<D.to&&j>D.from&&j<=D.to)sh=-D.h;else if(D.from>D.to&&j>=D.to&&j<D.from)sh=D.h;r.c.style.transform=sh?`translateY(${sh}px)`:''})}
-async function dragEnd(){const d=D;D=null;const bz=$('#backZone');if(bz)bz.remove();
-  if(d.back){const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];const o={...cur};const cs=caseOf(it.text);d.card.style.transition='transform .2s,opacity .2s';d.card.style.opacity=0;await wait(180);
-    if(cs&&!PEND.some(p=>p.id===cs.id))PEND.push(cs);save([{o,items}]);toast('已放回待排',()=>{PEND=PEND.filter(p=>p.id!==cs.id);const now=clone(dayItems(o));now.splice(Math.min(d.from,now.length),0,it);save([{o,items:now}])});return}
-  document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));
-  const settle=async(t,op)=>{d.card.classList.remove('dragging');d.card.style.transition='transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s';d.card.style.transform=t;if(op!=null)d.card.style.opacity=op;await wait(200)};
-  if(d.day!==null){const target=weekOf(cur)[d.day];if(!same(target,cur)){haptic();await settle(d.card.style.transform+' scale(.6)',0);await loadMonth(target.y,target.m);const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];save([{o:{...cur},items},{o:target,items:clone(dayItems(target)).concat([it])}]);toast(`已移到 ${target.m}/${target.d}`);return}}
-  if(d.to!==d.from){let off=0;if(d.to>d.from)for(let j=d.from+1;j<=d.to;j++)off+=d.rects[j].h;else for(let j=d.to;j<d.from;j++)off-=d.rects[j].h;
-    await settle(`translateY(${off}px)`);const items=clone(dayItems(cur));const it=items.splice(d.from,1)[0];items.splice(d.to,0,it);save([{o:cur,items}]);return}
-  await settle('');render()}
+const ensureMonth=(y,m)=>M[ym(y,m)]?Promise.resolve(M[ym(y,m)]):loadMonth(y,m);
+// 拖曳：卡片變成浮起的影子跟著手指；放到週列＝吸進那天，停在左右邊緣＝翻到前後一天
+const listRects=()=>[...document.querySelectorAll('#list .cw')].map(c=>{const b=c.getBoundingClientRect();return {c,i:+c.dataset.i,mid:b.top+b.height/2}});
+function markSrc(){if(D&&same(cur,D.src)){const c=document.querySelector(`#list .cw[data-i="${D.from}"]`);if(c)c.classList.add('src')}}
+function beginDrag(cw,y){closeSwipe();const i=+cw.dataset.i,it=dayItems(cur)[i];if(!it)return;
+  if(caseOf(it.text||'')){const z=document.createElement('div');z.id='backZone';z.innerHTML='<i class="ti ti-arrow-back-up"></i>拖到這裡放回待排';document.body.appendChild(z)}
+  ['l','r'].forEach(k=>{const e=document.createElement('div');e.className='edgeHint '+k;e.innerHTML=`<i class="ti ti-chevron-${k==='l'?'left':'right'}"></i>`;document.body.appendChild(e)});
+  const r=cw.getBoundingClientRect(),g=cw.cloneNode(true);g.classList.add('ghost');g.classList.remove('lift','press');Object.assign(g.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px'});document.body.appendChild(g);
+  cw.classList.add('src');
+  D={src:{...cur},from:i,ghost:g,offY:y-r.top,offX:null,x0:r.left,to:i,day:null,h:r.height+8,rects:listRects(),edge:0,edgeT:null,back:false}}
+function dragMove(x,y){if(!D)return;if(D.offX===null)D.offX=x-D.x0;
+  D.ghost.style.left=(x-D.offX)+'px';D.ghost.style.top=(y-D.offY)+'px';
+  const bz=$('#backZone');D.back=false;if(bz){const b=bz.getBoundingClientRect();D.back=y>=b.top-10;bz.classList.toggle('hot',D.back)}
+  D.day=null;document.querySelectorAll('.strip .s').forEach(s=>{const b=s.getBoundingClientRect();const hit=x>=b.left&&x<=b.right&&y>=b.top-12&&y<=b.bottom+12;s.classList.toggle('drop',hit);if(hit)D.day=+s.dataset.i});
+  const W=innerWidth,dir=D.day!==null?0:x<30?-1:x>W-30?1:0;
+  document.querySelectorAll('.edgeHint').forEach(e=>e.classList.toggle('on',(e.classList.contains('l')&&dir<0)||(e.classList.contains('r')&&dir>0)));
+  if(dir!==D.edge){D.edge=dir;clearTimeout(D.edgeT);if(dir){const flip=async()=>{if(!D||D.edge!==dir)return;haptic();await slideGo(addDays(cur,dir));if(!D)return;D.rects=listRects();markSrc();D.edgeT=setTimeout(flip,800)};D.edgeT=setTimeout(flip,550)}}
+  const onSrc=same(cur,D.src),center=y-D.offY+(D.h-8)/2,others=D.rects.filter(r=>!(onSrc&&r.i===D.from));
+  D.to=D.day!==null||D.back?(onSrc?D.from:others.length):others.filter(r=>center>r.mid).length;
+  D.rects.forEach(r=>{let sh=0;if(onSrc){if(r.i===D.from)return;if(D.from<D.to&&r.i>D.from&&r.i<=D.to)sh=-D.h;else if(D.from>D.to&&r.i>=D.to&&r.i<D.from)sh=D.h}else if(D.day===null&&!D.back&&r.i>=D.to)sh=D.h;r.c.style.transform=sh?`translateY(${sh}px)`:''})}
+function bumpCell(idx){const c=document.querySelectorAll('.strip .s')[idx];if(!c)return;c.animate([{transform:'scale(1)'},{transform:'scale(1.18)'},{transform:'scale(1)'}],{duration:380,easing:'cubic-bezier(.3,1.6,.5,1)'});
+  const b=document.createElement('span');b.className='bd';b.textContent='+1';c.appendChild(b);b.animate([{transform:'translateY(4px)',opacity:0},{transform:'none',opacity:1,offset:.2},{opacity:1,offset:.8},{opacity:0}],{duration:1300}).onfinish=()=>b.remove()}
+async function dragEnd(){if(!D)return;const d=D;D=null;clearTimeout(d.edgeT);
+  ['#backZone'].forEach(q=>{const e=$(q);if(e)e.remove()});document.querySelectorAll('.edgeHint').forEach(e=>e.remove());
+  document.querySelectorAll('.strip .s').forEach(s=>s.classList.remove('drop'));document.querySelectorAll('#list .cw').forEach(c=>{c.style.transform=''});
+  const g=d.ghost,fade=async()=>{await g.animate([{opacity:1},{opacity:0,transform:'scale(.96)'}],{duration:160,fill:'forwards'}).finished;g.remove()};
+  const srcItems=clone(dayItems(d.src)),it=srcItems[d.from];if(!it){g.remove();render();return}
+  if(d.back){srcItems.splice(d.from,1);const cs=caseOf(it.text);await fade();if(cs&&!PEND.some(p=>p.id===cs.id))PEND.push(cs);save([{o:d.src,items:srcItems}]);
+    toast('已放回待排',()=>{PEND=PEND.filter(p=>!cs||p.id!==cs.id);const now=clone(dayItems(d.src));now.splice(Math.min(d.from,now.length),0,it);save([{o:d.src,items:now}])});return}
+  if(d.day!==null){const target=weekOf(cur)[d.day];if(!same(target,d.src)){haptic();const cell=document.querySelectorAll('.strip .s')[d.day].getBoundingClientRect(),gr=g.getBoundingClientRect();
+    await g.animate([{transform:'none',opacity:1},{transform:`translate(${cell.left+cell.width/2-gr.left-gr.width/2}px,${cell.top+cell.height/2-gr.top-gr.height/2}px) scale(.15)`,opacity:.3}],{duration:340,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'}).finished;g.remove();bumpCell(d.day);
+    await ensureMonth(target.y,target.m);srcItems.splice(d.from,1);save([{o:d.src,items:srcItems},{o:target,items:clone(dayItems(target)).concat([it])}]);toast(`已移到 ${target.m}/${target.d}`);return}}
+  if(same(cur,d.src)){await fade();if(d.to!==d.from){srcItems.splice(d.from,1);srcItems.splice(d.to,0,it);save([{o:cur,items:srcItems}])}else render();return}
+  // 跨頁：放進現在這天
+  const o={...cur};await ensureMonth(o.y,o.m);const dst=clone(dayItems(o));srcItems.splice(d.from,1);dst.splice(Math.min(d.to,dst.length),0,it);await fade();
+  await save([{o:d.src,items:srcItems},{o,items:dst}]);toast(`已移到 ${o.m}/${o.d}`);
+  const nc=document.querySelector(`#list .cw[data-i="${Math.min(d.to,dst.length-1)}"] .card`);if(nc)nc.animate([{boxShadow:'0 0 0 3px #C5AECF'},{boxShadow:'0 0 0 0 transparent'}],{duration:900})}
+document.addEventListener('mousemove',e=>{if(D)dragMove(e.clientX,e.clientY)});
+document.addEventListener('mouseup',()=>{if(D)dragEnd()});
 
 // ---- 換天：畫面跟著手指走（卡片上的左右滑留給完成／刪除） ----
 async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day');if(el.offsetParent===null){go(o);return}
@@ -603,20 +646,28 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   go(o);el.offsetWidth;
   el.style.transition='transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s';el.style.transform='';el.style.opacity=1;
   await wait(300);el.style.transition='';SLIDING=false}
-(()=>{const el=$('#day'),zone=document;let sx=0,sy=0,lock=null,dx=0,t0=0,on=false;
+(()=>{const el=$('#day'),zone=document,pull=$('#pull');let sx=0,sy=0,lock=null,dx=0,t0=0,on=false,pulling=false,ph=0,busy=false;
   // 整個畫面（卡片、週列、彈出視窗以外）左右滑都能換天
-  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.strip,#ovl,.sheet,.fab,#toast,[data-ck]'))return;on=true;lock=null;dx=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
-  zone.addEventListener('touchmove',e=>{if(!on)return;if(PDRAG||LP||D){on=false;el.style.transform='';return}const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8))lock=Math.abs(x)>Math.abs(y)?'h':'v';if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
-  zone.addEventListener('touchend',()=>{if(!on)return;on=false;if(lock!=='h')return;const fast=Date.now()-t0<250;
+  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.strip,#ovl,.sheet,.fab,#toast,[data-ck]'))return;on=true;lock=null;dx=0;pulling=false;ph=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
+  zone.addEventListener('touchmove',e=>{if(!on)return;if(PDRAG||LP||D){on=false;el.style.transform='';return}const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8)){lock=Math.abs(x)>Math.abs(y)?'h':'v';pulling=lock==='v'&&y>0&&!busy&&(document.scrollingElement.scrollTop||0)<=0}
+  if(pulling){e.preventDefault();ph=Math.min(96,Math.max(0,y*.5));pull.style.transition='none';pull.style.height=ph+'px';pull.querySelector('i').style.width=(18+ph*.5)+'px';pull.querySelector('span').textContent=ph>60?'放開重新整理':'往下拉重新整理';return}
+  if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
+  zone.addEventListener('touchend',()=>{if(!on)return;on=false;if(pulling){pulling=false;if(ph>60)refresh();else closePull();return}if(lock!=='h')return;const fast=Date.now()-t0<250;
     if(Math.abs(dx)>el.offsetWidth*0.25||(fast&&Math.abs(dx)>40))slideGo(addDays(cur,dx<0?1:-1),true);
     else{el.style.transition='transform .24s cubic-bezier(.2,.8,.2,1)';el.style.transform=''}});
+  const closePull=()=>{pull.style.transition='height .25s cubic-bezier(.2,.8,.2,1)';pull.style.height='0px'};
+  // 下拉後重新跟試算表同步
+  async function refresh(){busy=true;haptic();pull.style.transition='height .2s';pull.style.height='52px';pull.querySelector('span').textContent='同步中…';pull.classList.add('ing');
+    try{await Promise.all([...new Set(weekOf(cur).map(o=>ym(o.y,o.m)))].map(k=>{const [y,m]=k.split('-').map(Number);return loadMonth(y,m,true)}));render();loadPending();pull.querySelector('span').textContent='已更新'}
+    catch(e){pull.querySelector('span').textContent='同步失敗'}
+    pull.classList.remove('ing');await wait(650);closePull();busy=false}
   // 週列左右滑：換一整週
   const st=$('#strip');let qx=0,qy=0;
   st.addEventListener('touchstart',e=>{qx=e.touches[0].clientX;qy=e.touches[0].clientY},{passive:true});
   st.addEventListener('touchend',e=>{if(D)return;const x=e.changedTouches[0].clientX-qx,y=e.changedTouches[0].clientY-qy;if(Math.abs(x)>50&&Math.abs(x)>Math.abs(y)*1.5)slideGo(addDays(cur,x<0?7:-7))},{passive:true});
 })();
 
-async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render()}
+async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render();if(D)D.rects=listRects()}
 
 // ---- 月曆總覽（跳到某天 / 複製到多天） ----
 let PK=null;
@@ -733,7 +784,7 @@ window.addEventListener('resize',render);
 go(cur).then(loadPending);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019220335';
+const VER=/*VER*/'20261019221156';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
