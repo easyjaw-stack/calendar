@@ -306,6 +306,14 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .rw .tg{margin-left:auto;width:44px;height:26px;border-radius:13px;background:#E6E4DF;position:relative;transition:background .2s;flex-shrink:0}
 .rw .tg i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .2s}
 .rw .tg.on{background:#F08A4B}.rw .tg.on i{transform:translateX(18px)}
+#syncPill{position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:50%;transform:translate(-50%,0);z-index:45;display:flex;align-items:center;gap:7px;height:30px;padding:0 13px;border-radius:15px;background:#fff;color:var(--tx);font-size:12.5px;font-weight:600;box-shadow:0 4px 14px rgba(60,50,40,.14);transition:opacity .3s,transform .3s,background .25s,color .25s;animation:spin .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes spin{from{opacity:0;transform:translate(-50%,-10px)}}
+#syncPill i{width:8px;height:8px;border-radius:50%;background:#C5AECF;animation:pls .7s ease-in-out infinite alternate}
+#syncPill.ok{background:#262624;color:#fff}#syncPill.ok b{color:#C5AECF}
+#syncPill.err{background:#F6DCD9;color:#9a4c44}
+#syncPill.out{opacity:0;transform:translate(-50%,-10px);pointer-events:none}
+#list.syncing .card::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);background-size:250% 100%;animation:sweep 1.3s linear infinite}
+@keyframes sweep{from{background-position:120% 0}to{background-position:-120% 0}}
 </style>
 </head>
 <body>
@@ -363,16 +371,17 @@ function askKey(){const k=prompt('請貼上月曆金鑰');if(k){KEY=k.trim();try
 async function call(action,payload){
   if(!KEY)KEY=getKey();
   if(!KEY&&!askKey())throw new Error('沒有金鑰');
-  pending++;syncTxt();
+  const w=['save','append','repeat','pendSkip','pendUnskip'].includes(action);  // 只有寫入才顯示右上角「同步中…」
+  if(w){pending++;syncTxt()}
   try{
     const res=await fetch(API,{method:'POST',body:JSON.stringify({t:KEY,action,payload:payload||{}})});
     const r=await res.json();
     if(r.auth===false){try{localStorage.removeItem('calkey')}catch(e){}KEY='';throw new Error('金鑰錯誤，請重新整理後再貼一次')}
     if(r.ok||r.conflict)return r;
     throw new Error(r.error);
-  }finally{pending--;syncTxt()}
+  }finally{if(w){pending--;syncTxt()}}
 }
-function syncTxt(){$('#sync').textContent=pending?'同步中…':''}
+function syncTxt(){$('#sync').textContent=pending?'儲存中…':''}
 function absorb(r){if(r&&r.months){Object.keys(r.months).forEach(k=>{M[k]=r.months[k];delete STALE[k]});persist()}}
 const INF={};
 // 手機裡存一份最近幾個月，打開先顯示，再背景同步（STALE＝還沒跟試算表確認過）
@@ -664,7 +673,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   const closePull=()=>{pull.style.transition='height .25s cubic-bezier(.2,.8,.2,1)';pull.style.height='0px'};
   // 下拉後重新跟試算表同步
   async function refresh(){busy=true;haptic();pull.style.transition='height .2s';pull.style.height='52px';pull.querySelector('span').textContent='同步中…';pull.classList.add('ing');
-    try{await Promise.all([...new Set(weekOf(cur).map(o=>ym(o.y,o.m)))].map(k=>{const [y,m]=k.split('-').map(Number);return loadMonth(y,m,true)}));render();loadPending();pull.querySelector('span').textContent='已更新'}
+    try{await syncNow();loadPending();pull.querySelector('span').textContent='已更新'}
     catch(e){pull.querySelector('span').textContent='同步失敗'}
     pull.classList.remove('ing');await wait(650);closePull();busy=false}
   // 週列左右滑：換一整週
@@ -732,6 +741,17 @@ function pendCleared(){const el=$('#pend');if(!el)return;const d=document.create
   d.querySelector('.ck').animate([{strokeDashoffset:26},{strokeDashoffset:0}],{duration:320,delay:420,fill:'forwards',easing:'ease-out'});
   d.animate([{opacity:1},{opacity:1,offset:.8},{opacity:0}],{duration:2000,fill:'forwards'}).onfinish=()=>d.remove()}
 
+// ---- 同步狀態：開 App、切回來、下拉時，重新讀這週的月份，畫面上清楚顯示同步中／已是最新 ----
+let syncing=null;
+function syncPill(state){let p=$('#syncPill');if(!p){p=document.createElement('div');p.id='syncPill';document.body.appendChild(p)}
+  clearTimeout(p._t);p.className=state;p.innerHTML=state==='ing'?'<i></i>同步中':state==='ok'?'<b>✓</b>已是最新':'同步失敗，稍後再試';
+  if(state!=='ing')p._t=setTimeout(()=>{p.className=state+' out'},state==='ok'?1500:2500)}
+function syncNow(){if(syncing)return syncing;$('#list').classList.add('syncing');syncPill('ing');
+  syncing=Promise.all([...new Set(weekOf(cur).map(o=>ym(o.y,o.m)))].map(k=>{const [y,m]=k.split('-').map(Number);return loadMonth(y,m,true)}))
+    .then(()=>{if(!edit&&!D)render();syncPill('ok')}).catch(()=>syncPill('err'))
+    .finally(()=>{$('#list').classList.remove('syncing');syncing=null});
+  return syncing}
+
 // ---- 收入（讀剪輯表的結算分頁） ----
 async function openIncome(){$('#ovl').innerHTML=`<div class="ov in"><div class="h"><b>收入</b><button id="icCl"><i class="ti ti-x"></i></button></div><div id="icB"><div class="empty">讀取中…</div></div></div>`;
   $('#icCl').onclick=()=>{$('#ovl').innerHTML=''};
@@ -787,13 +807,13 @@ $('#srBtn').onclick=openSearch;
 $('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
-go(cur).then(loadPending);
+go(cur);syncNow().then(loadPending);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261020074715';
+const VER=/*VER*/'20261020074956';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D)syncNow().then(loadPending)}});
 </script>
 </body>
 </html>
