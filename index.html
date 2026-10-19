@@ -242,6 +242,11 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .qk span:active{background:#E6E4DF;transform:scale(.95)}
 .qk.st span{background:#F3EEF6;color:#6e5c78}
 .grp .big{padding-bottom:10px}
+.back-today{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 25px);left:50%;transform:translateX(calc(-100% - 44px)) scale(.9);height:44px;padding:0 16px;border-radius:22px;background:#fff;color:var(--tx);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(60,50,40,.16);z-index:10;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.back-today i{font-size:17px}
+.back-today.on{opacity:1;pointer-events:auto;transform:translateX(calc(-100% - 44px)) scale(1)}
+.back-today.on:active{transform:translateX(calc(-100% - 44px)) scale(.94)}
+@media (orientation:landscape) and (min-width:560px){.back-today{display:none}}
 </style>
 </head>
 <body>
@@ -252,6 +257,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
   <div id="week"></div>
 </div>
 <button class="fab" id="fab"><i class="ti ti-plus"></i></button>
+<button class="back-today" id="backToday"><i class="ti ti-arrow-back-up"></i>回今天</button>
 <div id="ovl"></div>
 <div id="toast"></div>
 <script>
@@ -362,6 +368,7 @@ function render(){
   renderPend();
   if(JO>=0){const det=document.querySelector(`#list .cw[data-i="${JO}"] .det`);if(det){const h=det.offsetHeight;det.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'})}}
   $('#fab').style.display=edit?'none':'flex';
+  $('#backToday').classList.toggle('on',!edit&&!isToday(cur));
   renderWeek(wk);
   if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();ED_IN=false;bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
 }
@@ -627,11 +634,12 @@ $('#fab').onclick=()=>openEdit(-1);
 $('#moBtn').onclick=()=>openPicker('jump');
 $('#srBtn').onclick=openSearch;
 $('#inBtn').onclick=openIncome;
+$('#backToday').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
 $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019205319';
+const VER=/*VER*/'20261019211518';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
