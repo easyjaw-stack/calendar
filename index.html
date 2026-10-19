@@ -247,6 +247,15 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .back-today.on{opacity:1;pointer-events:auto;transform:translateX(calc(-100% - 44px)) scale(1)}
 .back-today.on:active{transform:translateX(calc(-100% - 44px)) scale(.94)}
 @media (orientation:landscape) and (min-width:560px){.back-today{display:none}}
+.card{overflow:hidden}
+.card .ink{position:absolute;width:520px;height:520px;border-radius:50%;background:#EBE2F1;pointer-events:none;z-index:0}
+.card .row1,.card .det{position:relative;z-index:1}
+#cheer{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 92px);transform:translate(-50%,14px);display:flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:9px 16px;box-shadow:0 6px 18px rgba(60,50,40,.16);font-size:14px;font-weight:600;color:var(--tx);z-index:31;opacity:0;pointer-events:none;transition:opacity .25s,transform .3s cubic-bezier(.2,.8,.2,1);white-space:nowrap}
+#cheer.on{opacity:1;transform:translate(-50%,0)}
+#cheer .cb{width:64px;height:6px;border-radius:3px;background:#E6E4DF;overflow:hidden}
+#cheer .cb i{display:block;height:100%;background:#C5AECF;border-radius:3px;transition:width .5s}
+#cheer .cn{font-size:12px;color:var(--mu);font-weight:500}
+#cheer.fin{background:#262624;color:#fff}#cheer.fin .cb{background:#555}#cheer.fin .cn{color:#C5AECF}
 </style>
 </head>
 <body>
@@ -467,7 +476,21 @@ async function finishEdit(){syncEdit();const e=edit;const text=e.text.trim();if(
   await save([{o:cur,items}]);
   if(e.idx>=0&&e.rp){try{const r=await call('repeat',{rule:{text,type:e.rp,start:keyOf(addDays(cur,1)),bg:e.bg,note}});absorb(r);render();toast('之後會重複出現')}catch(err){toast('重複沒設定成功')}}
 }
-function toggle(i){const items=clone(dayItems(cur));items[i].done=!items[i].done;POP=i;haptic();save([{o:cur,items}]);setTimeout(()=>{POP=-1},500)}
+function toggle(i){const items=clone(dayItems(cur));items[i].done=!items[i].done;POP=i;haptic();save([{o:cur,items}]);setTimeout(()=>{POP=-1},500);if(items[i].done)cheer(i,items)}
+// 完成回饋：墨水暈開＋鼓勵小語＋今日進度
+const CHEERS=['做得好','完成一件','又前進一步','穩穩的','收工一件','漂亮','讚','好欸','順順的','有你的','一步一步來','清掉一件','節奏很好','繼續保持','輕鬆搞定'];
+let lastCheer=-1,cheerT;
+function cheer(i,items){
+  const card=document.querySelector(`#list .cw[data-i="${i}"] .card`),ck=card&&card.querySelector('.ck');
+  if(card&&ck){const c=card.getBoundingClientRect(),k=ck.getBoundingClientRect(),ink=document.createElement('span');ink.className='ink';
+    ink.style.left=(k.left-c.left+k.width/2)+'px';ink.style.top=(k.top-c.top+k.height/2)+'px';card.prepend(ink);
+    ink.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:.95},{transform:'translate(-50%,-50%) scale(1)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>ink.remove()}
+  const list=items.filter(x=>!x.span),done=list.filter(x=>x.done).length,all=list.length,fin=done===all;
+  let n;do{n=Math.floor(Math.random()*CHEERS.length)}while(n===lastCheer&&CHEERS.length>1);lastCheer=n;
+  let el=$('#cheer');if(!el){el=document.createElement('div');el.id='cheer';document.body.appendChild(el)}
+  el.innerHTML=`<span class="cm">${fin?'今天全部完成':CHEERS[n]}</span><span class="cb"><i style="width:${Math.round(done/all*100)}%"></i></span><span class="cn">${done} / ${all}</span>`;
+  el.classList.toggle('fin',fin);el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
+  clearTimeout(cheerT);cheerT=setTimeout(()=>el.classList.remove('on'),fin?2400:1600)}
 let undoTimer;
 function removeAt(i){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);
   toast('已刪除',()=>{const now=clone(dayItems(o));now.splice(Math.min(i,now.length),0,gone);save([{o,items:now}])})}
@@ -636,7 +659,7 @@ $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019212120';
+const VER=/*VER*/'20261019213250';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
