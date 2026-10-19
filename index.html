@@ -572,8 +572,10 @@ function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first
 async function loadPending(){try{const r=await call('pending',{});PEND=r.pending||[];OPEN=r.open||[];renderPend()}catch(e){}}
 // 這件待辦是不是剪輯表裡的案子（跟後端同一套比對：編號＋｜後面的字，或專案名稱開頭）
 const normT=t=>String(t).toUpperCase().replace(/[\s.．・·]/g,'');
+const GENERIC=['短影音','PODCAST','業配','長片','影片','剪輯'];
+const wordsOf=t=>String(t).toUpperCase().split(/[\s【】\[\]()（）｜|\-–—:：,，、]+|\bX\b/).map(w=>w.replace(/[.．・·]/g,'')).filter(w=>w.length>=2&&GENERIC.indexOf(w)<0);
 function caseOf(text){const x=normT(text);return OPEN.find(c=>{const t=String(c.title);const codes=(t.match(/[A-Za-z]{1,5}\s?\.?\s?\d{1,4}/g)||[]).map(normT);const after=t.indexOf('｜')>=0?normT(t.split('｜').pop()).slice(0,2):'';
-  if(codes.length)return codes.some(cd=>x.indexOf(cd)>=0)&&(!after||x.indexOf(after)>=0);const head=normT(t.replace(/[【】\[\]()（）]/g,'')).slice(0,6);return head.length>1&&x.indexOf(head)>=0})}
+  if(codes.length)return codes.some(cd=>x.indexOf(cd)>=0)&&(!after||x.indexOf(after)>=0);const ws=wordsOf(t).map(normT);return ws.length>0&&ws.every(w=>x.indexOf(w)>=0)})}
 function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return false;const t=new Date(T.getFullYear(),+m[1]-1,+m[2]);return (t-T)/864e5<=3}
 function renderPend(){const el=$('#pend');if(!el)return;$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){el.innerHTML='';return}
   el.innerHTML=`<button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b>剪輯表裡還沒排進月曆的案子<i class="ti ti-chevron-down"></i></button>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
@@ -627,7 +629,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261017000825';
+const VER=/*VER*/'20261019155731';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
