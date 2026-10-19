@@ -256,6 +256,8 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 #cheer .cb i{display:block;height:100%;background:#C5AECF;border-radius:3px;transition:width .5s}
 #cheer .cn{font-size:12px;color:var(--mu);font-weight:500}
 #cheer.fin{background:#262624;color:#fff}#cheer.fin .cb{background:#555}#cheer.fin .cn{color:#C5AECF}
+.tag.fin{background:#EBE2F1;color:#86739A;font-weight:600}
+.pdone{display:flex;justify-content:center;padding:18px 0}
 </style>
 </head>
 <body>
@@ -366,8 +368,8 @@ function render(){
   const wk=weekOf(cur);
   $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b></div>`).join('');
   $('#strip').querySelectorAll('.s').forEach(s=>s.onclick=()=>slideGo(wk[+s.dataset.i]));
-  const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done&&!i.span).length;
-  $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
+  const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done&&!i.span).length,real=items.filter(i=>!i.span).length;
+  $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
   const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
   let html=items.map((it,i)=>cardHTML(it,i)).join('');
   if(!items.length)html='<div class="empty">這天還沒有安排</div>';
@@ -487,6 +489,7 @@ function cheer(i,items){
     ink.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:.95},{transform:'translate(-50%,-50%) scale(1)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>ink.remove()}
   const list=items.filter(x=>!x.span),done=list.filter(x=>x.done).length,all=list.length,fin=done===all;
   let n;do{n=Math.floor(Math.random()*CHEERS.length)}while(n===lastCheer&&CHEERS.length>1);lastCheer=n;
+  if(fin){const tg=$('#dh .tag.fin');if(tg)tg.animate([{transform:'scale(0)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:460,easing:'cubic-bezier(.3,1.6,.5,1)'});return}
   let el=$('#cheer');if(!el){el=document.createElement('div');el.id='cheer';document.body.appendChild(el)}
   el.innerHTML=`<span class="cm">${fin?'今天全部完成':CHEERS[n]}</span><span class="cb"><i style="width:${Math.round(done/all*100)}%"></i></span><span class="cn">${done} / ${all}</span>`;
   el.classList.toggle('fin',fin);el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
@@ -607,7 +610,7 @@ function caseOf(text){const x=normT(text);return OPEN.find(c=>{const t=String(c.
 function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return false;const t=new Date(T.getFullYear(),+m[1]-1,+m[2]);return (t-T)/864e5<=3}
 // 待排照交期排序：有日期的由近到遠，「待確認」或沒填的放最後
 function dueKey(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return 9e15;let t=new Date(T.getFullYear(),+m[1]-1,+m[2]);if((t-T)/864e5<-180)t=new Date(T.getFullYear()+1,+m[1]-1,+m[2]);return +t}
-function renderPend(){const el=$('#pend');if(!el)return;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){el.innerHTML='';return}
+function renderPend(){const el=$('#pend');if(!el)return;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){[...el.children].forEach(c=>{if(!c.classList.contains('pdone'))c.remove()});return}
   el.innerHTML=`<button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b>剪輯表裡還沒排進月曆的案子<i class="ti ti-chevron-down"></i></button>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
   $('#pendH').onclick=()=>{POPEN=!POPEN;try{localStorage.setItem('pendOpen',POPEN?'1':'0')}catch(e){}renderPend()};
   el.querySelectorAll('.pi').forEach(bindPend)}
@@ -630,9 +633,16 @@ function pendMenu(p){$('#toast').innerHTML='';const box=document.createElement('
     if(a==='here')schedule(p,{...cur});
     else if(a==='pick'){openPicker('pend');PK.item=p;drawPicker()}
     else if(a==='skip'){PEND=PEND.filter(x=>x.id!==p.id);renderPend();toast('之後不會再出現');try{await call('pendSkip',{id:p.id})}catch(e){}}})}
-async function schedule(p,o){PEND=PEND.filter(x=>x.id!==p.id);renderPend();await loadMonth(o.y,o.m);
+async function schedule(p,o){const had=PEND.length;PEND=PEND.filter(x=>x.id!==p.id);renderPend();if(had&&!PEND.length)pendCleared();await loadMonth(o.y,o.m);
   const items=clone(dayItems(o)).concat([{text:p.text,done:false,bg:'',fc:'',bold:false,note:p.due&&/\d/.test(p.due)?'備註：交期 '+p.due:''}]);
   await save([{o,items}]);toast(`已排到 ${o.m}/${o.d}`)}
+
+function pendCleared(){const el=$('#pend');if(!el)return;const d=document.createElement('div');d.className='pdone';
+  d.innerHTML='<svg width="56" height="56" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" stroke-dashoffset="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" stroke-dashoffset="26" class="ck"/></svg>';
+  el.appendChild(d);haptic();
+  d.querySelector('.cc').animate([{strokeDashoffset:107},{strokeDashoffset:0}],{duration:500,fill:'forwards',easing:'ease-out'});
+  d.querySelector('.ck').animate([{strokeDashoffset:26},{strokeDashoffset:0}],{duration:320,delay:420,fill:'forwards',easing:'ease-out'});
+  d.animate([{opacity:1},{opacity:1,offset:.8},{opacity:0}],{duration:2000,fill:'forwards'}).onfinish=()=>d.remove()}
 
 // ---- 收入（讀剪輯表的結算分頁） ----
 async function openIncome(){$('#ovl').innerHTML=`<div class="ov in"><div class="h"><b>收入</b><button id="icCl"><i class="ti ti-x"></i></button></div><div id="icB"><div class="empty">讀取中…</div></div></div>`;
@@ -659,7 +669,7 @@ $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019213250';
+const VER=/*VER*/'20261019214506';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
