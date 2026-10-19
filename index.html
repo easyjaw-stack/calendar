@@ -251,7 +251,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 </head>
 <body>
 <div id="app">
-  <div class="top"><button class="mo" id="moBtn"><i class="ti ti-calendar-event"></i><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button><button id="tdBtn" aria-label="月曆"><i class="ti ti-calendar-month"></i></button></div></div>
+  <div class="top"><button class="mo" id="moBtn"><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="tdBtn" aria-label="月曆"><i class="ti ti-calendar-month"></i></button><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button></div></div>
   <div class="strip" id="strip"></div>
   <div id="day"><div class="dh" id="dh"></div><div id="list"></div><div id="pend"></div></div>
   <div id="week"></div>
@@ -636,7 +636,7 @@ $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019212023';
+const VER=/*VER*/'20261019212120';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
