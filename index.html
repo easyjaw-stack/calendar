@@ -577,7 +577,9 @@ const wordsOf=t=>String(t).toUpperCase().split(/[\s【】\[\]()（）｜|\-–�
 function caseOf(text){const x=normT(text);return OPEN.find(c=>{const t=String(c.title);const codes=(t.match(/[A-Za-z]{1,5}\s?\.?\s?\d{1,4}/g)||[]).map(normT);const after=t.indexOf('｜')>=0?normT(t.split('｜').pop()).slice(0,2):'';
   if(codes.length)return codes.some(cd=>x.indexOf(cd)>=0)&&(!after||x.indexOf(after)>=0);const ws=wordsOf(t).map(normT);return ws.length>0&&ws.every(w=>x.indexOf(w)>=0)})}
 function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return false;const t=new Date(T.getFullYear(),+m[1]-1,+m[2]);return (t-T)/864e5<=3}
-function renderPend(){const el=$('#pend');if(!el)return;$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){el.innerHTML='';return}
+// 待排照交期排序：有日期的由近到遠，「待確認」或沒填的放最後
+function dueKey(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return 9e15;let t=new Date(T.getFullYear(),+m[1]-1,+m[2]);if((t-T)/864e5<-180)t=new Date(T.getFullYear()+1,+m[1]-1,+m[2]);return +t}
+function renderPend(){const el=$('#pend');if(!el)return;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){el.innerHTML='';return}
   el.innerHTML=`<button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b>剪輯表裡還沒排進月曆的案子<i class="ti ti-chevron-down"></i></button>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
   $('#pendH').onclick=()=>{POPEN=!POPEN;try{localStorage.setItem('pendOpen',POPEN?'1':'0')}catch(e){}renderPend()};
   el.querySelectorAll('.pi').forEach(bindPend)}
@@ -629,7 +631,7 @@ $('#tdBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019155731';
+const VER=/*VER*/'20261019205319';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
