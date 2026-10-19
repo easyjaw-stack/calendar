@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" onload="this.onload=null;this.rel='stylesheet'">
 <style>
 :root{--bg:#F2F1EE;--card:#FFFFFF;--line:#E6E4DF;--tx:#262624;--mu:#9B9993;--dim:#B8B8B4;--ac:#262624;--ac2:#C5AECF;--ink:#262624;--hol:#B5584E;--sh:none}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -313,7 +313,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
   <div class="top"><button class="mo" id="moBtn"><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="tdBtn" aria-label="月曆"><i class="ti ti-calendar-month"></i></button><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button></div></div>
   <div class="strip" id="strip"></div>
   <div id="pull"><i></i><span>往下拉重新整理</span></div>
-  <div id="day"><div class="dh" id="dh"></div><div id="list"></div><div id="pend"></div></div>
+  <div id="day"><div class="dh" id="dh"></div><div id="list"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div><div id="pend"></div></div>
   <div id="week"></div>
 </div>
 <button class="fab" id="fab"><i class="ti ti-plus"></i></button>
@@ -790,7 +790,7 @@ window.addEventListener('resize',render);
 go(cur).then(loadPending);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019231140';
+const VER=/*VER*/'20261020074715';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
