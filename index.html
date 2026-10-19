@@ -261,6 +261,30 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .card.fire{background:#FFF3EA}
 .card .flame{flex-shrink:0;transform-origin:50% 100%;animation:fk .9s ease-in-out infinite alternate}
 @keyframes fk{0%{transform:scale(1,1) rotate(-2deg)}50%{transform:scale(1.06,.94) rotate(2deg)}100%{transform:scale(.96,1.08) rotate(-1deg)}}
+.rc{background:#fff;padding:20px 18px 26px;font-family:ui-monospace,Menlo,"PingFang TC",monospace;font-size:13px;margin:6px 4px 20px;-webkit-mask:radial-gradient(circle 7px at 50% 100%,transparent 98%,#000) 0 0/16px 100% repeat-x;mask:radial-gradient(circle 7px at 50% 100%,transparent 98%,#000) 0 0/16px 100% repeat-x}
+.rc h4{text-align:center;font-size:16px;margin:0 0 3px;letter-spacing:3px}
+.rc .c{text-align:center;color:var(--mu);font-size:11.5px;margin-bottom:12px}
+.rc .ln{border-top:1px dashed #C9C6BF;margin:10px 0}
+.rc .r{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.rc .tot{font-size:16px;font-weight:700}.rc .mu{color:var(--mu)}
+.rc .bc{height:32px;margin-top:14px;background:repeating-linear-gradient(90deg,#262624 0 2px,transparent 2px 4px,#262624 4px 5px,transparent 5px 8px,#262624 8px 11px,transparent 11px 13px)}
+.rvb{margin-bottom:18px}
+.rvm{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.rvm button{background:var(--card);border-radius:10px;padding:8px 12px;font-size:13px}.rvm small{display:block;font-size:10px;color:var(--mu)}
+.yrb{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#262624;color:#F2F1EE;border-radius:14px;padding:16px;font-size:15px;font-weight:600;margin-bottom:14px}
+.yrs{width:100%;background:var(--card);border-radius:12px;padding:12px;font-size:13px;color:var(--mu)}
+.yr{position:fixed;inset:0;z-index:50;background:#262624;color:#F2F1EE;font-family:inherit;animation:fdin .3s}
+.yb{position:absolute;top:calc(env(safe-area-inset-top) + 14px);left:16px;right:16px;display:flex;gap:4px;z-index:2}
+.yb i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}.yb i b{display:block;height:100%;width:0;background:#F2F1EE}
+.yx{position:absolute;top:calc(env(safe-area-inset-top) + 26px);right:12px;color:#B8B8B4;font-size:22px;padding:8px;z-index:3}
+.yr .sl{position:absolute;inset:0;padding:calc(env(safe-area-inset-top) + 60px) 30px 40px;display:flex;flex-direction:column;justify-content:center;opacity:0;transition:opacity .35s;pointer-events:none}
+.yr .sl.on{opacity:1}
+.yr small{font-size:14px;color:#C5AECF;letter-spacing:1px}
+.yr h3{font-size:28px;font-weight:600;margin:10px 0 8px;line-height:1.35}
+.yr .big{font-size:72px;font-weight:700;line-height:1;margin:8px 0;color:#fff}
+.yr p{font-size:15px;color:#B8B8B4;margin:8px 0;line-height:1.7}
+.yr .mb{display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:16px}.yr .mb span{flex:1;background:#4a4a46;border-radius:4px 4px 0 0}.yr .mb span.hi{background:#C5AECF}
+.yr .rk div{display:flex;justify-content:space-between;font-size:17px;padding:11px 0;border-bottom:1px solid #3a3a37}.yr .rk b{color:#C5AECF;font-weight:600}
 </style>
 </head>
 <body>
@@ -656,10 +680,42 @@ async function openIncome(){$('#ovl').innerHTML=`<div class="ov in"><div class="
   $('#icCl').onclick=()=>{$('#ovl').innerHTML=''};
   try{const r=await call('income',{});if(!$('#icB'))return;const mx=Math.max(1,...r.months.map(x=>x.all)),nm=T.getMonth()+1;
     $('#icB').innerHTML=`<div class="inc">${r.top.map((t,i)=>`<div class="${i===0?'hi':''}">${esc(t.label)}<b>${esc(t.value)}</b></div>`).join('')}</div>
+    ${(()=>{const y=T.getFullYear(),m=T.getMonth()+1,season=(m===12&&T.getDate()>=15)||m===1,yy=m===1?y-1:y;return `<div class="rvb">${season?`<button class="yrb" data-yr="${yy}"><i class="ti ti-sparkles"></i>${yy} 年度回顧</button>`:''}<div class="mh"><b>月回顧</b><span>點月份看收據</span></div><div class="rvm">${[...Array(m)].map((_,i)=>`<button data-rm="${i+1}">${i+1} 月${i+1===m?'<small>到目前</small>':''}</button>`).join('')}</div>${season?'':`<button class="yrs" data-yr="${y}">${y} 年度回顧（到目前為止）</button>`}</div>`})()}
     <div class="mh"><b>每月做了多少</b><span>深色＝已完成　淺色＝已排還沒做完</span></div>
     <div class="mb">${r.months.filter(x=>x.all>0||x.m<=nm).map(x=>`<div class="mr ${x.m===nm?'now':''}"><span class="m">${x.m} 月</span><div class="tk"><i style="width:${x.all/mx*100}%;background:#EDE3F1"></i><i style="width:${x.done/mx*100}%;background:#C5AECF"></i></div><span class="v"><b>NT$${x.done.toLocaleString()}</b>${x.all>x.done?`（已排 ${x.all.toLocaleString()}）`:''}</span></div>`).join('')}</div>`;
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>openReceipt(T.getFullYear(),+b.dataset.rm));document.querySelectorAll('[data-yr]').forEach(b=>b.onclick=()=>openYear(+b.dataset.yr));
   const ov=$('#ovl .ov');if(ov)ov.scrollTop=0}
   catch(e){if($('#icB'))$('#icB').innerHTML='<div class="empty">讀取失敗：'+esc(e.message||e)+'</div>'}}
+
+// ---- 月回顧（收據）／年度回顧（黑底限時動態） ----
+const nt=n=>'NT$'+Math.round(n).toLocaleString();
+async function openReceipt(y,m){$('#ovl').innerHTML=`<div class="ov rv"><div class="h"><b></b><button id="rvCl"><i class="ti ti-x"></i></button></div><div id="rvB"><div class="empty">印收據中…</div></div></div>`;
+  $('#rvCl').onclick=()=>{$('#ovl').innerHTML=''};
+  try{const v=(await call('review',{y,m})).review;if(!$('#rvB'))return;const nd=new Date(y,m,0).getDate(),diff=v.prev?Math.round((v.income-v.prev)/v.prev*100):null,MM='一二三四五六七八九十'.split('');
+    const mName=m<=10?MM[m-1]:'十'+MM[m-11];const other=v.videos-v.clients.reduce((a,c)=>a+c[1],0);
+    $('#rvB').innerHTML=`<div class="rc"><h4>${mName}月收據</h4><div class="c">${y}/${m}/01 – ${m}/${nd}・剪輯師 zhao</div><div class="ln"></div>
+      <div class="r"><span>完成待辦</span><span>${v.done} 件</span></div><div class="r"><span>交出影片</span><span>${v.videos} 支</span></div><div class="r"><span>全部完成的日子</span><span>${v.allDays} 天</span></div>${v.busy.n?`<div class="r"><span>最忙的一天</span><span>${m}/${v.busy.d}（${v.busy.n} 件）</span></div>`:''}<div class="ln"></div>
+      ${v.clients.map(c=>`<div class="r"><span>${esc(c[0])}</span><span>×${c[1]}</span></div>`).join('')}${other>0?`<div class="r"><span>其他</span><span>×${other}</span></div>`:''}${v.clients.length?'<div class="ln"></div>':''}
+      <div class="r tot"><span>本月完成</span><span>${nt(v.income)}</span></div>${diff!==null?`<div class="r mu"><span>比 ${m>1?m-1:12} 月</span><span>${diff>=0?'+':''}${diff}%</span></div>`:''}
+      <div class="bc"></div><div class="c" style="margin:8px 0 0">謝謝光臨，下個月見</div></div>`;
+    $('#rvB .rc').animate([{transform:'translateY(-40px)',clipPath:'inset(0 0 100% 0)'},{transform:'none',clipPath:'inset(0 0 0 0)'}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'})}
+  catch(e){if($('#rvB'))$('#rvB').innerHTML='<div class="empty">讀取失敗：'+esc(e.message||e)+'</div>'}}
+async function openYear(y){const box=document.createElement('div');box.className='yr';box.innerHTML='<div class="yb"></div><div class="ys"><div class="sl on"><small>'+y+' 年度回顧</small><h3>整理中…</h3></div></div><button class="yx"><i class="ti ti-x"></i></button>';document.body.appendChild(box);
+  box.querySelector('.yx').onclick=e=>{e.stopPropagation();box.remove()};
+  let v;try{v=(await call('review',{y})).review}catch(e){box.querySelector('h3').textContent='讀取失敗';return}
+  const mx=Math.max(1,...v.income),hi=v.income.indexOf(Math.max(...v.income)),k=v.kinds,kinds=Object.keys(k).filter(x=>k[x]).map(x=>`${x} ${k[x]} 支`).join('、');
+  const S=[`<small>${y} 年度回顧</small><h3>這一年，<br>你剪了很多東西。</h3><p>把月曆和剪輯表翻了一遍，整理出你的 ${y}。</p>`,
+    `<small>完成的待辦</small><div class="big">${v.done.toLocaleString()}</div><h3>件事被你畫掉了</h3>${v.best.n?`<p>最多的一天是 ${v.best.m}/${v.best.d}，一口氣排了 ${v.best.n} 件。</p>`:''}`,
+    `<small>合作的案子</small><div class="big">${v.videos}</div><h3>支影片交出去</h3><p>來自 ${v.nClients} 個客戶。${kinds?'其中'+kinds+'。':''}</p>`,
+    `<small>最常合作的客戶</small><div class="rk">${v.clients.map((c,i)=>`<div><span>${i+1}　${esc(c[0])}</span><b>${c[1]} 支</b></div>`).join('')}</div>`,
+    `<small>收入最高的月份</small><h3>${hi+1} 月　${nt(v.income[hi])}</h3><div class="mb">${v.income.map((x,i)=>`<span class="${i===hi?'hi':''}" style="height:${Math.max(2,x/mx*100)}%"></span>`).join('')}</div><p>全年 ${nt(v.total)}${v.lastYear?`，比去年${v.total>=v.lastYear?'多':'少'}了 ${Math.abs(Math.round((v.total-v.lastYear)/v.lastYear*100))}%`:''}。</p>`,
+    v.week?`<small>最忙的一週</small><h3>${v.week.from} 那週</h3><p>那週排了 ${v.week.n} 件事。${v.stage?`<br>你最常寫的階段是「${esc(v.stage[0])}」，出現 ${v.stage[1]} 次。`:''}</p>`:null,
+    `<small>連續全部完成</small><div class="big">${v.streak.n} 天</div><h3>是你今年最長的紀錄</h3><p>${v.streak.n?`${v.streak.from} 到 ${v.streak.to}，每天的待辦都清空。<br><br>`:''}辛苦了，明年也一起加油。</p>`].filter(Boolean);
+  const ys=box.querySelector('.ys'),yb=box.querySelector('.yb');ys.innerHTML=S.map(h=>`<div class="sl">${h}</div>`).join('');yb.innerHTML=S.map(()=>'<i><b></b></i>').join('');
+  let k2=0;const show=n=>{if(n>=S.length){box.remove();return}k2=Math.max(0,n);[...ys.children].forEach((e,i)=>e.classList.toggle('on',i===k2));[...yb.children].forEach((b,i)=>{const x=b.firstChild;x.getAnimations().forEach(a=>a.cancel());x.style.width=i<k2?'100%':'0'});yb.children[k2].firstChild.animate([{width:'0'},{width:'100%'}],{duration:5000,fill:'forwards'}).onfinish=()=>show(k2+1)};
+  box.onclick=e=>{const w=box.getBoundingClientRect().width;show(e.clientX>w/2?k2+1:k2-1)};show(0)}
+// 每月 1 號第一次打開：跳上個月的收據
+function autoReceipt(){if(T.getDate()!==1)return;const p=new Date(T.getFullYear(),T.getMonth()-1,1),k='rv-'+p.getFullYear()+'-'+(p.getMonth()+1);try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){return}setTimeout(()=>openReceipt(p.getFullYear(),p.getMonth()+1),800)}
 
 // ---- 搜尋 ----
 function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜尋</b><button id="srCl"><i class="ti ti-x"></i></button></div><div class="sr"><i class="ti ti-search"></i><input id="srIn"></div><div id="srRes"></div></div>`;
@@ -675,8 +731,9 @@ $('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
 go(cur).then(loadPending);
+autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261019215125';
+const VER=/*VER*/'20261019215707';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit)location.reload()}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){loadPending();checkVer()}});
