@@ -452,7 +452,8 @@ function renderWeek(wk){
 // ---- 交期當天冒火：剪輯表交期＝這張卡片所在的那天 ----
 const FLAME='<svg class="flame" width="15" height="19" viewBox="0 0 16 20" aria-label="今天交"><path d="M8 1c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 2-7 2 1 3 3 3 5 1-2 1-6 1-9z" fill="#F08A4B"/><path d="M8 10c.5 2 3 3 3 5.5a3 3 0 0 1-6 0c0-1.5 1-2 1-3.5 1 .5 1.5 1.5 1.5 2.5.5-1 .5-3 .5-4.5z" fill="#FFD27A"/></svg>';
 // 這張卡片對應的剪輯表案子交期（即時讀，補填交期後重新同步就會出現）
-function dueOf(it){if(!OPEN.length||it.span)return '';const c=caseOf(it.text);const d=c?String(c.due).trim():'';return /^\d{1,2}\/\d{1,2}$/.test(d)?d:''}
+function dueOf(it){if(!OPEN.length||it.span)return '';const c=caseOf(it.text);if(c&&/修改/.test(c.status||''))return '';  // 修改中：交期已過，不顯示
+  const d=c?String(c.due).trim():'';return /^\d{1,2}\/\d{1,2}$/.test(d)?d:''}
 function dueToday(it){return dueOf(it)===cur.m+'/'+cur.d}
 
 // ---- 快速輸入：從月曆上寫過的待辦整理出常用客戶和階段 ----
@@ -815,7 +816,7 @@ window.addEventListener('resize',render);
 go(cur);syncNow();loadPending();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261020075625';
+const VER=/*VER*/'20261020080158';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D){syncNow();loadPending()}}});
