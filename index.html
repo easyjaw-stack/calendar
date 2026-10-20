@@ -679,7 +679,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   const closePull=()=>{pull.style.transition='height .25s cubic-bezier(.2,.8,.2,1)';pull.style.height='0px'};
   // 下拉後重新跟試算表同步
   async function refresh(){busy=true;haptic();pull.style.transition='height .2s';pull.style.height='52px';pull.querySelector('span').textContent='同步中…';pull.classList.add('ing');
-    try{await syncNow();loadPending();pull.querySelector('span').textContent='已更新'}
+    try{await syncNow();pull.querySelector('span').textContent='已更新'}
     catch(e){pull.querySelector('span').textContent='同步失敗'}
     pull.classList.remove('ing');await wait(650);closePull();busy=false}
   // 週列左右滑：換一整週
@@ -688,7 +688,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   st.addEventListener('touchend',e=>{if(D)return;const x=e.changedTouches[0].clientX-qx,y=e.changedTouches[0].clientY-qy;if(Math.abs(x)>50&&Math.abs(x)>Math.abs(y)*1.5)slideGo(addDays(cur,x<0?7:-7))},{passive:true});
 })();
 
-async function go(o){edit=null;openIdx=-1;cur={...o};render();await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render();if(D)D.rects=listRects()}
+async function go(o){edit=null;openIdx=-1;cur={...o};render();if(syncing)await syncing.catch(()=>{});await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render();if(D)D.rects=listRects()}
 
 // ---- 月曆總覽（跳到某天 / 複製到多天） ----
 let PK=null;
@@ -754,8 +754,13 @@ function syncPill(state){let p=$('#syncPill');if(!p){p=document.createElement('d
   clearTimeout(p._t);p.className=state;p.innerHTML=state==='ing'?'<i></i>同步中':state==='ok'?'<b>✓</b>已是最新':'同步失敗，稍後再試';
   if(state!=='ing')p._t=setTimeout(()=>{p.className=state+' out'},state==='ok'?1500:2500)}
 function syncNow(){if(syncing)return syncing;$('#list').classList.add('syncing');syncPill('ing');
-  syncing=Promise.all([...new Set(weekOf(cur).map(o=>ym(o.y,o.m)))].map(k=>{const [y,m]=k.split('-').map(Number);return loadMonth(y,m,true)}))
-    .then(()=>{if(!edit&&!D)render();syncPill('ok')}).catch(()=>syncPill('err'))
+  // 月曆和待排一次讀完（伺服器那邊有快取，資料沒變就很快）
+  const keys=[...new Set(weekOf(cur).map(o=>ym(o.y,o.m)))];
+  syncing=call('boot',{months:keys.map(k=>k.split('-').map(Number))}).then(r=>{
+      Object.keys(r.months||{}).forEach(k=>{M[k]=r.months[k];delete STALE[k]});persist();
+      PEND=r.pending||[];OPEN=r.open||[];try{localStorage.setItem('pendcache',JSON.stringify({pending:PEND,open:OPEN}))}catch(e){}
+      if(!edit&&!D)render();else renderPend();syncPill('ok')})
+    .catch(()=>syncPill('err'))
     .finally(()=>{$('#list').classList.remove('syncing');syncing=null});
   return syncing}
 
@@ -814,13 +819,13 @@ $('#srBtn').onclick=openSearch;
 $('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
-go(cur);syncNow();loadPending();
+syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261020233851';
+const VER=/*VER*/'20261020235346';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D){syncNow();loadPending()}}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D)syncNow()}});
 </script>
 </body>
 </html>
