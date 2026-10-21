@@ -457,14 +457,15 @@ function dueOf(it){if(!OPEN.length||it.span)return '';const c=caseOf(it.text);if
 function dueToday(it){return dueOf(it)===cur.m+'/'+cur.d}
 
 // ---- 快速輸入：從月曆上寫過的待辦整理出常用客戶和階段 ----
-const STAGES=['剪輯','順剪','逐字','輸出','修改','交ac','交bc','上片','封面'];
+const STAGES=['剪輯','順剪','逐字','輸出','修改','交ac','交bc','Final','上片','封面'];
+const FIXED_STAGES=['交bc','Final'];  // 一定出現的階段
 function quickData(){const cl={},st={};
   Object.values(M).forEach(mm=>Object.values(mm.days||{}).forEach(list=>list.forEach(it=>{const t=String(it.text);if(t.indexOf('｜')<0)return;
     const c=t.split('｜')[0].trim();if(c&&c.length<=12&&!/\d/.test(c))cl[c]=(cl[c]||0)+1;
     t.split('｜').slice(1).join(' ').split(/[\s+＋、]+/).forEach(w=>{w=w.trim();if(w.length>=2&&w.length<=4&&!/\d/.test(w))st[w]=(st[w]||0)+1})})));
   const top=(o,n)=>Object.keys(o).sort((a,b)=>o[b]-o[a]).slice(0,n);
   const stages=STAGES.filter(w=>st[w]).sort((a,b)=>st[b]-st[a]).concat(top(st,30).filter(w=>st[w]>=4&&STAGES.indexOf(w)<0&&!Object.keys(cl).some(c=>c.indexOf(w)>=0))).slice(0,10);
-  if(stages.indexOf('交bc')<0)stages.push('交bc');  // 常用，固定放
+  FIXED_STAGES.forEach(w=>{if(stages.indexOf(w)<0)stages.push(w)});
   return {clients:top(cl,10),stages:stages.length?stages:STAGES.slice(0,6)}}
 function quickHTML(){const q=quickData();if(!q.clients.length&&!q.stages.length)return '';
   return `<div class="qk">${q.clients.map(c=>`<span data-qc="${esc(c)}">${esc(c)}</span>`).join('')}</div><div class="qk st">${q.stages.map(w=>`<span data-qs="${esc(w)}">${esc(w)}</span>`).join('')}</div>`}
@@ -822,7 +823,7 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261020235346';
+const VER=/*VER*/'20261021165741';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D)syncNow()}});
