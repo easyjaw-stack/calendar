@@ -471,9 +471,14 @@ function quickHTML(){const q=quickData();if(!q.clients.length&&!q.stages.length)
   return `<div class="qk">${q.clients.map(c=>`<span data-qc="${esc(c)}">${esc(c)}</span>`).join('')}</div><div class="qk st">${q.stages.map(w=>`<span data-qs="${esc(w)}">${esc(w)}</span>`).join('')}</div>`}
 function bindQuick(){const t=$('#edT');if(!t)return;
   const put=v=>{t.value=v;edit.text=v;t.focus();try{t.setSelectionRange(v.length,v.length)}catch(e){}};
-  // 用 pointerdown＋preventDefault，點標籤時鍵盤不會收起來
-  document.querySelectorAll('[data-qc]').forEach(b=>b.addEventListener('pointerdown',ev=>{ev.preventDefault();const v=t.value,i=v.indexOf('｜');put(b.dataset.qc+'｜'+(i>=0?v.slice(i+1):v.trim()))}));
-  document.querySelectorAll('[data-qs]').forEach(b=>b.addEventListener('pointerdown',ev=>{ev.preventDefault();const v=t.value.replace(/\s+$/,''),w=b.dataset.qs;
+  // 輕點才算（放開時、幾乎沒移動）；左右滑看更多標籤不會誤觸。按下時 preventDefault 讓鍵盤不收起來
+  const tap=(el,fn)=>{let sx=0,sy=0,ok=false;
+    el.addEventListener('pointerdown',ev=>{ev.preventDefault();sx=ev.clientX;sy=ev.clientY;ok=true});
+    el.addEventListener('pointermove',ev=>{if(ok&&(Math.abs(ev.clientX-sx)>6||Math.abs(ev.clientY-sy)>6))ok=false});
+    el.addEventListener('pointercancel',()=>{ok=false});
+    el.addEventListener('pointerup',ev=>{if(!ok)return;ok=false;ev.preventDefault();fn()})};
+  document.querySelectorAll('[data-qc]').forEach(b=>tap(b,()=>{const v=t.value,i=v.indexOf('｜');put(b.dataset.qc+'｜'+(i>=0?v.slice(i+1):v.trim()))}));
+  document.querySelectorAll('[data-qs]').forEach(b=>tap(b,()=>{const v=t.value.replace(/\s+$/,''),w=b.dataset.qs;
     if(!v){put(w);return}const last=v.split(/[\s｜]/).pop().split('+').pop();put(v+(STAGES.indexOf(last)>=0||quickData().stages.indexOf(last)>=0?'+':' ')+w)}))}
 
 // ---- 編輯／新增 ----
@@ -823,7 +828,7 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261021165947';
+const VER=/*VER*/'20261021170023';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D)syncNow()}});
