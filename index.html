@@ -341,6 +341,17 @@ let cur={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};
 let edit=null;            // 正在編輯的待辦
 let openIdx=-1;           // 展開看詳細的卡片
 let pending=0;
+// ---- 背景更新不打斷操作：同步回來時若正在點、選單開著，就等放開後再重畫 ----
+let TOUCH=false,NEEDR=false,touchedSinceVisible=false;
+function busyUI(){return TOUCH||!!edit||!!D||!!document.querySelector('.sheet,.yr,#ovl .ov')}
+function bgRender(){if(busyUI()){NEEDR=true;return}NEEDR=false;render()}
+function flushRender(){if(NEEDR&&!busyUI()){NEEDR=false;render()}}
+document.addEventListener('touchstart',()=>{TOUCH=true;touchedSinceVisible=true},{capture:true,passive:true});
+const touchEnd=()=>{TOUCH=false;setTimeout(flushRender,400)};  // 等點擊事件先跑完
+document.addEventListener('touchend',touchEnd,{capture:true,passive:true});
+document.addEventListener('touchcancel',touchEnd,{capture:true,passive:true});
+document.addEventListener('mousedown',()=>{touchedSinceVisible=true},true);
+setInterval(flushRender,1500);  // 關掉選單、編輯頁之後補畫
 let LP=false,PEND=[],OPEN=[],POPEN=true,PDRAG=false;try{POPEN=localStorage.getItem('pendOpen')!=='0'}catch(e){}
 let POP=-1,JO=-1,ED_IN=false,SW=null,SLIDING=false;  // 動畫狀態：剛打勾、剛展開、編輯頁剛打開、左滑露出刪除、換天中
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -417,7 +428,7 @@ async function save(list){ // list:[{o,items}]
   const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items}));
   const backup=list.map(x=>({o:x.o,items:clone(dayItems(x.o))}));
   list.forEach(x=>setItems(x.o,clone(x.items)));render();
-  try{const r=await call('save',{changes});absorb(r);if(r.conflict)toast('試算表在別處被改過，已重新整理');render()}
+  try{const r=await call('save',{changes});absorb(r);if(r.conflict){toast('試算表在別處被改過，已重新整理');render()}else bgRender()}
   catch(e){backup.forEach(x=>setItems(x.o,x.items));render();toast('沒存成功：'+(e.message||e))}
 }
 
@@ -712,7 +723,7 @@ function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first
 
 // ---- 待排：剪輯表裡還沒排進月曆的案子 ----
 try{const c=JSON.parse(localStorage.getItem('pendcache')||'null');if(c){PEND=c.pending||[];OPEN=c.open||[]}}catch(e){}
-async function loadPending(){try{const r=await call('pending',{});PEND=r.pending||[];OPEN=r.open||[];try{localStorage.setItem('pendcache',JSON.stringify({pending:PEND,open:OPEN}))}catch(e){}if(!edit&&!D)render();else renderPend()}catch(e){}}
+async function loadPending(){try{const r=await call('pending',{});PEND=r.pending||[];OPEN=r.open||[];try{localStorage.setItem('pendcache',JSON.stringify({pending:PEND,open:OPEN}))}catch(e){}if(busyUI())renderPend();bgRender()}catch(e){}}
 // 這件待辦是不是剪輯表裡的案子（跟後端同一套比對：編號＋｜後面的字，或專案名稱開頭）
 const normT=t=>String(t).toUpperCase().replace(/[\s.．・·]/g,'');
 const GENERIC=['短影音','PODCAST','業配','長片','影片','剪輯'];
@@ -767,7 +778,7 @@ function syncNow(){if(syncing)return syncing;$('#list').classList.add('syncing')
   syncing=call('boot',{months:keys.map(k=>k.split('-').map(Number))}).then(r=>{
       Object.keys(r.months||{}).forEach(k=>{M[k]=r.months[k];delete STALE[k]});persist();
       PEND=r.pending||[];OPEN=r.open||[];try{localStorage.setItem('pendcache',JSON.stringify({pending:PEND,open:OPEN}))}catch(e){}
-      if(!edit&&!D)render();else renderPend();syncPill('ok')})
+      if(busyUI())renderPend();bgRender();syncPill('ok')})
     .catch(()=>syncPill('err'))
     .finally(()=>{$('#list').classList.remove('syncing');syncing=null});
   return syncing}
@@ -830,10 +841,10 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261021170433';
-async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
+const VER=/*VER*/'20261101223615';
+async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){checkVer();if(!edit&&!D)syncNow()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
 </script>
 </body>
 </html>
