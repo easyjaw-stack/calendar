@@ -316,6 +316,18 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 @keyframes sweep{from{background-position:120% 0}to{background-position:-120% 0}}
 .card .due{flex-shrink:0;font-size:11.5px;color:var(--mu);background:rgba(38,38,36,.05);border-radius:6px;padding:2px 6px}
 .card .due.late{color:#B5584E;background:#F6DCD9}
+.ov .mg{gap:3px;text-align:left}
+.ov .mg div.mc{background:var(--card);border-radius:8px;padding:3px 2px 4px;min-height:calc((100vh - env(safe-area-inset-top) - 230px)/6);overflow:hidden;font-size:inherit}
+.ov .mg div.mc b{display:block;font-size:12px;font-weight:600;padding:0 3px 2px}
+.ov .mg div.mc b s{text-decoration:none;color:#86739A;font-size:9px;margin-left:2px}
+.ov .mg div.mc i{display:block;font-style:normal;font-size:9px;line-height:1.3;white-space:nowrap;overflow:hidden;border-radius:3px;padding:1px 3px;margin-bottom:1.5px;background:#F2F1EE;color:var(--tx)}
+.ov .mg div.mc i.x{background:none!important;color:var(--dim);text-decoration:line-through}
+.ov .mg div.mc em{display:block;font-style:normal;font-size:9px;color:var(--mu);padding:0 3px}
+.ov .mg div.mc.on{background:var(--card);box-shadow:inset 0 0 0 2px var(--ink);color:var(--tx)}
+.ov .mg div.mc.td b{color:#fff;background:var(--ink);border-radius:5px;display:inline-block;padding:0 5px;margin:0 0 2px 1px}
+.ov .mg div.mc.hol b{color:var(--hol)}.ov .mg div.mc.td.hol b{color:#fff}
+.ov .mg div.mc.sel{background:#EBE2F1}
+@media (orientation:landscape) and (min-width:560px){.ov .mg div.mc{min-height:calc((100vh - 170px)/6)}.ov .mg div.mc i{font-size:11px}}
 </style>
 </head>
 <body>
@@ -712,8 +724,15 @@ async function go(o){edit=null;openIdx=-1;cur={...o};render();if(syncing)await s
 // ---- 月曆總覽（跳到某天 / 複製到多天） ----
 let PK=null;
 function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})}
+// 整月總覽的一格：日期、前 3 件（卡片顏色／冒火淡橘／完成刪除線）、多的寫 +n、全部完成加 ✦
+function cellHTML(mm,o){const l=mm&&mm.days[o.d]?mm.days[o.d]:[],real=l.filter(x=>!x.span),all=real.length&&real.every(x=>x.done);
+  const short=t=>{const p=String(t).split('｜');return (p.length>1?p[p.length-1]:p[0]).replace(/[【】]/g,'').replace(/\s*-\s*/g,'-').trim()};
+  const chip=it=>{const n=parseNote(it.note),fl=fillOf(it.bg),fire=!it.done&&(n.fire||dueOf(it)===o.m+'/'+o.d);return `<i class="${it.done?'x':''}" style="${fl?'background:'+fl:fire?'background:#FFF3EA':''}">${esc(short(it.text))}</i>`};
+  return `<b>${o.d}${all?'<s>✦</s>':''}</b>${l.slice(0,3).map(chip).join('')}${l.length>3?`<em>+${l.length-3}</em>`:''}`}
 function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
-  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${d}${has?'<span class="d"></span>':''}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'有點點的日子代表有安排・點一天就跳過去':PK.mode==='pend'?'點一天，把這件案子排過去':PK.mode==='until'?'點選結束的那一天':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
+  $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="mc ${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${cellHTML(mm,o)}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'點一天就跳過去・左右滑換月份':PK.mode==='pend'?'點一天，把這件案子排過去':PK.mode==='until'?'點選結束的那一天':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
+  const mgEl=$('#ovl .mg');let gx=0,gy=0;mgEl.addEventListener('touchstart',e=>{gx=e.touches[0].clientX;gy=e.touches[0].clientY},{passive:true});
+  mgEl.addEventListener('touchend',e=>{const x=e.changedTouches[0].clientX-gx,y=e.changedTouches[0].clientY-gy;if(Math.abs(x)>50&&Math.abs(x)>Math.abs(y)*1.5){haptic();(x<0?$('#pkNx'):$('#pkPv')).click()}},{passive:true});
   $('#pkPv').onclick=()=>{PK.m--;if(PK.m<1){PK.m=12;PK.y--}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
   $('#pkNx').onclick=()=>{PK.m++;if(PK.m>12){PK.m=1;PK.y++}drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})};
   $('#pkCl').onclick=()=>{PK=null;drawPicker();if(edit)render()};
@@ -841,7 +860,7 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261101223615';
+const VER=/*VER*/'20261101225949';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
