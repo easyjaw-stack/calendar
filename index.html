@@ -443,7 +443,10 @@ async function eachInSeries(text,per,fn){const days=perDays(per,cur);await Promi
 const tint=c=>'';
 
 // ---- 存檔（先更新畫面，再寫回試算表） ----
+// 「運動」永遠排在最下面（伺服器也會這樣排）
+const pinLast=items=>items.filter(x=>x.span||String(x.text).trim()!==EX).concat(items.filter(x=>!x.span&&String(x.text).trim()===EX));
 async function save(list){ // list:[{o,items}]
+  list=list.map(x=>({o:x.o,items:pinLast(x.items)}));
   const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items}));
   const backup=list.map(x=>({o:x.o,items:clone(dayItems(x.o))}));
   list.forEach(x=>setItems(x.o,clone(x.items)));render();
@@ -874,7 +877,7 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261102230341';
+const VER=/*VER*/'20261102230702';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
