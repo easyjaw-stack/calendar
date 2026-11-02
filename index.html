@@ -387,7 +387,7 @@ const same=(a,b)=>a.y===b.y&&a.m===b.m&&a.d===b.d;
 const dayItems=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.days[o.d]?mm.days[o.d]:[]};
 const setItems=(o,list)=>{const k=ym(o.y,o.m);if(!M[k])M[k]={y:o.y,m:o.m,exists:true,days:{},holidays:{}};M[k].days[o.d]=list};
 const holiday=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.holidays?mm.holidays[o.d]:''};
-const sig=l=>l.map(i=>String(i.text).trim()+'|'+(i.done?1:0));
+const sig=l=>l.filter(i=>!i.virtual).map(i=>String(i.text).trim()+'|'+(i.done?1:0));
 const clone=x=>JSON.parse(JSON.stringify(x));
 
 // 後端 API（Google Apps Script）。金鑰只存在這支手機/電腦，不在程式碼裡
@@ -447,7 +447,7 @@ const tint=c=>'';
 const pinLast=items=>items.filter(x=>x.span||String(x.text).trim()!==EX).concat(items.filter(x=>!x.span&&String(x.text).trim()===EX));
 async function save(list){ // list:[{o,items}]
   list=list.map(x=>({o:x.o,items:pinLast(x.items)}));
-  const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items}));
+  const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items,vx:true}));
   const backup=list.map(x=>({o:x.o,items:clone(dayItems(x.o))}));
   list.forEach(x=>setItems(x.o,clone(x.items)));render();
   try{const r=await call('save',{changes});absorb(r);if(r.conflict){toast('試算表在別處被改過，已重新整理');render()}else bgRender()}
@@ -476,7 +476,7 @@ function render(){
   if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();ED_IN=false;bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
 }
 function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const dd=dueOf(it),fire=!it.done&&(n.fire||dd===cur.m+'/'+cur.d),late=dd&&!fire&&!it.done&&dueKey(dd)<+new Date(cur.y,cur.m-1,cur.d);const op=openIdx===i;
-  const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${n.per?`<div><i class="ti ti-arrows-right"></i>期間 ${esc(n.per)}</div>`:''}${!n.tm&&!n.pl&&!n.nt&&!n.per?'<div class="none">沒有時間、地點或備註</div>':''}<button class="eb"><i class="ti ti-pencil"></i>編輯</button></div>`:'';
+  const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${n.per?`<div><i class="ti ti-arrows-right"></i>期間 ${esc(n.per)}</div>`:''}${!n.tm&&!n.pl&&!n.nt&&!n.per?'<div class="none">沒有時間、地點或備註</div>':''}${it.virtual?'':'<button class="eb"><i class="ti ti-pencil"></i>編輯</button>'}</div>`:'';
   return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''} ${fire&&!fl?'fire':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span>${it.span||n.per?'<span class="tag sp">多天</span>':''}${dd&&!fire&&!it.done?`<span class="due ${late?'late':''}">交 ${dd}</span>`:''}${fire?FLAME:''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
   $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
@@ -542,7 +542,7 @@ function sheetHTML(){const e=edit;const it=e.idx>=0?dayItems(cur)[e.idx]:null;co
   </div>`}
 function wheelHTML(){const e=edit,p=(e.tm||'14:00').split(':');e.wh=e.wh??+p[0];e.wm=e.wm??Math.round(+p[1]/5)*5%60;
   return `<div class="wheel"><div class="hl"></div><div class="col" id="wh"><div></div><div></div>${[...Array(24)].map((_,i)=>`<div class="${i===e.wh?'sel':''}">${String(i).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div><div class="colon">:</div><div class="col" id="wm"><div></div><div></div>${[...Array(12)].map((_,i)=>`<div class="${i*5===e.wm?'sel':''}">${String(i*5).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div></div><div class="wf"><button id="wClr">不設時間</button><button class="set" id="wSet">設定 ${String(e.wh).padStart(2,'0')}:${String(e.wm).padStart(2,'0')}</button></div>`}
-function openEdit(idx){const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,per:n.per,fire:n.fire,until:null,orig:it?it.text:'',rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
+function openEdit(idx){if(idx>=0&&dayItems(cur)[idx]&&dayItems(cur)[idx].virtual)return;const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,per:n.per,fire:n.fire,until:null,orig:it?it.text:'',rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
 function syncEdit(){const t=$('#edT');if(t)edit.text=t.value;const pl=$('#edPl');if(pl)edit.pl=pl.value;const nt=$('#edNt');if(nt)edit.nt=nt.value}
 function bindEditor(){
   bindQuick();
@@ -616,7 +616,7 @@ function cheer(i,items){
 let undoTimer;
 function removeAt(i){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);
   toast('已刪除',()=>{const now=clone(dayItems(o));now.splice(Math.min(i,now.length),0,gone);save([{o,items:now}])})}
-async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.m);const items=clone(dayItems(cur));const keep=items.filter(i=>i.done||i.span),move=items.filter(i=>!i.done&&!i.span);
+async function moveUnfinished(){const nx=addDays(cur,1);await loadMonth(nx.y,nx.m);const items=clone(dayItems(cur));const keep=items.filter(i=>i.done||i.span||i.virtual),move=items.filter(i=>!i.done&&!i.span&&!i.virtual);
   save([{o:{...cur},items:keep},{o:nx,items:clone(dayItems(nx)).concat(move)}]);toast(`已把 ${move.length} 件移到 ${nx.m}/${nx.d}`)}
 
 // ---- 列表互動：打勾、點開、長按拖曳、左滑刪除、右滑完成 ----
@@ -633,7 +633,7 @@ function bindList(){
       timer=setTimeout(()=>{held=true;LP=true;haptic();cw.classList.remove('press');cw.classList.add('lift')},420)};
     const move=(x,y,ev)=>{if(dragging){ev.preventDefault();dragMove(x,y);return}
       const far=Math.abs(x-sx)>8||Math.abs(y-sy)>8;
-      if(held){ev.preventDefault();if(far){dragging=true;cw.classList.remove('lift');beginDrag(cw,sy);dragMove(x,y)}return}
+      if(held){ev.preventDefault();if(far&&!(dayItems(cur)[i]||{}).virtual){dragging=true;cw.classList.remove('lift');beginDrag(cw,sy);dragMove(x,y)}return}
       if(far&&!moved){moved=true;clearTimeout(timer);cw.classList.remove('press')}};
     const end=()=>{clearTimeout(timer);cw.classList.remove('press','lift');const wasHeld=held;held=false;setTimeout(()=>{LP=false},50);
       if(dragging){dragging=false;dragEnd();return}
@@ -649,6 +649,8 @@ function bindList(){
 }
 // 長按卡片的選單
 async function cardMenu(i){const it=dayItems(cur)[i];if(!it)return;const per=perOf(it);const src=document.querySelector(`#list .cw[data-i="${i}"] .card`);
+  if(it.virtual){const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],['skip','<i class="ti ti-player-skip-forward"></i>今天跳過']],src?src.outerHTML:'');
+    if(k==='done')toggle(i);else if(k==='skip'){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);toast('今天跳過運動',()=>{save([{o,items:clone(dayItems(o)).concat([gone])}])})}return}
   const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],["fire",parseNote(it.note).fire?'<i class="ti ti-flame-off"></i>取消火':'<i class="ti ti-flame"></i>加上火'],['edit','<i class="ti ti-pencil"></i>編輯'],['copy','<i class="ti ti-copy"></i>複製到其他天'],['del','<i class="ti ti-trash"></i>刪除']],src?src.outerHTML:'');
   if(k==='fire'){const items=clone(dayItems(cur)),n=parseNote(items[i].note);n.fire=!n.fire;items[i].note=makeNote(n);save([{o:cur,items}]);if(n.fire)haptic()}
   else if(k==='done')toggle(i);
@@ -877,7 +879,7 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261102230702';
+const VER=/*VER*/'20261102231234';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
