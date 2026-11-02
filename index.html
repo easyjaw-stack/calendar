@@ -334,6 +334,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .inc3 div{background:var(--card);border-radius:12px;padding:10px 10px;font-size:11.5px;color:var(--mu)}
 .inc3 b{display:block;font-size:16px;font-weight:600;color:var(--tx);margin-top:2px;white-space:nowrap}
 .inc3 div.hi{background:#EBE2F1}
+.tag.ex{background:#DDE9ED;color:#4f6b73;font-weight:600;display:inline-flex;align-items:center;gap:3px}.tag.ex i{font-size:12px}
 </style>
 </head>
 <body>
@@ -458,7 +459,7 @@ function render(){
   $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b></div>`).join('');
   $('#strip').querySelectorAll('.s').forEach(s=>s.onclick=()=>{haptic();slideGo(wk[+s.dataset.i])});
   const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done&&!i.span).length,real=items.filter(i=>!i.span).length;
-  $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
+  $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${isToday(cur)&&exStreak()>0?`<span class="tag ex"><i class="ti ti-run"></i>運動連續 ${exStreak()} 天</span>`:''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
   const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
   let html=items.map((it,i)=>cardHTML(it,i)).join('');
   if(!items.length)html=M[ym(cur.y,cur.m)]?'<div class="empty">這天還沒有安排</div>':'<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div>';
@@ -477,6 +478,12 @@ function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const 
 function renderWeek(wk){
   $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
 }
+
+// ---- 運動連續天數：從今天（今天還沒做就從昨天）往回數，每天的「運動」都有打勾才算 ----
+const EX='運動';
+function exDone(o){const mm=M[ym(o.y,o.m)];if(!mm||!mm.days)return null;const it=(mm.days[o.d]||[]).find(x=>String(x.text).trim()===EX);return it?!!it.done:null}
+function exStreak(){const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};let o=exDone(t)?t:addDays(t,-1),n=0;
+  while(exDone(o)===true&&n<400){n++;o=addDays(o,-1)}return n}
 
 // ---- 交期當天冒火：剪輯表交期＝這張卡片所在的那天 ----
 const FLAME='<svg class="flame" width="15" height="19" viewBox="0 0 16 20" aria-label="今天交"><path d="M8 1c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 2-7 2 1 3 3 3 5 1-2 1-6 1-9z" fill="#F08A4B"/><path d="M8 10c.5 2 3 3 3 5.5a3 3 0 0 1-6 0c0-1.5 1-2 1-3.5 1 .5 1.5 1.5 1.5 2.5.5-1 .5-3 .5-4.5z" fill="#FFD27A"/></svg>';
@@ -595,6 +602,7 @@ function cheer(i,items){
   if(card&&ck){const c=card.getBoundingClientRect(),k=ck.getBoundingClientRect(),ink=document.createElement('span');ink.className='ink';
     ink.style.left=(k.left-c.left+k.width/2)+'px';ink.style.top=(k.top-c.top+k.height/2)+'px';card.prepend(ink);
     ink.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:.95},{transform:'translate(-50%,-50%) scale(1)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>ink.remove()}
+  if(String(items[i].text).trim()===EX){const tg=$('#dh .tag.ex');if(tg)tg.animate([{transform:'scale(0)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:460,easing:'cubic-bezier(.3,1.6,.5,1)'})}
   const list=items.filter(x=>!x.span),done=list.filter(x=>x.done).length,all=list.length,fin=done===all;
   let n;do{n=Math.floor(Math.random()*CHEERS.length)}while(n===lastCheer&&CHEERS.length>1);lastCheer=n;
   if(fin){const tg=$('#dh .tag.fin');if(tg)tg.animate([{transform:'scale(0)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:460,easing:'cubic-bezier(.3,1.6,.5,1)'});return}
@@ -827,7 +835,7 @@ async function openReceipt(y,m){$('#ovl').innerHTML=`<div class="ov rv"><div cla
   try{const v=(await call('review',{y,m})).review;if(!$('#rvB'))return;const nd=new Date(y,m,0).getDate(),diff=v.prev?Math.round((v.income-v.prev)/v.prev*100):null,MM='一二三四五六七八九十'.split('');
     const mName=m<=10?MM[m-1]:'十'+MM[m-11];const other=v.videos-v.clients.reduce((a,c)=>a+c[1],0);
     $('#rvB').innerHTML=`<div class="rc"><h4>${mName}月收據</h4><div class="c">${y}/${m}/01 – ${m}/${nd}・剪輯師 zhao</div><div class="ln"></div>
-      <div class="r"><span>完成待辦</span><span>${v.done} 件</span></div><div class="r"><span>交出影片</span><span>${v.videos} 支</span></div><div class="r"><span>全部完成的日子</span><span>${v.allDays} 天</span></div>${v.busy.n?`<div class="r"><span>最忙的一天</span><span>${m}/${v.busy.d}（${v.busy.n} 件）</span></div>`:''}<div class="ln"></div>
+      <div class="r"><span>完成待辦</span><span>${v.done} 件</span></div><div class="r"><span>交出影片</span><span>${v.videos} 支</span></div><div class="r"><span>全部完成的日子</span><span>${v.allDays} 天</span></div>${v.exDays!=null?`<div class="r"><span>運動天數</span><span>${v.exDays} 天</span></div>`:''}${v.busy.n?`<div class="r"><span>最忙的一天</span><span>${m}/${v.busy.d}（${v.busy.n} 件）</span></div>`:''}<div class="ln"></div>
       ${v.clients.map(c=>`<div class="r"><span>${esc(c[0])}</span><span>×${c[1]}</span></div>`).join('')}${other>0?`<div class="r"><span>其他</span><span>×${other}</span></div>`:''}${v.clients.length?'<div class="ln"></div>':''}
       <div class="r tot"><span>本月完成</span><span>${nt(v.income)}</span></div>${diff!==null?`<div class="r mu"><span>比 ${m>1?m-1:12} 月</span><span>${diff>=0?'+':''}${diff}%</span></div>`:''}
       <div class="bc"></div><div class="c" style="margin:8px 0 0">謝謝光臨，下個月見</div></div>`;
@@ -866,7 +874,7 @@ window.addEventListener('resize',render);
 syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261101232112';
+const VER=/*VER*/'20261102230341';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
