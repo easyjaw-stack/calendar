@@ -492,7 +492,7 @@ td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;fo
 .pbar{height:8px;border-radius:4px;background:#F2F1EE;overflow:hidden}.pbar i{display:block;height:100%;background:#9FB89A}.pfoot{display:flex;font-size:12px;color:#9B9993;margin-top:6px}
 .carry{margin-top:10px;font-size:12.5px;color:#8A5A12;background:#FBF4E6;border-radius:8px;padding:6px 10px}
 .mb{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#F2F1EE}.mb i{display:block}.lg{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px}
-.fxs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}.fxc{background:#fff;border-radius:14px;padding:14px 18px}.fxc small{display:block;font-size:12.5px;color:#9B9993;margin-bottom:6px}.fxc b{display:block;font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fxc em{font-style:normal;font-size:12px;color:#9B9993}
+.fxs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}.fxc{background:#fff;border-radius:14px;padding:14px 18px}.fxc small{display:block;font-size:12.5px;color:#9B9993;margin-bottom:6px}.fxc b{display:block;font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fxc em{font-style:normal;font-size:14px;font-weight:400;color:#9B9993;margin-left:4px}
 .fxhow{font-size:13px;color:#6b6a66;margin:0 4px 12px;line-height:1.6}.fxhow b{color:#262624}.fxfoot{font-size:12px;padding:8px 14px 4px}
 .fxact{text-align:right;white-space:nowrap}.btn3{display:inline-block;font-size:12.5px;padding:4px 12px;border-radius:99px;background:#F2F1EE;color:#45443F;cursor:pointer;margin-left:6px;transition:background .15s,color .15s}.btn3:hover{background:#E6E4DF}.btn3.dk{background:#262624;color:#fff}.btn3.dk:hover{background:#45443F}
 tr.off td{color:#C9C7C0}tr.hist td{color:#6b6a66;background:#FCFCFB}
@@ -519,6 +519,10 @@ body:not(.desk) .ncr input,body:not(.desk) .ncr textarea{font-size:16px;flex-shr
 body:not(.desk) .ncr:nth-child(3)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(3)>div>div{width:100%;overflow-x:auto;margin-bottom:6px!important}body:not(.desk) .ncr:nth-child(3) input{width:100%!important}
 body:not(.desk) .ncr:nth-child(4)>div,body:not(.desk) .ncr:nth-child(6)>div,body:not(.desk) .ncr:nth-child(7)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(6) input,body:not(.desk) .ncr:nth-child(7) textarea{width:100%!important}
 body:not(.desk) .csdlg .df .btn2.dk{padding:10px 22px;font-size:15px}
+body:not(.desk) .csov{overscroll-behavior:contain;touch-action:pan-x pan-y}
+body:not(.desk) .ncr:nth-child(n+3) .ncc{padding:6px 11px;font-size:13px}
+body:not(.desk) .ncr:nth-child(n+3) input,body:not(.desk) .ncr:nth-child(n+3) textarea{padding:6px 10px;border-radius:8px;font-size:14px!important}body:not(.desk) .ncr:nth-child(n+3){padding:9px 0}
+body:not(.desk) .ncr:nth-child(7) textarea{height:44px}body:not(.desk) .ncr:nth-child(5) input{width:120px!important;min-width:0}
 body:not(.desk) .csdlg{padding-bottom:0!important}body:not(.desk) .csdlg .df{position:sticky;bottom:0;z-index:2;background:var(--bg);margin:0 -14px;padding:12px 14px calc(env(safe-area-inset-bottom) + 12px);box-shadow:0 -1px 0 #E6E4DF}
 
 /* 運動：跟 Zhao's 一樣的白框、永遠排最下面、只有小火焰圖示（不要橘色火框） */
@@ -1065,7 +1069,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   await wait(300);el.style.transition='';SLIDING=false}
 (()=>{const el=$('#day'),zone=document,pull=$('#pull');let sx=0,sy=0,lock=null,dx=0,t0=0,on=false,pulling=false,ph=0,busy=false;
   // 整個畫面（卡片、週列、彈出視窗以外）左右滑都能換天
-  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.strip,#ovl,.sheet,.fab,#toast,[data-ck]'))return;on=true;lock=null;dx=0;pulling=false;ph=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
+  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.strip,#ovl,.sheet,.fab,#toast,[data-ck],.csov'))return;on=true;lock=null;dx=0;pulling=false;ph=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
   zone.addEventListener('touchmove',e=>{if(!on)return;if(PDRAG||LP||D){on=false;el.style.transform='';return}const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8)){lock=Math.abs(x)>Math.abs(y)?'h':'v';pulling=lock==='v'&&y>0&&!busy&&(document.scrollingElement.scrollTop||0)<=0}
   if(pulling){e.preventDefault();ph=Math.min(96,Math.max(0,y*.5));pull.style.transition='none';pull.style.height=ph+'px';pull.querySelector('i').style.width=(18+ph*.5)+'px';const over=ph>60;if(over!==pull._over){pull._over=over;if(over)haptic()}pull.querySelector('span').textContent=over?'放開重新整理':'往下拉重新整理';return}
   if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
@@ -1118,7 +1122,7 @@ function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)
 // 待排照交期排序：有日期的由近到遠，「待確認」或沒填的放最後
 function dueKey(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return 9e15;let t=new Date(T.getFullYear(),+m[1]-1,+m[2]);if((t-T)/864e5<-180)t=new Date(T.getFullYear()+1,+m[1]-1,+m[2]);return +t}
 // 手機：在待排區新增案子（表單跟電腦版同一個，寫進剪輯表、自動排好）
-async function phoneNewCase(){if(!CS.has()){toast('讀取剪輯表中…');try{await CS.load()}catch(e){}}if(!CS.has()){toast('讀不到剪輯表，請確認網路');return}CS.newCase()}
+async function phoneNewCase(){if(document.querySelector('.csov'))return;if(!CS.has()){toast('讀取剪輯表中…');try{await CS.load()}catch(e){}}if(!CS.has()){toast('讀不到剪輯表，請確認網路');return}CS.newCase()}
 function renderPend(){const el=$('#pend');if(!el)return;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));$('#day').classList.toggle('hasp',PEND.length>0);
   if(!PEND.length){[...el.children].forEach(c=>{if(!c.classList.contains('pdone'))c.remove()});const t=document.createElement('div');t.className='pend-top';t.innerHTML='<span class="pend-h0">待排</span><button class="pend-add" id="pendAdd">＋ 新增案子</button>';el.appendChild(t);$('#pendAdd').onclick=phoneNewCase;return}
   el.innerHTML=`<div class="pend-top"><button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b><span class="pend-sub">剪輯表裡還沒排進月曆的案子</span><i class="ti ti-chevron-down"></i></button><button class="pend-add" id="pendAdd">＋ 新增案子</button></div>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
@@ -1575,7 +1579,7 @@ var CS=(()=>{
   function subs(){const g={};(D&&D.fx||[]).forEach(r=>{(g[r.p]=g[r.p]||[]).push(r)});return Object.keys(g).map(p=>{const l=g[p].slice().sort((a,b)=>String(a.d)<String(b.d)?-1:1),last=l[l.length-1],off=l.some(x=>/停用/.test(x.memo));
     let nx=isoD(last.next);if(!nx){const d=isoD(last.d);if(d)nx=new Date(d.getFullYear(),d.getMonth()+1,d.getDate())}return {p,l,last,amt:last.amt,next:off?null:nx,off}}).sort((a,b)=>(a.off-b.off)||((a.next||9e15)-(b.next||9e15)))}
   function fxPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const S=subs(),on=S.filter(s=>!s.off),mon=on.reduce((a,b)=>a+b.amt,0),t=today0(),dd=d=>Math.round((d-t)/864e5);const nx=on.filter(s=>s.next).sort((a,b)=>a.next-b.next)[0];
-    const sum=`<div class="fxs">${[['每月固定花費',fmt(mon)],['一年大約',fmt(mon*12)],['使用中',on.length+' 個'],['下一筆扣款',nx?`${esc(nx.p)}　${md(nx.next)}`:'—',nx?(dd(nx.next)<=0?'今天':dd(nx.next)+' 天後'):'']].map(x=>`<div class="fxc"><small>${x[0]}</small><b>${x[1]}</b>${x[2]?`<em>${x[2]}</em>`:''}</div>`).join('')}</div>`;
+    const sum=`<div class="fxs">${[['每月固定花費',fmt(mon)],['一年大約',fmt(mon*12)],['使用中',on.length+' 個'],['下一筆扣款',nx?`${esc(nx.p)} ${md(nx.next)}<em>・${dd(nx.next)<=0?'今天':dd(nx.next)+' 天後'}</em>`:'—']].map(x=>`<div class="fxc"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('')}</div>`;
     const how=`<div class="fxhow">扣款之後按「<b>我繳了</b>」，就會記下這一期，下次扣款自動往後一個月。不續訂了就按「<b>停用</b>」，之後要用再按「恢復使用」。</div>`;
     const row=s=>{const d=s.next?dd(s.next):null,due=d!=null&&d<=0;
       const st=s.off?'<span class="st s-cancel" style="cursor:default">已停用</span>':due?`<span class="st s-unpaid" style="cursor:default">該繳了</span>`:`<span class="st s-check" style="cursor:default">還沒到</span>`;
@@ -1750,7 +1754,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113042408';
+const VER=/*VER*/'20261113042708';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
