@@ -459,7 +459,7 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
 .k.hid,.dp.hid{display:none}
 /* 電腦版月曆不需要選字：拖曳、連點時不會整片反藍 */
-body.desk #desk{user-select:none;-webkit-user-select:none}body.desk #desk input,body.desk #desk textarea{user-select:text;-webkit-user-select:text}
+body.desk,body.desk *{user-select:none;-webkit-user-select:none}body.desk input,body.desk textarea,body.desk [contenteditable]{user-select:text;-webkit-user-select:text}
 .dk-btn.fon{background:#5E8C61;color:#fff}.dk-fl{font-size:12.5px;color:#3F6E43;font-weight:600}
 .dk-main.find .k{opacity:.22}.dk-main.find .k.w{opacity:1}.dk-main.find .k.x{opacity:.15}
 .dk-main.find .free{background:#EEF6EC!important}
@@ -1208,6 +1208,8 @@ document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelec
 let PDR=null,NOCLICK=0,LCLK={},LCLK0=false;
 const hitEl=(sel,x,y)=>[...document.querySelectorAll(sel)].find(e=>{const r=e.getBoundingClientRect();return r.width&&x>=r.left&&x<r.right&&y>=r.top&&y<r.bottom});
 document.addEventListener('mousedown',ev=>{if(DESK&&ev.detail>1&&ev.target.closest('#desk')&&!ev.target.closest('input,textarea'))ev.preventDefault()});  // 連點兩下不選字
+// 電腦版：除了輸入框，整頁都不會開始選字（拖曳放開時不會整片反藍）
+document.addEventListener('selectstart',ev=>{if(!DESK)return;const t=ev.target.nodeType===1?ev.target:ev.target.parentElement;if(!t||!t.closest('input,textarea,[contenteditable]'))ev.preventDefault()});
 document.addEventListener('pointerdown',ev=>{if(!DESK||ev.button!==0||edit||PDR)return;const s=ev.target.closest('#desk .k[data-i],#desk .dp');if(!s)return;
   if(s.classList.contains('k')){const it=dayItems(parseK(s.dataset.k))[+s.dataset.i];if(!it||it.span||it.virtual)return}
   PDR={src:s,x0:ev.clientX,y0:ev.clientY,x:ev.clientX,y:ev.clientY,on:false}});
@@ -1257,7 +1259,7 @@ function dHit(P){const x=P.x,y=P.y;document.querySelectorAll('#desk .over,#desk 
   dSlot(P,z,before)
   const b=P.before;P.tgt={t:'day',o:parseK(z.dataset.day),bi:b&&b.classList.contains('k')?+b.dataset.i:null}}
 const settle=(a,ms)=>Promise.race([a.finished.catch(()=>{}),new Promise(f=>setTimeout(f,ms+80))]);
-async function dEnd(P,cancel){P.on=false;PDR=null;cancelAnimationFrame(P.raf);clearTimeout(P.et);NOCLICK=Date.now();document.body.classList.remove('dragging');
+async function dEnd(P,cancel){try{getSelection().removeAllRanges()}catch(e){}P.on=false;PDR=null;cancelAnimationFrame(P.raf);clearTimeout(P.et);NOCLICK=Date.now();document.body.classList.remove('dragging');
   document.querySelectorAll('#desk .over,#desk .hot').forEach(e=>e.classList.remove('over','hot'));
   const g=P.g,t=cancel?null:P.tgt;
   const fly=(r,ex)=>settle(g.animate([{transform:g.style.transform,opacity:1},{transform:`translate(${r.left}px,${r.top}px) rotate(0deg) scale(1)`,opacity:ex?0:1}],{duration:ex?200:190,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'}),200);
@@ -1280,7 +1282,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112155340';
+const VER=/*VER*/'20261112155627';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
