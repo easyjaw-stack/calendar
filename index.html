@@ -1146,7 +1146,7 @@ function deskWeek(){const days=deskDays();let h=`<div class="dw">${days.map(o=>{
   // 一天一欄，全部卡片放一起（同類型自動排在一起）
   h+='<div class="ln"></div>'+days.map(o=>{const z=zones(o);return `<div class="cl ${DFIND&&freeDay(o)?'free':''}" data-day="${keyOf(o)}">${z.a}${slotC(o)}${z.b}${addHTML(o)}</div>`}).join('');return h+'</div>'}
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
-function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>滑鼠指著卡片（或點一下選取）按空白鍵＝完成劃線（再按一次取消）；按 Delete＝刪除、⌘Z 復原。<br>快速點兩下＝直接改文字、右鍵或 Enter＝完整編輯。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、F 找空檔、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
+function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>滑鼠指著卡片（或點一下選取）按空白鍵＝完成劃線（再按一次取消）；按 Delete＝刪除、⌘Z 復原。<br>快速點兩下＝直接改文字、右鍵或 Enter＝完整編輯。<br>⌘C 複製卡片 → 滑鼠移到別天按 ⌘V 貼上。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、F 找空檔、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
 function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
   el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1>${DV==='day'&&menOf(DREF)?(p=>`<span class="tag pdt ${p.k==='p'?'pr':''}">${DROPI(p.k,'')}${p.k==='a'?`經期第 ${p.n} 天`:'預測經期'}</span>`)(menOf(DREF)):''}<button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div>${DV!=='day'?`<button class="dk-btn ${DFIND?'fon':''}" id="dkFind" title="標出可以排剪片的日子（F）">${DFIND?'✓ 找空檔中':'找空檔'}</button>${DFIND?`<span class="dk-fl">可排剪片 ${deskDays().filter(o=>(DV!=='month'||o.m===DREF.m)&&freeDay(o)).length} 天</span>`:''}`:''}<span class="dk-sp"></span><button class="dk-btn ${sideOn()?'on':''}" id="dkPd" title="打開／收起待排">待排${PEND.length?' '+PEND.length:''}</button><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main ${DFIND&&DV!=='day'?'find':''}">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${sideOn()?deskSide():''}</div>`;
   bindDesk();const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}deskFx()}
@@ -1176,6 +1176,7 @@ function bindDesk(){const el=$('#desk');
   $('#dkTd').onclick=()=>{DREF={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=null;deskLoad()};
   el.querySelectorAll('.dk-seg [data-v]').forEach(b=>b.onclick=()=>{const order=['month','week','day'];DFX.slide=order.indexOf(b.dataset.v)>order.indexOf(DV)?1:-1;DV=b.dataset.v;DADD=null;try{localStorage.setItem('deskView',DV)}catch(e){}deskLoad()});
   $('#dkPd').onclick=()=>{DSIDE=!sideOn();renderDesk()};
+  el.querySelectorAll('.dk-main [data-day]').forEach(z=>{z.addEventListener('mouseenter',()=>{DHDAY=z.dataset.day})});const mn=el.querySelector('.dk-main');if(mn)mn.addEventListener('mouseleave',()=>{DHDAY=null});
   el.querySelectorAll('.dc .dn,.dw .hd').forEach(n=>{n.oncontextmenu=ev=>{if(ev.target.closest('.k,.ad'))return;ev.preventDefault();const day=n.closest('[data-day]')||n;perMenu(parseK(day.dataset.day))}});
   const h1=el.querySelector('.dk-top h1');if(h1&&DV==='day')h1.oncontextmenu=ev=>{ev.preventDefault();perMenu({...DREF})};
   const fb=$('#dkFind');if(fb)fb.onclick=()=>{DFIND=!DFIND;renderDesk();if(DFIND)document.querySelectorAll('#desk .slotC').forEach((x,j)=>x.animate([{opacity:0,transform:'scale(.9)'},{opacity:1,transform:'none'}],{duration:260,delay:j*25,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}))};
@@ -1183,13 +1184,13 @@ function bindDesk(){const el=$('#desk');
   $('#dkAdd').onclick=()=>{const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};cur=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};openEdit(-1)};
   el.querySelectorAll('[data-add]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();DADD=parseK(b.dataset.add);renderDesk()});
   const inp=$('#dkInp');if(inp){const o={...DADD};let done=false;const fin=v=>{if(done)return;done=true;DADD=null;renderDesk();if(v)deskAddItem(o,v)};
-    inp.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();const v=inp.value;done=true;inp.value='';if(v.trim())deskAddItem(o,v);done=false}else if(ev.key==='Escape'){fin('')}};
+    inp.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();ev.stopPropagation();const v=inp.value;done=true;inp.value='';if(v.trim())deskAddItem(o,v);done=false}else if(ev.key==='Escape'){fin('')}};
     inp.onblur=()=>setTimeout(()=>{if($('#dkInp')===inp)fin(inp.value)},120)}
   const ed=$('#dkEd');if(ed){const d={...DINL};let done=false;
     const fit=()=>{const box=ed.parentNode,mx=$('#desk .dk-main').getBoundingClientRect().right-8;box.style.width='0px';const w=Math.min(460,Math.max(box.parentNode.clientWidth-8,ed.scrollWidth+4));box.style.width=w+'px';box.style.transform='';const r=box.getBoundingClientRect();if(r.right>mx)box.style.transform=`translateX(${mx-r.right}px)`};
     fit();ed.oninput=fit;ed.focus();ed.setSelectionRange(ed.value.length,ed.value.length);
     const fin=ok=>{if(done)return;done=true;DINL=null;const t=ed.value.trim();if(ok&&t&&t!==String(d.t).trim())deskRename(d,t);else{renderDesk();setTimeout(flushRender,50)}};
-    ed.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}else if(ev.key==='Escape'){ev.preventDefault();ev.stopPropagation();fin(false)}};
+    ed.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();ev.stopPropagation();fin(true)}else if(ev.key==='Escape'){ev.preventDefault();ev.stopPropagation();fin(false)}};
     ed.onblur=()=>setTimeout(()=>fin(true),0)}
   el.querySelectorAll('.k[data-i]').forEach(k=>{const o=parseK(k.dataset.k),i=+k.dataset.i,it=dayItems(o)[i];
     k.onclick=()=>{if(Date.now()-NOCLICK<350)return;const id=k.dataset.k+'/'+i,now=Date.now();
@@ -1207,6 +1208,8 @@ async function deskRename(d,t){const o=parseK(d.k);let i=d.i,it=dayItems(o)[i];i
   if(!it){renderDesk();return}DFX.land={k:d.k,t,at:Date.now()};const per=perOf(it);
   if(per){cur=o;const n=await eachInSeries(it.text,per,(items,j)=>{items[j].text=t;return items});toast(`已改名（整串 ${n} 天）`);return}
   const items=clone(dayItems(o));items[i].text=t;save([{o,items}]);toast('已改名',()=>{const now=clone(dayItems(o)),j=now.findIndex(x=>!x.span&&x.text===t);if(j>=0){now[j].text=it.text;save([{o,items:now}])}})}
+async function deskPaste(o){const it={...DCLIP};await ensureMonth(o.y,o.m);DFX.nw={k:keyOf(o),t:it.text};DFX.bump=keyOf(o);
+  save([{o,items:clone(dayItems(o)).concat([it])}]);toast(`已貼到 ${o.m}/${o.d}`,()=>{const now=clone(dayItems(o));for(let j=now.length-1;j>=0;j--)if(now[j].text===it.text&&!now[j].span){now.splice(j,1);break}save([{o,items:now}])})}
 function deskToggle(k){const o=parseK(k.dataset.k),i=+k.dataset.i,it=dayItems(o)[i];if(!it)return;if(it.span){spanMenu(o,i,'t');return}
   DSEL={k:k.dataset.k,i};DPOP=it.done?'':k.dataset.k+'/'+i;{const l=dayItems(o).filter(x=>!x.span&&!x.virtual);if(!it.done&&l.filter(x=>!x.done).length===1)DFX.fin=k.dataset.k}cur=o;toggle(i);setTimeout(()=>{DPOP=''},600)}
 // 鍵盤：↑↓ 選卡片（依畫面順序）、空白鍵完成、Enter 編輯、Shift+←→ 把選到的卡片移到前一天／後一天
@@ -1223,6 +1226,12 @@ function deskDelete(){const t=DHOV||DSEL;if(!t)return;const o=parseK(t.k),it=day
   if(it.virtual){const items=clone(dayItems(o));const gone=items.splice(t.i,1)[0];save([{o,items}]);toast('今天跳過運動',()=>{save([{o,items:clone(dayItems(o)).concat([gone])}])})}
   else{const el=$(`#desk .k[data-k="${t.k}"][data-i="${t.i}"]`);DSEL=null;DHOV=null;deskVanish(el).then(()=>{cur=o;removeAt(t.i)});return}DSEL=null;DHOV=null}
 document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelector('.sheet,.yr,#ovl .ov')||/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))return;
+  // ⌘C 複製滑鼠指著（或選取）的卡片；⌘V 貼到滑鼠指著的那天（沒指著就貼到選取卡片那天）
+  if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='c'){const t=DHOV||DSEL;if(!t)return;const it=dayItems(parseK(t.k))[t.i];if(!it||it.span)return;ev.preventDefault();
+    const n=parseNote(it.note);n.per='';DCLIP={text:it.text,done:false,bg:it.bg||'',fc:it.fc||'',bold:!!it.bold,note:it.virtual?'':makeNote(n)};try{navigator.clipboard.writeText(it.text)}catch(e){}
+    const el=$(`#desk .k[data-k="${t.k}"][data-i="${t.i}"]`);if(el)el.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:260,easing:'cubic-bezier(.3,1.5,.5,1)'});
+    toast(`已複製「${shortName(it.text)}」，滑鼠移到要貼的那天按 ⌘V`);return}
+  if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='v'){if(!DCLIP)return;const k=DHDAY||(DSEL&&DSEL.k);if(!k){toast('把滑鼠移到要貼上的那一天，再按 ⌘V');return}ev.preventDefault();deskPaste(parseK(k));return}
   if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='z'){ev.preventDefault();if(LASTUNDO){const u=LASTUNDO;LASTUNDO=null;$('#toast').innerHTML='';u()}return}
   // 只有空白鍵會劃線（滑鼠指著或選取的卡片）；Delete／⌘＋Delete＝刪除（可復原）
   if(ev.key===' '&&DHOV){ev.preventDefault();deskToggle({dataset:{k:DHOV.k,i:String(DHOV.i)}});return}
@@ -1238,7 +1247,7 @@ document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelec
 
 
 // ── 電腦版拖曳：拿起微微傾斜、跟著滑鼠晃、其他卡片讓位、放下回彈、拖到邊緣換頁 ──
-let PDR=null,NOCLICK=0,LCLK={},LCLK0=false;
+let PDR=null,NOCLICK=0,LCLK={},LCLK0=false,DCLIP=null,DHDAY=null;
 const hitEl=(sel,x,y)=>[...document.querySelectorAll(sel)].find(e=>{const r=e.getBoundingClientRect();return r.width&&x>=r.left&&x<r.right&&y>=r.top&&y<r.bottom});
 document.addEventListener('mousedown',ev=>{if(DESK&&ev.detail>1&&ev.target.closest('#desk')&&!ev.target.closest('input,textarea'))ev.preventDefault()});  // 連點兩下不選字
 // 電腦版：除了輸入框，整頁都不會開始選字（拖曳放開時不會整片反藍）
@@ -1315,7 +1324,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112171925';
+const VER=/*VER*/'20261112204208';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
