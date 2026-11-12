@@ -448,8 +448,11 @@ tr.g td{background:#FAFAF8;font-weight:600;font-size:12.5px;color:#6b6a66;cursor
 .s-done{background:#F2F1EE;color:#9B9993}.s-unpaid{background:#FBEFD9;color:#8A5A12}.s-check{background:#DCE6EE;color:#2E4466}.s-rev{background:#F6DCD9;color:#791F1F}.s-cut{background:#3A3A38;color:#fff}.s-none{background:#fff;color:#9B9993;box-shadow:inset 0 0 0 1px #D3D1C7}.s-cancel{background:#fff;color:#C9C7C0;box-shadow:inset 0 0 0 1px #E6E4DF;text-decoration:line-through}
 .lk{color:#2E4466;font-size:12.5px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;border-radius:6px;padding:1px 4px;margin-left:-4px}.lk:hover{background:#EEF2F6}.lk svg{width:12px;height:12px}.lk b{font-weight:600;background:#DCE6EE;border-radius:99px;padding:0 6px;font-size:11px}.lk.add{color:#C9C7C0;opacity:0}tr.r:hover .lk.add{opacity:1}
 .nx{color:#45443F}.mu{color:#9B9993}
-.cspage .fchip{margin-left:8px;font-size:11px;color:#B5B3AD;background:#F7F6F3;border-radius:99px;padding:1px 8px;cursor:pointer;transition:color .15s,background .15s}.cspage .fchip:hover{color:#262624;background:#ECEAE5}
-.cspage th.foldable .fbtn{margin-left:6px;cursor:pointer;color:#C9C7C0;padding:0 4px;border-radius:5px}.cspage th.foldable .fbtn:hover{color:#262624;background:#F2F1EE}
+.cspage th.hidr{position:relative;box-shadow:inset -1px 0 0 #D3D1C7,inset -3px 0 0 #fff,inset -4px 0 0 #D3D1C7}
+.cspage .hcol{position:absolute;right:-9px;top:50%;transform:translateY(-50%);display:flex;gap:0;opacity:.55;cursor:pointer;z-index:2;padding:4px 2px;transition:opacity .15s}
+.cspage .hcol i{font-style:normal;font-size:9px;line-height:1;color:#6b6a66;background:#fff;box-shadow:0 0 0 1px #D3D1C7;border-radius:3px;padding:2px 1px}
+.cspage .hcol:hover{opacity:1}.cspage .hcol:hover i{background:#F2F1EE}
+.cspage th.foldable .fbtn{margin-left:6px;cursor:pointer;color:#B5B3AD;font-size:11px;opacity:0;transition:opacity .15s}.cspage th.foldable:hover .fbtn{opacity:1}.cspage th.foldable .fbtn:hover{color:#262624}
 .cspage mark,.cs-split mark{background:#FFF0B8;color:inherit;border-radius:3px;padding:0 1px}
 .st{transition:background-color .35s,color .35s,box-shadow .35s}
 td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;font:inherit;border:0;outline:0;box-shadow:inset 0 0 0 1.5px #262624;border-radius:7px;padding:5px 6px;background:#fff;user-select:text;-webkit-user-select:text}
@@ -1469,7 +1472,7 @@ var CS=(()=>{
   let FOLD=true;try{FOLD=localStorage.getItem('csFold')!=='0'}catch(e){}
   const FOLDABLE=['up','done'];
   const cols=c=>{c=c||COLS;if(c!==COLS||!FOLD)return c;return c.filter(x=>!FOLDABLE.includes(x[0]))};
-  const head=(c)=>`<thead><tr>${cols(c).map(x=>x[0]==='due'&&(c||COLS)===COLS?`<th>交期${FOLD?'<span class="fchip" data-fold title="展開上片日、完成日">＋上片日・完成日</span>':''}</th>`:FOLDABLE.includes(x[0])&&c!==SPLIT_COLS?`<th class="foldable">${x[1]}${x[0]==='up'?'<span class="fbtn" data-fold title="收起上片日、完成日">‹</span>':''}</th>`:`<th>${x[1]}</th>`).join('')}</tr></thead>`;
+  const head=(c)=>`<thead><tr>${cols(c).map(x=>x[0]==='due'&&(c||COLS)===COLS?`<th class="${FOLD?'hidr':''}">交期${FOLD?'<span class="hcol" data-fold title="展開隱藏的欄位（上片日、完成日）"><i>◂</i><i>▸</i></span>':''}</th>`:FOLDABLE.includes(x[0])&&c!==SPLIT_COLS?`<th class="foldable" data-hidecol title="按右鍵可以隱藏">${x[1]}${x[0]==='up'?'<span class="fbtn" data-fold title="隱藏上片日、完成日">隱藏</span>':''}</th>`:`<th>${x[1]}</th>`).join('')}</tr></thead>`;
   const LINK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.8 2.8 0 014 4l-1 1M9 11.5l-1 1a2.8 2.8 0 01-4-4l1-1"/></svg>';
   const lkCell=r=>r.links.length?`<span class="lk" data-lk="${r.id}">${LINK}${r.links.length>1?`<b>${r.links.length}</b>`:esc(r.links[0].l)}</span>`:`<span class="lk add" data-lk="${r.id}">＋</span>`;
   const escRe=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const hl=t=>{const e=esc(t);if(!Q.trim())return e;try{return e.replace(new RegExp(escRe(esc(Q.trim())),'gi'),m=>`<mark>${m}</mark>`)}catch(x){return e}};
@@ -1648,6 +1651,7 @@ var CS=(()=>{
     document.querySelectorAll('#desk .dk-main .k[data-i]').forEach(k=>{const it=dayItems(parseK(k.dataset.k))[+k.dataset.i];if(!it)return;const c=caseOf(it.text);if(c&&sel.some(o=>o.title.trim()===String(c.title).trim()))k.classList.add('cshl')})}
   function bind(root){
     root.querySelectorAll('[data-fs]').forEach(c=>c.onclick=()=>{FS=c.dataset.fs;rerender()});
+    root.querySelectorAll('[data-hidecol]').forEach(c=>c.oncontextmenu=ev=>{ev.preventDefault();const m=pop(c,'<div class="it" data-h>隱藏「上片日、完成日」</div>');m.style.left=ev.clientX+'px';m.style.top=ev.clientY+'px';m.querySelector('[data-h]').onclick=()=>{m.remove();FOLD=true;try{localStorage.setItem('csFold','1')}catch(e){}rerender()}});
     root.querySelectorAll('[data-fold]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();FOLD=!FOLD;try{localStorage.setItem('csFold',FOLD?'1':'0')}catch(e){}rerender();if(!FOLD)document.querySelectorAll('#desk th.foldable,#desk td[data-f="上片日"],#desk td[data-f="完成日"]').forEach(x=>x.animate([{opacity:0},{opacity:1}],{duration:260}))});
     root.querySelectorAll('[data-sec]').forEach(e=>e.onclick=()=>{COL[e.dataset.sec]=!COL[e.dataset.sec];if(!COL[e.dataset.sec])FX.open=e.dataset.sec;rerender()});
     root.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{MCOL[e.dataset.m]=MCOL[e.dataset.m]===false;if(MCOL[e.dataset.m]===false)FX.month=e.dataset.m;rerender()});
@@ -1708,7 +1712,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113040733';
+const VER=/*VER*/'20261113041013';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
