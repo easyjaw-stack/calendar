@@ -458,6 +458,8 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
 .k.hid,.dp.hid{display:none}
+/* 電腦版月曆不需要選字：拖曳、連點時不會整片反藍 */
+body.desk #desk{user-select:none;-webkit-user-select:none}body.desk #desk input,body.desk #desk textarea{user-select:text;-webkit-user-select:text}
 .dk-btn.fon{background:#5E8C61;color:#fff}.dk-fl{font-size:12.5px;color:#3F6E43;font-weight:600}
 .dk-main.find .k{opacity:.22}.dk-main.find .k.w{opacity:1}.dk-main.find .k.x{opacity:.15}
 .dk-main.find .free{background:#EEF6EC!important}
@@ -1205,6 +1207,7 @@ document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelec
 // ── 電腦版拖曳：拿起微微傾斜、跟著滑鼠晃、其他卡片讓位、放下回彈、拖到邊緣換頁 ──
 let PDR=null,NOCLICK=0,LCLK={},LCLK0=false;
 const hitEl=(sel,x,y)=>[...document.querySelectorAll(sel)].find(e=>{const r=e.getBoundingClientRect();return r.width&&x>=r.left&&x<r.right&&y>=r.top&&y<r.bottom});
+document.addEventListener('mousedown',ev=>{if(DESK&&ev.detail>1&&ev.target.closest('#desk')&&!ev.target.closest('input,textarea'))ev.preventDefault()});  // 連點兩下不選字
 document.addEventListener('pointerdown',ev=>{if(!DESK||ev.button!==0||edit||PDR)return;const s=ev.target.closest('#desk .k[data-i],#desk .dp');if(!s)return;
   if(s.classList.contains('k')){const it=dayItems(parseK(s.dataset.k))[+s.dataset.i];if(!it||it.span||it.virtual)return}
   PDR={src:s,x0:ev.clientX,y0:ev.clientY,x:ev.clientX,y:ev.clientY,on:false}});
@@ -1215,7 +1218,7 @@ document.addEventListener('pointerup',()=>{const P=PDR;if(!P)return;if(!P.on){PD
 document.addEventListener('pointercancel',()=>{if(PDR&&PDR.on)dEnd(PDR,true);else PDR=null});
 document.addEventListener('keydown',ev=>{if(PDR&&PDR.on&&ev.key==='Escape'){ev.stopImmediatePropagation();ev.preventDefault();dEnd(PDR,true)}},true);
 window.addEventListener('blur',()=>{if(PDR&&PDR.on)dEnd(PDR,true)});
-function dStart(P){const s=P.src;P.on=true;clearTimeout(s._ct);if(s.onmouseleave)s.onmouseleave();
+function dStart(P){const s=P.src;P.on=true;try{getSelection().removeAllRanges()}catch(e){}clearTimeout(s._ct);if(s.onmouseleave)s.onmouseleave();
   const r=s.getBoundingClientRect(),cs=getComputedStyle(s);P.dx=P.x0-r.left;P.dy=P.y0-r.top;P.h=r.height;P.mb=cs.marginBottom;P.vx=0;P.lx=P.x;P.rot=0;P.sc=1;
   P.pend=s.classList.contains('dp');DDRAG=P.pend?{type:'pend',p:PEND[+s.dataset.p]}:{type:'item',key:s.dataset.k,i:+s.dataset.i};
   const g=s.cloneNode(true);g.classList.remove('sel','pop','hid');g.classList.add('ghost');
@@ -1277,7 +1280,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112151019';
+const VER=/*VER*/'20261112155340';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
