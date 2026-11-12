@@ -519,7 +519,7 @@ body:not(.desk) .ncr input,body:not(.desk) .ncr textarea{font-size:16px;flex-shr
 body:not(.desk) .ncr:nth-child(3)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(3)>div>div{width:100%;overflow-x:auto;margin-bottom:6px!important}body:not(.desk) .ncr:nth-child(3) input{width:100%!important}
 body:not(.desk) .ncr:nth-child(4)>div,body:not(.desk) .ncr:nth-child(6)>div,body:not(.desk) .ncr:nth-child(7)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(6) input,body:not(.desk) .ncr:nth-child(7) textarea{width:100%!important}
 body:not(.desk) .csdlg .df .btn2.dk{padding:10px 22px;font-size:15px}
-body:not(.desk) .csov{overscroll-behavior:contain;touch-action:pan-x pan-y}
+body:not(.desk) .csov{overscroll-behavior:contain;touch-action:pan-x pan-y}body:not(.desk) .csdlg{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 body:not(.desk) .ncr:nth-child(n+3) .ncc{padding:6px 11px;font-size:13px}
 body:not(.desk) .ncr:nth-child(n+3) input,body:not(.desk) .ncr:nth-child(n+3) textarea{padding:6px 10px;border-radius:8px;font-size:14px!important}body:not(.desk) .ncr:nth-child(n+3){padding:9px 0}
 body:not(.desk) .ncr:nth-child(7) textarea{height:44px}body:not(.desk) .ncr:nth-child(5) input{width:120px!important;min-width:0}
@@ -1642,7 +1642,9 @@ var CS=(()=>{
   const PRICE=t=>{const k=kindOf(t),l=ROWS.filter(r=>r.kind===k&&r.amt).slice(-10).map(r=>r.amt);if(!l.length)return 0;const c={};l.forEach(x=>c[x]=(c[x]||0)+1);return +Object.keys(c).sort((a,b)=>c[b]-c[a])[0]};
   function newCase(){NC={src:srcList()[0]||'',srcNew:'',client:'',title:'',amt:'',due:'',link:'',sch:''};const g=cls(NC.src);if(g.length===1)NC.client=g[0];drawNC()}
   const cls=src=>{const c={};ROWS.filter(r=>r.src===src).forEach(r=>c[r.client]=(c[r.client]||0)+1);return Object.keys(c).sort((a,b)=>c[b]-c[a])};
-  function drawNC(focus){document.querySelectorAll('.csnc').forEach(x=>x.remove());if(!NC)return;const t=today0(),tp=templates(NC.src,NC.client),sug=NC.title?PRICE(NC.title):0;
+  // 手機：表單打開時把後面的頁面鎖住，上下滑不會帶動背景
+  let LOCKY=null;function lockBg(on){if(DESK)return;const b=document.body;if(on&&LOCKY==null){LOCKY=scrollY;Object.assign(b.style,{position:'fixed',top:-LOCKY+'px',left:'0',right:'0',width:'100%'})}else if(!on&&LOCKY!=null){Object.assign(b.style,{position:'',top:'',left:'',right:'',width:''});scrollTo(0,LOCKY);LOCKY=null}}
+  function drawNC(focus){document.querySelectorAll('.csnc').forEach(x=>x.remove());lockBg(!!NC);if(!NC)return;const t=today0(),tp=templates(NC.src,NC.client),sug=NC.title?PRICE(NC.title):0;
     const dd=[['今天',0],['明天',1],['後天',2],['下週一',((8-t.getDay())%7)||7]];
     const row=(lab,html)=>`<div class="ncr"><span>${lab}</span><div>${html}</div></div>`;const chip=(on,attr,txt,dot)=>`<span class="ncc ${on?'on':''}" ${attr}>${dot?`<i class="dot" style="background:${dot}"></i>`:''}${esc(txt)}</span>`;
     const inp=(k,ph,w)=>`<input data-k="${k}" value="${esc(NC[k]??'')}" placeholder="${ph}" style="width:${w||'100%'}">`;
@@ -1731,7 +1733,7 @@ var CS=(()=>{
     if(FX.cards){root.querySelectorAll('.ccard,.bigc').forEach((c,i)=>c.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:260,delay:i*35,easing:ease,fill:'backwards'}));FX.cards=false}}
   document.addEventListener('mouseup',()=>{DRAG=false});
   document.addEventListener('mousedown',ev=>{if(!OPEN)return;const t=ev.target;if(t.closest('.csdrw,tr.r,.cspm,.csov,.sheet,#toast,.cssum'))return;OPEN=null;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'))});
-  function key(ev){const k=ev.key;if(NC&&!document.querySelector('.csnc'))NC=null;if(NC||document.querySelector('.csov')){if(k==='Escape'){NC=null;document.querySelectorAll('.csov').forEach(x=>x.remove())}return true}
+  function key(ev){const k=ev.key;if(NC&&!document.querySelector('.csnc'))NC=null;if(NC||document.querySelector('.csov')){if(k==='Escape'){NC=null;drawNC();document.querySelectorAll('.csov').forEach(x=>x.remove())}return true}
     if(k==='Escape'){if(OPEN){OPEN=null;drawer();rerender()}else if(SEL.size){SEL.clear();MULTI=false;rerender()}else if(HELP){HELP=false;rerender()}closeMenus();return true}
     if((k==='n'||k==='N')&&!ev.metaKey&&!ev.ctrlKey&&PAGE!=='cal'){ev.preventDefault();newCase();return true}
     if((k==='ArrowDown'||k==='ArrowUp')&&(PAGE==='case'||(PAGE==='split'&&SEL.size))){const tr=[...document.querySelectorAll('#desk tr.r[data-id]')],ids=tr.map(x=>x.dataset.id);if(!ids.length)return true;ev.preventDefault();
@@ -1754,7 +1756,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113042858';
+const VER=/*VER*/'20261113043034';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
