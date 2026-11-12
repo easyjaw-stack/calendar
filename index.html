@@ -1622,7 +1622,11 @@ var CS=(()=>{
   function addLink(o){const url=prompt('貼上網址');if(!url||!/^https?:\/\//.test(url.trim()))return;const l=prompt('名稱（例：素材、腳本、Acopy）',o.links.length?LBL(url):'素材');if(!l)return;upd(o,{},'已加連結',o.links.concat([{l:l.trim(),url:url.trim()}]))}
   // ---------- 小選單、直接編輯 ----------
   const closeMenus=()=>document.querySelectorAll('.cspm').forEach(x=>x.remove());
-  function pop(el,html){closeMenus();const b=el.getBoundingClientRect(),m=document.createElement('div');m.className='cspm';m.style.left=Math.min(b.left,innerWidth-240)+'px';m.style.top=(b.bottom+4)+'px';m.innerHTML=html;document.body.appendChild(m);
+  // 選單放不下：往上開；上下都放不下就限制高度、可以捲
+  function fitMenu(m,b){const h=m.offsetHeight,below=innerHeight-b.bottom-12,above=b.top-12;
+    if(h<=below)return;if(h<=above){m.style.top=(b.top-h-4)+'px';return}
+    if(below>=above){m.style.maxHeight=below+'px'}else{m.style.maxHeight=above+'px';m.style.top=(b.top-above-4)+'px'}m.style.overflowY='auto'}
+  function pop(el,html){closeMenus();const b=el.getBoundingClientRect(),m=document.createElement('div');m.className='cspm';m.style.left=Math.min(b.left,innerWidth-240)+'px';m.style.top=(b.bottom+4)+'px';m.innerHTML=html;document.body.appendChild(m);fitMenu(m,b);
     setTimeout(()=>document.addEventListener('mousedown',function f(ev){if(!m.contains(ev.target)){m.remove();document.removeEventListener('mousedown',f)}}),0);return m}
   function stMenu(el,o){const m=pop(el,STS.map(s=>`<div class="it" data-s="${s}"><span class="st ${ST[s]||'s-none'}">${s||'未開始'}</span></div>`).join(''));
     m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();if(s===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};let t='進度改成「'+(s||'未開始')+'」';if(/^完成/.test(s)&&!o.doneTxt){o.doneTxt=md(today0());t+='，完成日自動填 '+o.doneTxt}if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t)}}
@@ -1692,7 +1696,7 @@ var CS=(()=>{
     document.querySelectorAll('#desk .dk-main .k[data-i]').forEach(k=>{const it=dayItems(parseK(k.dataset.k))[+k.dataset.i];if(!it)return;const c=caseOf(it.text);if(c&&sel.some(o=>o.title.trim()===String(c.title).trim()))k.classList.add('cshl')})}
   function bind(root){
     root.querySelectorAll('[data-fs]').forEach(c=>c.onclick=()=>{FS=c.dataset.fs;rerender()});
-    root.querySelectorAll('[data-hidecol]').forEach(c=>c.oncontextmenu=ev=>{ev.preventDefault();const m=pop(c,'<div class="it" data-h>隱藏「上片日、完成日」</div>');m.style.left=ev.clientX+'px';m.style.top=ev.clientY+'px';m.querySelector('[data-h]').onclick=()=>{m.remove();FOLD=true;try{localStorage.setItem('csFold','1')}catch(e){}rerender()}});
+    root.querySelectorAll('[data-hidecol]').forEach(c=>c.oncontextmenu=ev=>{ev.preventDefault();const m=pop(c,'<div class="it" data-h>隱藏「上片日、完成日」</div>');m.style.left=Math.min(ev.clientX,innerWidth-m.offsetWidth-8)+'px';m.style.top=(ev.clientY+4)+'px';m.style.maxHeight='';m.style.overflowY='';fitMenu(m,{top:ev.clientY,bottom:ev.clientY});m.querySelector('[data-h]').onclick=()=>{m.remove();FOLD=true;try{localStorage.setItem('csFold','1')}catch(e){}rerender()}});
     root.querySelectorAll('[data-fold]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();FOLD=!FOLD;try{localStorage.setItem('csFold',FOLD?'1':'0')}catch(e){}rerender();if(!FOLD)document.querySelectorAll('#desk th.foldable,#desk td[data-f="上片日"],#desk td[data-f="完成日"]').forEach(x=>x.animate([{opacity:0},{opacity:1}],{duration:260}))});
     root.querySelectorAll('[data-sec]').forEach(e=>e.onclick=()=>{COL[e.dataset.sec]=!COL[e.dataset.sec];if(!COL[e.dataset.sec])FX.open=e.dataset.sec;rerender()});
     root.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{MCOL[e.dataset.m]=MCOL[e.dataset.m]===false;if(MCOL[e.dataset.m]===false)FX.month=e.dataset.m;rerender()});
@@ -1725,7 +1729,7 @@ var CS=(()=>{
         if(ev.shiftKey){ev.preventDefault();if(!MULTI&&!(SEL.size===1&&!SEL.has(id)))SEL=new Set();if(SEL.has(id))SEL.delete(id);else SEL.add(id);LAST=id;DRAG=SEL.has(id);MULTI=true;rerender();return}
         SEL=new Set([id]);LAST=id;MULTI=false;document.querySelectorAll('tr.r.sel').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');sumBar();highlight()};
       e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk],[data-open]'))return;const td=ev.target.closest('td.ed');if(td){inlineEdit(td,byId(id),td.dataset.f);return}return;document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};
-      e.oncontextmenu=ev=>{ev.preventDefault();const o=byId(id);const m=pop(e,`<div class="it" data-a="open">打開詳細</div><div class="it" data-a="copy">複製專案名稱</div>${o.links.length?'<div class="it" data-a="link">打開連結</div>':''}<div class="it" data-a="del" style="color:#B5584E">刪除</div>`);m.style.left=ev.clientX+'px';m.style.top=ev.clientY+'px';
+      e.oncontextmenu=ev=>{ev.preventDefault();const o=byId(id);const m=pop(e,`<div class="it" data-a="open">打開詳細</div><div class="it" data-a="copy">複製專案名稱</div>${o.links.length?'<div class="it" data-a="link">打開連結</div>':''}<div class="it" data-a="del" style="color:#B5584E">刪除</div>`);m.style.left=Math.min(ev.clientX,innerWidth-m.offsetWidth-8)+'px';m.style.top=(ev.clientY+4)+'px';m.style.maxHeight='';m.style.overflowY='';fitMenu(m,{top:ev.clientY,bottom:ev.clientY});
         m.onclick=x=>{const a=(x.target.closest('[data-a]')||{}).dataset||{};m.remove();if(a.a==='open'){OPEN=id;drawer()}else if(a.a==='copy'){try{navigator.clipboard.writeText(o.title)}catch(e){}toast('已複製')}else if(a.a==='link')lkMenu(e,o);else if(a.a==='del')delCase(o)}};
       e.onmouseenter=ev=>{if(DRAG&&ev.buttons&&ev.shiftKey){SEL.add(id);rerender()}}});
     sumBar();drawer();highlight();fx(root)}
@@ -1760,7 +1764,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113043539';
+const VER=/*VER*/'20261113043807';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
