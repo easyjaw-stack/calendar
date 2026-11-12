@@ -335,6 +335,95 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .inc3 b{display:block;font-size:16px;font-weight:600;color:var(--tx);margin-top:2px;white-space:nowrap}
 .inc3 div.hi{background:#EBE2F1}
 .tag.ex{background:#DDE9ED;color:#4f6b73;font-weight:600;display:inline-flex;align-items:center;gap:3px}.tag.ex i{font-size:12px}
+
+/* ---- 分類配色：剪片黑、標記霧藍、Zhao's 白框、急事紅 ---- */
+.card.k0{background:#3A3A38;color:#fff}
+.card.k0 .ck{border-color:rgba(255,255,255,.45)}.card.k0.x .ck{background:#fff;border-color:#fff;color:#3A3A38}
+.card.k0 .mt{color:rgba(255,255,255,.6)}.card.k0 .due{color:rgba(255,255,255,.75);background:rgba(255,255,255,.14)}.card.k0 .tag.sp{background:rgba(255,255,255,.16);color:#fff}
+.card.k0.x .tx{color:rgba(255,255,255,.5)}
+.card.k1{background:#DCE6EE;color:#2E4466}.card.k1 .ck{border-color:rgba(46,68,102,.3);background:rgba(255,255,255,.55)}.card.k1.x .ck{background:#2E4466;border-color:#2E4466}.card.k1.x .tx{color:rgba(46,68,102,.45)}.card.k1 .mt{color:rgba(46,68,102,.6)}
+.card.k2{background:#fff;box-shadow:inset 0 0 0 1px #D3D1C7}
+.card.k3{background:#fff;box-shadow:inset 0 0 0 1px #D3D1C7;color:#5F7F89}
+.card.kr{background:#F6DCD9;color:#791F1F}.card.kr .ck{border-color:rgba(121,31,31,.3);background:rgba(255,255,255,.55)}.card.kr.x .ck{background:#791F1F;border-color:#791F1F}.card.kr.x .tx{color:rgba(121,31,31,.45)}
+.card.fire{box-shadow:inset 0 0 0 2px #F08A4B}
+.cw.press .card.k0{background:#4A4A48}.cw.press .card.k1{background:#D2DDE6}.cw.press .card.kr{background:#EFD0CC}
+.zl{border-top:1px solid #C9C7C0;margin:4px 6px 12px}
+.wc .zl{margin:4px 0 6px}
+.wc .p.k0,.ov .mg div.mc i.k0{background:#3A3A38;color:#fff}
+.wc .p.k1,.ov .mg div.mc i.k1{background:#DCE6EE;color:#2E4466}
+.wc .p.k2,.wc .p.k3,.ov .mg div.mc i.k2,.ov .mg div.mc i.k3{background:#fff;box-shadow:inset 0 0 0 1px #D3D1C7}
+.wc .p.kr,.ov .mg div.mc i.kr{background:#F6DCD9;color:#791F1F}
+.rw .tg.red.on{background:#B5584E}
+
+/* ---- 電腦版 ---- */
+#desk{display:none}
+body.desk #app,body.desk .fab,body.desk .back-today{display:none!important}
+body.desk #desk{display:block;max-width:1480px;margin:0 auto;padding:22px 28px 40px}
+.dk-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.dk-top .nav{display:flex;gap:2px}
+.dk-top .nav button,.dk-ic{width:34px;height:34px;border-radius:9px;font-size:19px;color:var(--mu);display:inline-flex;align-items:center;justify-content:center}
+.dk-top .nav button:hover,.dk-ic:hover,.dk-btn:hover{background:#E6E4DF}
+.dk-top h1{font-size:22px;font-weight:600;margin:0 8px 0 4px;white-space:nowrap}
+.dk-btn{height:32px;padding:0 14px;border-radius:99px;background:#fff;font-size:13px}
+.dk-seg{display:flex;background:#E6E4DF;border-radius:99px;padding:3px;margin-left:6px}
+.dk-seg button{padding:5px 18px;border-radius:99px;font-size:13px;color:#6b6a66}.dk-seg button.on{background:#fff;color:var(--tx);font-weight:600}
+.dk-sp{flex:1}
+.dk-add{background:var(--ink);color:#fff;border-radius:99px;height:34px;padding:0 16px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:4px}
+.dk-body{display:flex;gap:14px;align-items:flex-start}
+.dk-main{flex:1;min-width:0;background:#fff;border-radius:14px;padding:10px}
+.dk-side{width:220px;flex-shrink:0;background:#fff;border-radius:14px;padding:14px;position:sticky;top:16px}
+.dk-side h4{margin:0 0 10px;font-size:14px;display:flex;align-items:center;gap:6px}.dk-side h4 b{background:var(--ink);color:#fff;border-radius:9px;padding:0 7px;font-size:11px}
+.dk-side.over{box-shadow:inset 0 0 0 2px #9B9993}
+.dp{border:1px dashed #C9C6BF;border-radius:10px;padding:8px 10px;margin-bottom:8px;cursor:grab;background:#FAFAF8;font-size:13px;line-height:1.4}
+.dp small{display:block;color:var(--mu);font-size:11px}.dp small.soon{color:var(--hol);font-weight:600}
+.dk-side .emp{color:#6E7F5C;font-size:13px;padding:4px 0 10px}.dk-side .tip{font-size:11px;color:var(--mu);line-height:1.5;border-top:1px solid var(--line);padding-top:8px;margin-top:4px}
+.dm{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.dm .wh{font-size:12px;color:var(--mu);padding:6px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#FAFAF8}
+.dc{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px 6px 8px;min-height:120px;min-width:0}
+.dc.out{background:#FAFAF8}.dc.out .dn b{color:var(--dim)}
+.dn{display:flex;align-items:center;gap:6px;margin-bottom:4px;min-height:22px}
+.dn b{font-size:13px;font-weight:600}
+.we .dn b,.dw .hd.we b,.dw .hd.we span{color:var(--hol)}
+.td .dn b{background:var(--ink);color:#fff!important;border-radius:6px;padding:0 6px}
+.hn{font-size:10.5px;color:var(--hol);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ad{margin-left:auto;opacity:0;width:22px;height:22px;border-radius:6px;color:var(--mu);font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc:hover .ad,.dw .hd:hover .ad{opacity:1}.ad:hover{background:#F2F1EE;color:var(--tx)}
+.over{background:#EEF2F6!important}
+.k{display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.3;padding:3px 7px;border-radius:6px;margin-bottom:3px;white-space:nowrap;overflow:hidden;cursor:grab;user-select:none;-webkit-user-select:none;position:relative}
+.k>span{overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.k .c{width:11px;height:11px;border-radius:3px;border:1.3px solid currentColor;opacity:.5;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;font-style:normal}
+.k .c:hover{opacity:1}.k.x .c{opacity:.9}
+.k em{font-style:normal;font-size:10.5px;opacity:.7;flex-shrink:0}
+.k .flame{width:11px;height:14px;flex-shrink:0}
+.k.k0{background:#3A3A38;color:#fff}.k.k1{background:#DCE6EE;color:#2E4466}
+.k.k2,.k.k3{background:#fff;color:#262624;box-shadow:inset 0 0 0 1px #D3D1C7}.k.k3{color:#5F7F89}
+.k.kr{background:#F6DCD9;color:#791F1F}
+.k.x{opacity:.45}.k.x>span{text-decoration:line-through}
+.k.fire{box-shadow:inset 0 0 0 1.5px #F08A4B}
+.k.drag{opacity:.25}
+.k.insb{box-shadow:0 -2px 0 0 #262624}.k.insa{box-shadow:0 2px 0 0 #262624}
+.k.inp{background:#fff;box-shadow:inset 0 0 0 1.5px #262624;padding:0;cursor:text}
+.k.inp input{width:100%;padding:4px 7px;font-size:12px}
+.dc .zl,.dw .zl{margin:5px 0}
+.dw{display:grid;grid-template-columns:64px repeat(7,minmax(0,1fr));column-gap:8px}
+.dw .hd{padding:4px 4px 10px;display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;min-width:0}
+.dw .hd b{font-size:20px;font-weight:600}.dw .hd span{color:var(--mu)}.dw .hd .hn{flex-basis:100%}
+.dw .hd.td b{background:var(--ink);color:#fff;border-radius:7px;padding:0 7px}
+.dw .lb{color:var(--mu);font-size:12px;padding-top:10px}
+.dw .ln{grid-column:1/-1;border-top:1px solid #C9C7C0}
+.dw .cl{padding:8px 0;min-height:70px;min-width:0;border-radius:8px}
+.dw .k{font-size:13px;padding:7px 9px;border-radius:8px;margin-bottom:5px}.dw .k .c{width:13px;height:13px}
+.dw .k.inp input{font-size:13px;padding:7px 9px}
+.dd{max-width:760px;margin:0 auto;padding:10px 16px 20px;min-height:60vh}
+.dd .sec{color:var(--mu);font-size:12px;margin:12px 2px 8px}
+.dd .k{font-size:15px;padding:13px 14px;border-radius:12px;margin-bottom:8px;gap:12px}.dd .k .c{width:17px;height:17px;border-radius:5px;font-size:11px}.dd .k em{font-size:12.5px}
+.dd .k.inp input{font-size:15px;padding:13px 14px}
+.dd .zl{margin:16px 0 4px}.dd .emp{color:var(--dim);padding:6px 2px}
+.dd-add{margin-top:14px;color:var(--mu);font-size:14px;display:inline-flex;gap:6px;align-items:center;padding:8px 12px;border-radius:10px}.dd-add:hover{background:#F2F1EE}
+body.desk .ov{inset:24px auto 24px 50%;width:560px;margin-left:-280px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.18),0 0 0 100vmax rgba(38,38,36,.28)}
+body.desk .ov .mg div.mc{min-height:76px}
+body.desk .sheet .bx{max-width:420px;margin:0 auto 40px;border-radius:18px}
+body.desk .sheet .pvw{max-width:420px;margin:0 auto 12px;width:100%}
 </style>
 </head>
 <body>
@@ -345,6 +434,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
   <div id="day"><div class="dh" id="dh"></div><div id="list"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div><div id="pend"></div></div>
   <div id="week"></div>
 </div>
+<div id="desk"></div>
 <button class="fab" id="fab"><i class="ti ti-plus"></i></button>
 <div id="ovl"></div>
 <div id="toast"></div>
@@ -362,7 +452,7 @@ let openIdx=-1;           // 展開看詳細的卡片
 let pending=0;
 // ---- 背景更新不打斷操作：同步回來時若正在點、選單開著，就等放開後再重畫 ----
 let TOUCH=false,NEEDR=false,touchedSinceVisible=false;
-function busyUI(){return TOUCH||!!edit||!!D||!!document.querySelector('.sheet,.yr,#ovl .ov')}
+function busyUI(){return TOUCH||!!edit||!!D||(typeof DDRAG!=='undefined'&&(!!DDRAG||!!DADD))||!!document.querySelector('.sheet,.yr,#ovl .ov')}
 function bgRender(){if(busyUI()){NEEDR=true;return}NEEDR=false;render()}
 function flushRender(){if(NEEDR&&!busyUI()){NEEDR=false;render()}}
 document.addEventListener('touchstart',()=>{TOUCH=true;touchedSinceVisible=true},{capture:true,passive:true});
@@ -389,6 +479,17 @@ const setItems=(o,list)=>{const k=ym(o.y,o.m);if(!M[k])M[k]={y:o.y,m:o.m,exists:
 const holiday=o=>{const mm=M[ym(o.y,o.m)];return mm&&mm.holidays?mm.holidays[o.d]:''};
 const sig=l=>l.filter(i=>!i.virtual).map(i=>String(i.text).trim()+'|'+(i.done?1:0));
 const clone=x=>JSON.parse(JSON.stringify(x));
+// ---- 分類：剪片（黑）／標記（霧藍）／Zhao's（白框）；手動標紅＝急事。同一天裡同類排在一起 ----
+const CATN=['剪片','標記',"Zhao's"];
+const MARK_RE=/交片|交檔|回覆|回饋|線上對|請款|改點|提醒|勞報|詢問/i,WORK_RE=/剪輯|順剪|成片|輸出|破口|封面|逐字|修改|剪/,CASE_RE=/｜|【|feat\.|\sx\s|醫師|[A-Za-z]{1,5}\s?\.?\s?\d{1,4}/i;
+function autoCat(t){t=String(t);if(MARK_RE.test(t))return 1;if(WORK_RE.test(t)||CASE_RE.test(t))return 0;return 2}
+function catOf(it){if(!it)return 2;if(it.virtual||String(it.text).trim()==='運動')return 3;const i=CATN.indexOf(parseNote(it.note).cat);return i>=0?i:autoCat(it.text)}
+const RED='#F6DCD9';
+const isRed=it=>!!it&&tone(it.bg)===TONES[0][0];
+const kCls=it=>isRed(it)?'kr':'k'+catOf(it);
+function sortCat(items){return items.map((x,i)=>({x,i,c:catOf(x)})).sort((a,b)=>a.c-b.c||a.i-b.i).map(o=>o.x)}
+function normM(mm){if(mm&&mm.days)Object.keys(mm.days).forEach(d=>{mm.days[d]=sortCat(mm.days[d])});return mm}
+function setCat(o,i,c){const items=clone(dayItems(o)),n=parseNote(items[i].note);n.cat=c===autoCat(items[i].text)?'':CATN[c];items[i].note=makeNote(n);save([{o,items}]);toast('已改成「'+CATN[c]+'」')}
 
 // 後端 API（Google Apps Script）。金鑰只存在這支手機/電腦，不在程式碼裡
 const API='https://script.google.com/macros/s/AKfycbxkTq8peIBj3mjRBetSUJw4mDtBmyNt0WGsFx7RBk9J2EdvEAF89xSWXao5TWIdniwPmA/exec';
@@ -413,18 +514,18 @@ async function call(action,payload){
     throw new Error(r.error);
   }finally{if(w){pending--;syncTxt()}}
 }
-function syncTxt(){$('#sync').textContent=pending?'儲存中…':''}
-function absorb(r){if(r&&r.months){Object.keys(r.months).forEach(k=>{M[k]=r.months[k];delete STALE[k]});persist()}}
+function syncTxt(){$('#sync').textContent=pending?'儲存中…':'';const d=$('#dkSync');if(d)d.textContent=pending?'儲存中…':''}
+function absorb(r){if(r&&r.months){Object.keys(r.months).forEach(k=>{M[k]=normM(r.months[k]);delete STALE[k]});persist()}}
 const INF={};
 // 手機裡存一份最近幾個月，打開先顯示，再背景同步（STALE＝還沒跟試算表確認過）
 const STALE={};
 function persist(){try{const keep={};const n=T.getFullYear()*12+T.getMonth();Object.keys(M).forEach(k=>{const [y,m]=k.split('-').map(Number);if(Math.abs(y*12+m-1-n)<=1)keep[k]=M[k]});localStorage.setItem('calcache',JSON.stringify(keep))}catch(e){}}
-try{const c=JSON.parse(localStorage.getItem('calcache')||'{}');Object.keys(c).forEach(k=>{M[k]=c[k];STALE[k]=1})}catch(e){}
-async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force&&!STALE[k])return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=r.month;delete STALE[k];persist();return M[k]}).finally(()=>delete INF[k]);return INF[k]}
+try{const c=JSON.parse(localStorage.getItem('calcache')||'{}');Object.keys(c).forEach(k=>{M[k]=normM(c[k]);STALE[k]=1})}catch(e){}
+async function loadMonth(y,m,force){const k=ym(y,m);if(M[k]&&!force&&!STALE[k])return M[k];if(INF[k])return INF[k];INF[k]=call('month',{y,m}).then(r=>{M[k]=normM(r.month);delete STALE[k];persist();return M[k]}).finally(()=>delete INF[k]);return INF[k]}
 
 // ---- 備註（時間/地點/備註）存在試算表附註 ----
-function parseNote(n){const o={tm:'',pl:'',nt:'',per:'',fire:false},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^期間[:：]\s*(.*)$/))o.per=t[1].trim();else if(/^截止[:：]/.test(l))o.fire=true;else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
-function makeNote(o){return [o.tm?'時間：'+o.tm:'',o.pl?'地點：'+o.pl:'',o.nt?'備註：'+o.nt:'',o.per?'期間：'+o.per:'',o.fire?'截止：當天':''].filter(Boolean).join('\n')}
+function parseNote(n){const o={tm:'',pl:'',nt:'',per:'',fire:false},rest=[];String(n||'').split('\n').forEach(l=>{let t;if(t=l.match(/^時間[:：]\s*(.*)$/))o.tm=t[1];else if(t=l.match(/^地點[:：]\s*(.*)$/))o.pl=t[1];else if(t=l.match(/^期間[:：]\s*(.*)$/))o.per=t[1].trim();else if(/^截止[:：]/.test(l))o.fire=true;else if(t=l.match(/^分類[:：]\s*(.*)$/))o.cat=t[1].trim();else if(t=l.match(/^備註[:：]\s*(.*)$/))rest.push(t[1]);else if(l.trim())rest.push(l)});o.nt=rest.join(' ');return o}
+function makeNote(o){return [o.tm?'時間：'+o.tm:'',o.pl?'地點：'+o.pl:'',o.nt?'備註：'+o.nt:'',o.per?'期間：'+o.per:'',o.fire?'截止：當天':'',o.cat?'分類：'+o.cat:''].filter(Boolean).join('\n')}
 // 「期間：12/2–12/6」→ 每一天（年份用目前看的日子推算，可跨年）
 function perDays(per,ref){const m=String(per||'').match(/^(\d{1,2})\/(\d{1,2})\s*[–\-~～]\s*(\d{1,2})\/(\d{1,2})$/);if(!m)return [];
   let s=new Date(ref.y,+m[1]-1,+m[2]);if(s>new Date(ref.y,ref.m-1,ref.d))s=new Date(ref.y-1,+m[1]-1,+m[2]);
@@ -446,7 +547,7 @@ const tint=c=>'';
 // 「運動」永遠排在最下面（伺服器也會這樣排）
 const pinLast=items=>items.filter(x=>x.span||String(x.text).trim()!==EX).concat(items.filter(x=>!x.span&&String(x.text).trim()===EX));
 async function save(list){ // list:[{o,items}]
-  list=list.map(x=>({o:x.o,items:pinLast(x.items)}));
+  list=list.map(x=>({o:x.o,items:sortCat(x.items)}));
   const changes=list.map(x=>({key:keyOf(x.o),base:sig(dayItems(x.o)),items:x.items,vx:true}));
   const backup=list.map(x=>({o:x.o,items:clone(dayItems(x.o))}));
   list.forEach(x=>setItems(x.o,clone(x.items)));render();
@@ -464,7 +565,7 @@ function render(){
   const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done&&!i.span).length,real=items.filter(i=>!i.span).length;
   $('#dh').innerHTML=`<b>${cur.m}/${cur.d}</b><span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${isToday(cur)&&exStreak()>0?`<span class="tag ex"><i class="ti ti-run"></i>運動連續 ${exStreak()} 天</span>`:''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
   const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
-  let html=items.map((it,i)=>cardHTML(it,i)).join('');
+  let html=items.map((it,i)=>(i>0&&catOf(it)>=2&&catOf(items[i-1])<2?'<div class="zl"></div>':'')+cardHTML(it,i)).join('');
   if(!items.length)html=M[ym(cur.y,cur.m)]?'<div class="empty">這天還沒有安排</div>':'<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div>';
   $('#list').innerHTML=html;
   bindList();
@@ -474,12 +575,13 @@ function render(){
   $('#fab').style.display=edit?'none':'flex';
   renderWeek(wk);
   if(edit&&!PK){$('#ovl').innerHTML=sheetHTML();ED_IN=false;bindEditor()}else if(!edit&&$('#ovl .ed'))$('#ovl').innerHTML='';
+  if(DESK)renderDesk();
 }
-function cardHTML(it,i){const n=parseNote(it.note);const fl=fillOf(it.bg);const dd=dueOf(it),fire=!it.done&&(n.fire||dd===cur.m+'/'+cur.d),late=dd&&!fire&&!it.done&&dueKey(dd)<+new Date(cur.y,cur.m-1,cur.d);const op=openIdx===i;
+function cardHTML(it,i){const n=parseNote(it.note);const dd=dueOf(it),fire=!it.done&&(n.fire||dd===cur.m+'/'+cur.d),late=dd&&!fire&&!it.done&&dueKey(dd)<+new Date(cur.y,cur.m-1,cur.d);const op=openIdx===i;
   const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${n.per?`<div><i class="ti ti-arrows-right"></i>期間 ${esc(n.per)}</div>`:''}${!n.tm&&!n.pl&&!n.nt&&!n.per?'<div class="none">沒有時間、地點或備註</div>':''}${it.virtual?'':'<button class="eb"><i class="ti ti-pencil"></i>編輯</button>'}</div>`:'';
-  return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${it.done?'x':''} ${POP===i?'pop':''} ${fl?'tn':''} ${fire&&!fl?'fire':''}" ${fl?`style="background:${fl}"`:''}><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span>${it.span||n.per?'<span class="tag sp">多天</span>':''}${dd&&!fire&&!it.done?`<span class="due ${late?'late':''}">交 ${dd}</span>`:''}${fire?FLAME:''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
+  return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${kCls(it)} ${it.done?'x':''} ${POP===i?'pop':''} ${fire?'fire':''}"><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(it.text)}</span></span>${it.span||n.per?'<span class="tag sp">多天</span>':''}${dd&&!fire&&!it.done?`<span class="due ${late?'late':''}">交 ${dd}</span>`:''}${fire?FLAME:''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
-  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map(it=>{const t=tone(it.bg);return `<div class="p ${it.done?'x':''}" style="${fillOf(it.bg)?'background:'+fillOf(it.bg):''}">${esc(it.text)}</div>`}).join('')}</div>`}).join('');
+  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''}"><div class="h"><b>${o.m}/${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map((it,i,l)=>(i>0&&catOf(it)>=2&&catOf(l[i-1])<2?'<div class="zl"></div>':'')+`<div class="p ${kCls(it)} ${it.done?'x':''}">${esc(it.text)}</div>`).join('')}</div>`}).join('');
 }
 
 // ---- 運動連續天數：從今天（今天還沒做就從昨天）往回數，每天的「運動」都有打勾才算 ----
@@ -533,7 +635,8 @@ function sheetHTML(){const e=edit;const it=e.idx>=0?dayItems(cur)[e.idx]:null;co
    <div class="rw top"><i class="ti ti-notes"></i><span class="k">備註</span><textarea id="edNt" rows="2">${esc(e.nt)}</textarea>${e.nt?clr('nt'):''}</div>
   </div>
   <div class="grp">
-   <div class="rw"><i class="ti ti-droplet"></i><span class="k">顏色</span><div class="sw">${TONES.map(c=>`<span data-col="${c[1]}" class="${tone(e.bg)===c[0]?'on':''}" style="background:${c[0]}"></span>`).join('')}<span data-col="" class="none ${!tone(e.bg)?'on':''}"><i class="ti ti-ban"></i></span></div></div>
+   <div class="rw"><i class="ti ti-category"></i><span class="k">分類</span><div class="chips">${CATN.map((c,j)=>`<span data-cat="${j}" class="${(CATN.indexOf(e.cat)>=0?CATN.indexOf(e.cat):autoCat(e.text))===j?'on':''}">${c}</span>`).join('')}</div></div>
+   <div class="rw" id="rRed"><i class="ti ti-alert-circle"></i><span class="k">急事</span><span class="v ${tone(e.bg)===TONES[0][0]?'':'ph'}">${tone(e.bg)===TONES[0][0]?'紅色卡片':'無'}</span><span class="tg red ${tone(e.bg)===TONES[0][0]?'on':''}"><i></i></span></div>
    ${e.per?`<div class="rw"><i class="ti ti-arrows-right"></i><span class="k">期間</span><span class="v">${esc(e.per)}</span></div>`:`<div class="rw" id="rUn"><i class="ti ti-arrows-right"></i><span class="k">持續到</span><span class="v ${e.until?'':'ph'}">${e.until?e.until.m+'/'+e.until.d:'不持續'}</span>${e.until?clr('until'):'<i class="ti ti-chevron-right ch"></i>'}</div>`}
    <div class="rw" id="rFire"><i class="ti ti-flame"></i><span class="k">截止</span><span class="v ${e.fire?'':'ph'}">${e.fire?'當天要交':'無'}</span><span class="tg ${e.fire?'on':''}"><i></i></span></div>
    <div class="rw"><i class="ti ti-repeat"></i><span class="k">重複</span><div class="chips">${[['','不重複'],['day','每天'],['week','每週'],['month','每月']].map(r=>`<span data-rp="${r[0]}" class="${(e.rp||'')===r[0]?'on':''}">${r[1]}</span>`).join('')}</div></div>
@@ -542,14 +645,15 @@ function sheetHTML(){const e=edit;const it=e.idx>=0?dayItems(cur)[e.idx]:null;co
   </div>`}
 function wheelHTML(){const e=edit,p=(e.tm||'14:00').split(':');e.wh=e.wh??+p[0];e.wm=e.wm??Math.round(+p[1]/5)*5%60;
   return `<div class="wheel"><div class="hl"></div><div class="col" id="wh"><div></div><div></div>${[...Array(24)].map((_,i)=>`<div class="${i===e.wh?'sel':''}">${String(i).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div><div class="colon">:</div><div class="col" id="wm"><div></div><div></div>${[...Array(12)].map((_,i)=>`<div class="${i*5===e.wm?'sel':''}">${String(i*5).padStart(2,'0')}</div>`).join('')}<div></div><div></div></div></div><div class="wf"><button id="wClr">不設時間</button><button class="set" id="wSet">設定 ${String(e.wh).padStart(2,'0')}:${String(e.wm).padStart(2,'0')}</button></div>`}
-function openEdit(idx){if(idx>=0&&dayItems(cur)[idx]&&dayItems(cur)[idx].virtual)return;const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,per:n.per,fire:n.fire,until:null,orig:it?it.text:'',rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
+function openEdit(idx){if(idx>=0&&dayItems(cur)[idx]&&dayItems(cur)[idx].virtual)return;const it=idx>=0?dayItems(cur)[idx]:null;const n=parseNote(it?it.note:'');edit={idx,text:it?it.text:'',bg:it?it.bg:'',tm:n.tm,pl:n.pl,nt:n.nt,per:n.per,fire:n.fire,cat:n.cat||'',until:null,orig:it?it.text:'',rp:'',f:''};ED_IN=true;render();const t=$('#edT');if(t&&idx<0)t.focus()}
 function syncEdit(){const t=$('#edT');if(t)edit.text=t.value;const pl=$('#edPl');if(pl)edit.pl=pl.value;const nt=$('#edNt');if(nt)edit.nt=nt.value}
 function bindEditor(){
   bindQuick();
   const keep=(sync=true)=>{if(sync)syncEdit();const st=$('#ovl .ov')?$('#ovl .ov').scrollTop:0;render();const o=$('#ovl .ov');if(o)o.scrollTop=st};
   $('#rTm').onclick=ev=>{if(ev.target.closest('[data-clr]'))return;edit.f=edit.f==='tm'?'':'tm';keep()};
   document.querySelectorAll('[data-clr]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();syncEdit();edit[b.dataset.clr]='';if(b.dataset.clr==='tm')edit.f='';keep(false)});
-  document.querySelectorAll('[data-col]').forEach(x=>x.onclick=()=>{haptic();edit.bg=x.dataset.col;keep()});
+  document.querySelectorAll('[data-cat]').forEach(x=>x.onclick=()=>{haptic();syncEdit();const j=+x.dataset.cat;edit.cat=j===autoCat(edit.text)?'':CATN[j];keep(false)});
+  $('#rRed').onclick=()=>{haptic();syncEdit();edit.bg=tone(edit.bg)===TONES[0][0]?'':RED;keep(false)};
   document.querySelectorAll('[data-rp]').forEach(x=>x.onclick=()=>{haptic();edit.rp=x.dataset.rp;keep()});
   $('#edCx').onclick=closeEdit;
   const ov=$('#ovl .ed');let py=null,pdy=0;
@@ -651,9 +755,11 @@ function bindList(){
 async function cardMenu(i){const it=dayItems(cur)[i];if(!it)return;const per=perOf(it);const src=document.querySelector(`#list .cw[data-i="${i}"] .card`);
   if(it.virtual){const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],['skip','<i class="ti ti-player-skip-forward"></i>今天跳過']],src?src.outerHTML:'');
     if(k==='done')toggle(i);else if(k==='skip'){const items=clone(dayItems(cur));const gone=items.splice(i,1)[0];const o={...cur};save([{o,items}]);toast('今天跳過運動',()=>{save([{o,items:clone(dayItems(o)).concat([gone])}])})}return}
-  const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],["fire",parseNote(it.note).fire?'<i class="ti ti-flame-off"></i>取消火':'<i class="ti ti-flame"></i>加上火'],['edit','<i class="ti ti-pencil"></i>編輯'],['copy','<i class="ti ti-copy"></i>複製到其他天'],['del','<i class="ti ti-trash"></i>刪除']],src?src.outerHTML:'');
+  const k=await choose(it.text,[['done',it.done?'<i class="ti ti-arrow-back-up"></i>取消完成':'<i class="ti ti-check"></i>完成'],["fire",parseNote(it.note).fire?'<i class="ti ti-flame-off"></i>取消火':'<i class="ti ti-flame"></i>加上火'],['cat','<i class="ti ti-category"></i>改分類（現在：'+(CATN[catOf(it)]||'')+'）'],['red',isRed(it)?'<i class="ti ti-alert-circle-off"></i>取消急事':'<i class="ti ti-alert-circle"></i>標成急事（紅色）'],['edit','<i class="ti ti-pencil"></i>編輯'],['copy','<i class="ti ti-copy"></i>複製到其他天'],['del','<i class="ti ti-trash"></i>刪除']],src?src.outerHTML:'');
   if(k==='fire'){const items=clone(dayItems(cur)),n=parseNote(items[i].note);n.fire=!n.fire;items[i].note=makeNote(n);save([{o:cur,items}]);if(n.fire)haptic()}
   else if(k==='done')toggle(i);
+  else if(k==='cat'){const o={...cur},c=await choose('改成哪一類？',CATN.map((n,j)=>[String(j),(catOf(it)===j?'✓ ':'')+n]));if(c!=='')setCat(o,i,+c)}
+  else if(k==='red'){const items=clone(dayItems(cur));items[i].bg=isRed(items[i])?'':RED;save([{o:{...cur},items}])}
   else if(k==='edit')openEdit(i);
   else if(k==='copy'){openEdit(i);openPicker('copy')}
   else if(k==='del'){let s='one';if(per){s=await choose('這是多天的行程（'+per+'）',[['one','只刪這天'],['all','整串刪除']]);if(!s)return}
@@ -738,7 +844,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   st.addEventListener('touchend',e=>{if(D)return;const x=e.changedTouches[0].clientX-qx,y=e.changedTouches[0].clientY-qy;if(Math.abs(x)>50&&Math.abs(x)>Math.abs(y)*1.5)slideGo(addDays(cur,x<0?7:-7))},{passive:true});
 })();
 
-async function go(o){edit=null;openIdx=-1;cur={...o};render();if(syncing)await syncing.catch(()=>{});await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render();if(D)D.rects=listRects()}
+async function go(o){edit=null;openIdx=-1;cur={...o};if(DESK){DREF={...o};deskLoad()}render();if(syncing)await syncing.catch(()=>{});await Promise.all([loadMonth(o.y,o.m),...weekOf(o).filter(x=>!M[ym(x.y,x.m)]).map(x=>loadMonth(x.y,x.m))].map(p=>p.catch(()=>{})));render();if(D)D.rects=listRects()}
 
 // ---- 月曆總覽（跳到某天 / 複製到多天） ----
 let PK=null;
@@ -746,7 +852,7 @@ function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};dr
 // 整月總覽的一格：日期、前 3 件（卡片顏色／冒火淡橘／完成刪除線）、多的寫 +n、全部完成加 ✦
 function cellHTML(mm,o){const l=mm&&mm.days[o.d]?mm.days[o.d]:[],real=l.filter(x=>!x.span),all=real.length&&real.every(x=>x.done);
   const short=t=>{const p=String(t).split('｜');return (p.length>1?p[p.length-1]:p[0]).replace(/[【】]/g,'').replace(/\s*-\s*/g,'-').trim()};
-  const chip=it=>{const n=parseNote(it.note),fl=fillOf(it.bg),fire=!it.done&&(n.fire||dueOf(it)===o.m+'/'+o.d);return `<i class="${it.done?'x':''}" style="${fl?'background:'+fl:fire?'background:#FFF3EA':''}">${esc(short(it.text))}</i>`};
+  const chip=it=>{const n=parseNote(it.note),fire=!it.done&&(n.fire||dueOf(it)===o.m+'/'+o.d);return `<i class="${kCls(it)} ${it.done?'x':''}" style="${fire?'box-shadow:inset 0 0 0 1px #F08A4B':''}">${esc(short(it.text))}</i>`};
   return `<b>${o.d}${all?'<s>✦</s>':''}</b>${l.slice(0,3).map(chip).join('')}${l.length>3?`<em>+${l.length-3}</em>`:''}`}
 function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
   $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="mc ${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${cellHTML(mm,o)}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'點一天就跳過去・左右滑換月份':PK.mode==='pend'?'點一天，把這件案子排過去':PK.mode==='until'?'點選結束的那一天':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
@@ -812,9 +918,9 @@ function syncPill(state){let p=$('#syncPill');if(!p){p=document.createElement('d
   if(state!=='ing')p._t=setTimeout(()=>{p.className=state+' out'},state==='ok'?1500:2500)}
 function syncNow(){if(syncing)return syncing;$('#list').classList.add('syncing');syncPill('ing');
   // 月曆和待排一次讀完（伺服器那邊有快取，資料沒變就很快）
-  const keys=[...new Set(weekOf(cur).map(o=>ym(o.y,o.m)))];
+  const keys=[...new Set(weekOf(cur).map(o=>ym(o.y,o.m)).concat(DESK?deskKeys():[]))];
   syncing=call('boot',{months:keys.map(k=>k.split('-').map(Number))}).then(r=>{
-      Object.keys(r.months||{}).forEach(k=>{M[k]=r.months[k];delete STALE[k]});persist();
+      Object.keys(r.months||{}).forEach(k=>{M[k]=normM(r.months[k]);delete STALE[k]});persist();
       PEND=r.pending||[];OPEN=r.open||[];try{localStorage.setItem('pendcache',JSON.stringify({pending:PEND,open:OPEN}))}catch(e){}
       if(busyUI())renderPend();bgRender();syncPill('ok')})
     .catch(()=>syncPill('err'))
@@ -870,16 +976,84 @@ function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜
 
 function toast(msg,undo){clearTimeout(undoTimer);$('#toast').innerHTML=`<div class="toast"><span>${esc(msg)}</span>${undo?'<button id="tUndo">復原</button>':''}</div>`;const u=$('#tUndo');if(u)u.onclick=()=>{$('#toast').innerHTML='';undo()};undoTimer=setTimeout(()=>$('#toast').innerHTML='',undo?6000:2500)}
 
+
+// ---- 電腦版（螢幕夠寬、用滑鼠）：月／週／天，滑鼠拖曳，每天都能直接新增 ----
+const DQ=matchMedia('(min-width:1000px) and (hover:hover) and (pointer:fine)');
+let DESK=false,DV='month',DREF={...cur},DDRAG=null,DADD=null;
+try{DV=localStorage.getItem('deskView')||'month'}catch(e){}
+const parseK=k=>{const [y,m,d]=String(k).split('-').map(Number);return {y,m,d}};
+function setDesk(){DESK=DQ.matches;document.body.classList.toggle('desk',DESK);if(DESK)deskLoad()}
+if(DQ.addEventListener)DQ.addEventListener('change',()=>{setDesk();render()});
+function deskDays(){if(DV==='day')return [{...DREF}];if(DV==='week')return weekOf(DREF);
+  const first={y:DREF.y,m:DREF.m,d:1},off=(new Date(DREF.y,DREF.m-1,1).getDay()+6)%7,n=new Date(DREF.y,DREF.m,0).getDate();
+  return [...Array(Math.ceil((off+n)/7)*7)].map((_,i)=>addDays(first,i-off))}
+function deskKeys(){return [...new Set(deskDays().map(o=>ym(o.y,o.m)))]}
+async function deskLoad(){renderDesk();await Promise.all(deskKeys().map(k=>{const p=parseK(k+'-1');return loadMonth(p.y,p.m).catch(()=>{})}));renderDesk()}
+function deskTitle(){if(DV==='month')return `${DREF.y} 年 ${DREF.m} 月`;if(DV==='day')return `${DREF.m}/${DREF.d}　週${WD[new Date(DREF.y,DREF.m-1,DREF.d).getDay()]}`;const w=weekOf(DREF);return `${w[0].m}/${w[0].d} – ${w[6].m}/${w[6].d}`}
+function deskStep(n){if(DV==='month'){const t=new Date(DREF.y,DREF.m-1+n,1);DREF={y:t.getFullYear(),m:t.getMonth()+1,d:1}}else DREF=addDays(DREF,DV==='week'?7*n:n);DADD=null;deskLoad()}
+function kHTML(it,o,i){const n=parseNote(it.note),fire=!it.done&&!it.span&&(n.fire||dueOf(it)===o.m+'/'+o.d),lock=it.span||it.virtual;
+  return `<div class="k ${kCls(it)} ${it.done?'x':''} ${fire?'fire':''}" draggable="${lock?'false':'true'}" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><i class="c" data-tg>${it.done?'✓':''}</i><span>${esc(it.text)}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
+function zones(o,ex){const l=dayItems(o).map((it,i)=>({it,i})).filter(x=>ex||!x.it.virtual);
+  return {a:l.filter(x=>catOf(x.it)<2).map(x=>kHTML(x.it,o,x.i)).join(''),b:l.filter(x=>catOf(x.it)>=2).map(x=>kHTML(x.it,o,x.i)).join('')}}
+const addHTML=o=>DADD&&same(DADD,o)?'<div class="k inp"><input id="dkInp" placeholder="輸入後按 Enter"></div>':'';
+const isWe=o=>{const w=new Date(o.y,o.m-1,o.d).getDay();return w===0||w===6||!!holiday(o)};
+function deskMonth(){return `<div class="dm">${'一二三四五六日'.split('').map(w=>`<div class="wh">週${w}</div>`).join('')}${deskDays().map(o=>{const z=zones(o),h=holiday(o);
+  return `<div class="dc ${o.m!==DREF.m?'out':''} ${isToday(o)?'td':''} ${isWe(o)?'we':''}" data-day="${keyOf(o)}"><div class="dn"><b>${o.d}</b>${h?`<span class="hn">${esc(h)}</span>`:''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button></div>${z.a}${z.a&&z.b?'<div class="zl"></div>':''}${z.b}${addHTML(o)}</div>`}).join('')}</div>`}
+function deskWeek(){const days=deskDays();let h=`<div class="dw"><div></div>${days.map(o=>{const hd=holiday(o);return `<div class="hd ${isToday(o)?'td':''} ${isWe(o)?'we':''}" data-day="${keyOf(o)}"><b>${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span><button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button>${hd?`<span class="hn">${esc(hd)}</span>`:''}</div>`}).join('')}`;
+  h+='<div class="ln"></div><div class="lb">工作</div>'+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).a}${addHTML(o)}</div>`).join('');
+  h+=`<div class="ln"></div><div class="lb">Zhao's</div>`+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).b}</div>`).join('');return h+'</div>'}
+function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
+function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp" draggable="true" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>雙擊卡片編輯、右鍵更多選項；← → 換頁、T 回今天。</div></div>`}
+function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
+  el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div><span class="dk-sp"></span><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${deskSide()}</div>`;
+  bindDesk();const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}}
+async function deskAddItem(o,text){text=text.trim();if(!text)return;await ensureMonth(o.y,o.m);save([{o,items:clone(dayItems(o)).concat([{text,done:false,bg:'',fc:'',bold:false,note:''}])}]);toast(`已新增到 ${o.m}/${o.d}（${CATN[autoCat(text)]}）`)}
+async function deskDrop(o,bi){const d=DDRAG;DDRAG=null;if(!d)return;await ensureMonth(o.y,o.m);
+  if(d.type==='pend'){schedule(d.p,o);return}
+  const src=parseK(d.key),sItems=clone(dayItems(src)),it=sItems[d.i];if(!it||it.span||it.virtual)return;
+  if(same(src,o)){if(bi==null||bi===d.i||bi===d.i+1)return;sItems.splice(d.i,1);sItems.splice(bi>d.i?bi-1:bi,0,it);save([{o,items:sItems}]);return}
+  sItems.splice(d.i,1);const t=clone(dayItems(o));t.splice(bi==null?t.length:bi,0,it);save([{o:src,items:sItems},{o,items:t}]);toast(`已移到 ${o.m}/${o.d}`)}
+function deskBack(){const d=DDRAG;DDRAG=null;if(!d||d.type!=='item')return;const src=parseK(d.key),sItems=clone(dayItems(src)),it=sItems[d.i];if(!it)return;const cs=caseOf(it.text);
+  if(!cs){toast('這件不是剪輯表的案子，不能放回待排');return}sItems.splice(d.i,1);if(!PEND.some(p=>p.id===cs.id))PEND.push(cs);save([{o:src,items:sItems}]);
+  toast('已放回待排',()=>{PEND=PEND.filter(p=>p.id!==cs.id);const now=clone(dayItems(src));now.splice(Math.min(d.i,now.length),0,it);save([{o:src,items:now}])})}
+function bindDesk(){const el=$('#desk');
+  $('#dkPv').onclick=()=>deskStep(-1);$('#dkNx').onclick=()=>deskStep(1);
+  $('#dkTd').onclick=()=>{DREF={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=null;deskLoad()};
+  el.querySelectorAll('.dk-seg [data-v]').forEach(b=>b.onclick=()=>{DV=b.dataset.v;DADD=null;try{localStorage.setItem('deskView',DV)}catch(e){}deskLoad()});
+  $('#dkRf').onclick=()=>syncNow();$('#dkSr').onclick=openSearch;$('#dkIn').onclick=openIncome;
+  $('#dkAdd').onclick=()=>{const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};cur=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};openEdit(-1)};
+  el.querySelectorAll('[data-add]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();DADD=parseK(b.dataset.add);renderDesk()});
+  const inp=$('#dkInp');if(inp){const o={...DADD};let done=false;const fin=v=>{if(done)return;done=true;DADD=null;renderDesk();if(v)deskAddItem(o,v)};
+    inp.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();const v=inp.value;done=true;inp.value='';if(v.trim())deskAddItem(o,v);done=false}else if(ev.key==='Escape'){fin('')}};
+    inp.onblur=()=>setTimeout(()=>{if($('#dkInp')===inp)fin(inp.value)},120)}
+  el.querySelectorAll('.k[data-i]').forEach(k=>{const o=parseK(k.dataset.k),i=+k.dataset.i,it=dayItems(o)[i];
+    k.querySelector('[data-tg]').onclick=ev=>{ev.stopPropagation();if(it&&it.span){toast('跨多天的行程，請在電腦的表格修改');return}cur=o;toggle(i)};
+    k.ondblclick=()=>{if(!it||it.virtual)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}cur=o;openEdit(i)};
+    k.oncontextmenu=ev=>{ev.preventDefault();if(!it||it.span)return;cur=o;cardMenu(i)};
+    k.ondragstart=ev=>{DDRAG={type:'item',key:k.dataset.k,i};ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',it.text)}catch(e){}setTimeout(()=>k.classList.add('drag'),0)};
+    k.ondragend=()=>{k.classList.remove('drag');DDRAG=null;clearIns();setTimeout(flushRender,50)}});
+  el.querySelectorAll('.dp').forEach(p=>{p.ondragstart=ev=>{DDRAG={type:'pend',p:PEND[+p.dataset.p]};ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain','p')}catch(e){}};p.ondragend=()=>{DDRAG=null;clearIns();setTimeout(flushRender,50)};
+    p.onclick=()=>pendMenu(PEND[+p.dataset.p])});
+  const clearIns=()=>el.querySelectorAll('.over,.insb,.insa').forEach(x=>x.classList.remove('over','insb','insa'));
+  el.querySelectorAll('[data-day]').forEach(z=>{const o=parseK(z.dataset.day);let bi=null;
+    z.ondragover=ev=>{if(!DDRAG)return;ev.preventDefault();clearIns();z.classList.add('over');bi=null;const k=ev.target.closest('.k[data-i]');
+      if(k&&k.dataset.k===z.dataset.day&&DDRAG.type==='item'){const r=k.getBoundingClientRect(),after=ev.clientY>r.top+r.height/2;bi=+k.dataset.i+(after?1:0);k.classList.add(after?'insa':'insb')}};
+    z.ondragleave=ev=>{if(!z.contains(ev.relatedTarget))z.classList.remove('over')};
+    z.ondrop=ev=>{ev.preventDefault();clearIns();deskDrop(o,bi)}});
+  const sd=$('#dkSide');sd.ondragover=ev=>{if(DDRAG&&DDRAG.type==='item'){ev.preventDefault();sd.classList.add('over')}};sd.ondragleave=ev=>{if(!sd.contains(ev.relatedTarget))sd.classList.remove('over')};sd.ondrop=ev=>{ev.preventDefault();sd.classList.remove('over');deskBack()}}
+document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelector('.sheet,.yr,#ovl .ov')||/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))return;
+  if(ev.key==='ArrowLeft')deskStep(-1);else if(ev.key==='ArrowRight')deskStep(1);else if(ev.key==='t'||ev.key==='T')$('#dkTd').click()});
+
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
 $('#moBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
 $('#srBtn').onclick=openSearch;
 $('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>openPicker('jump');
 window.addEventListener('resize',render);
-syncNow();go(cur);
+setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261102231234';
+const VER=/*VER*/'20261112115517';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
