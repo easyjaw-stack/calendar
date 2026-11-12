@@ -448,6 +448,10 @@ tr.g td{background:#FAFAF8;font-weight:600;font-size:12.5px;color:#6b6a66;cursor
 .s-done{background:#F2F1EE;color:#9B9993}.s-unpaid{background:#FBEFD9;color:#8A5A12}.s-check{background:#DCE6EE;color:#2E4466}.s-rev{background:#F6DCD9;color:#791F1F}.s-cut{background:#3A3A38;color:#fff}.s-none{background:#fff;color:#9B9993;box-shadow:inset 0 0 0 1px #D3D1C7}.s-cancel{background:#fff;color:#C9C7C0;box-shadow:inset 0 0 0 1px #E6E4DF;text-decoration:line-through}
 .lk{color:#2E4466;font-size:12.5px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;border-radius:6px;padding:1px 4px;margin-left:-4px}.lk:hover{background:#EEF2F6}.lk svg{width:12px;height:12px}.lk b{font-weight:600;background:#DCE6EE;border-radius:99px;padding:0 6px;font-size:11px}.lk.add{color:#C9C7C0;opacity:0}tr.r:hover .lk.add{opacity:1}
 .nx{color:#45443F}.mu{color:#9B9993}
+.cspage th.foldh{width:34px;text-align:center;cursor:pointer;color:#9B9993;letter-spacing:1px;padding:9px 4px}.cspage th.foldh:hover{color:#262624;background:#F2F1EE}.cspage td.foldc{padding:0;width:34px;background:repeating-linear-gradient(90deg,transparent 0 16px,#F2F1EE 16px 17px,transparent 17px)}
+.cspage th.foldable .fbtn{margin-left:6px;cursor:pointer;color:#C9C7C0;padding:0 4px;border-radius:5px}.cspage th.foldable .fbtn:hover{color:#262624;background:#F2F1EE}
+.cspage mark,.cs-split mark{background:#FFF0B8;color:inherit;border-radius:3px;padding:0 1px}
+.st{transition:background-color .35s,color .35s,box-shadow .35s}
 td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;font:inherit;border:0;outline:0;box-shadow:inset 0 0 0 1.5px #262624;border-radius:7px;padding:5px 6px;background:#fff;user-select:text;-webkit-user-select:text}
 .cspm{position:fixed;background:#fff;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.18);padding:6px;z-index:80;min-width:170px;font-size:13px}.cspm .it{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none}.cspm .it:hover{background:#F2F1EE}.cspm .it em{font-style:normal;color:#9B9993;font-size:11.5px;margin-left:auto}.cspm .add{color:#6b6a66;border-top:1px solid #F0EFEB;margin-top:4px;padding-top:10px}
 .cssum{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#262624;color:#fff;border-radius:14px;padding:10px 16px;display:flex;gap:16px;align-items:center;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .2s,transform .2s;z-index:70}
@@ -1431,10 +1435,13 @@ var CS=(()=>{
   function absorb(r){if(r&&r.tabs){D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build()}}
   const rerender=()=>{if(DESK&&PAGE!=='cal')renderDesk()};
   async function write(action,payload,okMsg,undo){try{const r=await call(action,payload);absorb(r);rerender();if(okMsg)toast(okMsg,undo);return r}catch(e){toast('沒存成功：'+(e.message||e));load(true);throw e}}
-  function upd(o,set,msg,links){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;// 先改畫面，再存
+  const OLDF={'專案':o=>o.title,'客戶':o=>o.client,'案源':o=>o.src,'備註':o=>o.memo,'我的備註':o=>o.mynote,'檔案':o=>o.file,'進度':o=>o.st,'時程':o=>o.schText,'報價':o=>o.amt?String(o.amt):'','交期':o=>o.dueTxt,'上片日':o=>o.upTxt,'完成日':o=>o.doneTxt,'收款日':o=>o.paidTxt};
+  function upd(o,set,msg,links,noUndo){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;// 先改畫面，再存（可以復原）
+    const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
+    const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
     Object.keys(set).forEach(k=>{const f={'專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期')o.dueTxt=set[k];if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
-    if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());rerender();
-    return write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg)}
+    if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
+    return write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo)}
   // ---------- 時程 ----------
   function parseSched(text,ref){const out={sub:'',steps:[],notes:[]};if(!String(text||'').trim())return null;const y=(ref||today0()).getFullYear();
     String(text).split('\n').forEach(l0=>{let l=l0.trim();if(!l)return;const ok=/\s?✓$/.test(l);l=l.replace(/\s?✓$/,'');const m=l.match(/(\d{1,2})\/(\d{1,2})/);
@@ -1458,13 +1465,19 @@ var CS=(()=>{
   const dueOf=r=>{const n=nextMe(r);return n?md(n.d):r.dueTxt};const dueKey=r=>{const n=nextMe(r);return n?+n.d:r.due?+r.due:9e15};
   const byDue=l=>l.slice().sort((a,b)=>dueKey(a)-dueKey(b));
   const COLS=[['src','案源'],['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['next','下一步'],['due','交期'],['up','上片日'],['done','完成日'],['link','連結'],['memo','備註']];
-  const head=(c)=>`<thead><tr>${(c||COLS).map(x=>`<th>${x[1]}</th>`).join('')}</tr></thead>`;
+  // 「上片日、完成日」可以在表格上直接收起來（記住你的選擇）
+  let FOLD=true;try{FOLD=localStorage.getItem('csFold')!=='0'}catch(e){}
+  const FOLDABLE=['up','done'];
+  const cols=c=>{c=c||COLS;if(c!==COLS||!FOLD)return c;const i=c.findIndex(x=>x[0]==='up');return c.filter(x=>!FOLDABLE.includes(x[0])).slice(0,i).concat([['fold','']],c.filter(x=>!FOLDABLE.includes(x[0])).slice(i))};
+  const head=(c)=>`<thead><tr>${cols(c).map(x=>x[0]==='fold'?`<th class="foldh" data-fold title="展開上片日、完成日">⋯</th>`:FOLDABLE.includes(x[0])&&c!==SPLIT_COLS?`<th class="foldable">${x[1]}${x[0]==='up'?'<span class="fbtn" data-fold title="收起上片日、完成日">‹</span>':''}</th>`:`<th>${x[1]}</th>`).join('')}</tr></thead>`;
   const LINK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.8 2.8 0 014 4l-1 1M9 11.5l-1 1a2.8 2.8 0 01-4-4l1-1"/></svg>';
   const lkCell=r=>r.links.length?`<span class="lk" data-lk="${r.id}">${LINK}${r.links.length>1?`<b>${r.links.length}</b>`:esc(r.links[0].l)}</span>`:`<span class="lk add" data-lk="${r.id}">＋</span>`;
-  function rowH(r,cols){cols=cols||COLS;const n=nextMe(r);const cell={src:`<td><span class="src"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.src)}</span></td>`,client:`<td class="ed" data-f="客戶">${esc(r.client)}</td>`,title:`<td class="ed" data-f="專案" title="${esc(r.title)}">${esc(r.title)}</td>`,amt:`<td class="ed" data-f="報價">${r.amt?fmt(r.amt):''}</td>`,
+  const escRe=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const hl=t=>{const e=esc(t);if(!Q.trim())return e;try{return e.replace(new RegExp(escRe(esc(Q.trim())),'gi'),m=>`<mark>${m}</mark>`)}catch(x){return e}};
+  const CS_cols=c=>cols(c);
+  function rowH(r,cols){cols=cols||COLS;const n=nextMe(r);const cell={src:`<td><span class="src"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.src)}</span></td>`,client:`<td class="ed" data-f="客戶">${hl(r.client)}</td>`,title:`<td class="ed" data-f="專案" title="${esc(r.title)}">${hl(r.title)}</td>`,amt:`<td class="ed" data-f="報價">${r.amt?fmt(r.amt):''}</td>`,
     st:`<td><span class="st ${ST[r.st]||'s-none'}" data-stp="${r.id}">${esc(r.st||'未開始')}</span></td>`,next:`<td class="nx">${n?esc(shortStep(n.t)):''}</td>`,due:`<td class="ed" data-f="交期">${esc(dueOf(r)||'')}</td>`,up:`<td class="ed" data-f="上片日">${esc(upOf(r))}</td>`,done:`<td class="ed" data-f="完成日">${esc(r.doneTxt)}</td>`,
     link:`<td>${lkCell(r)}</td>`,memo:`<td class="ed" data-f="備註" title="${esc(r.memo)}">${esc(r.memo)}</td>`,mynote:`<td class="ed wrap" data-f="我的備註">${esc(r.mynote)}</td>`};
-    return `<tr class="r ${SEL.has(r.id)?'sel':''} ${OPEN===r.id?'op':''} ${closed(r)?'done':''} ${r.st==='取消'?'cx':''}" data-id="${r.id}">${cols.map(c=>cell[c[0]]).join('')}</tr>`}
+    cell.fold=`<td class="foldc"></td>`;return `<tr class="r ${SEL.has(r.id)?'sel':''} ${OPEN===r.id?'op':''} ${closed(r)?'done':''} ${r.st==='取消'?'cx':''}" data-id="${r.id}">${CS_cols(cols).map(c=>cell[c[0]]).join('')}</tr>`}
   const months=l=>{const g={};l.forEach(r=>{(g[r.mkey]=g[r.mkey]||[]).push(r)});return Object.keys(g).sort((a,b)=>b-a).map(k=>[+k,g[k]])};
   const mName=k=>{const y=Math.floor(k/100),m=k%100;return (y!==new Date().getFullYear()?y+' 年 ':'')+m+' 月'};
   function block(name,l,hint,sort,cols){const c=COL[name];return `<div class="cpanel"><div class="sec" data-sec="${name}"><span class="ar">${c?'▶':'▼'}</span>${name}<span class="m">${l.length} 件・${fmt(l.reduce((a,b)=>a+b.amt,0))}${hint?'　'+hint:''}</span></div>${c?'':`<div class="tw"><table>${head(cols)}<tbody>${(sort?byDue(l):l).map(r=>rowH(r,cols)).join('')||`<tr><td colspan="12" class="emp">沒有</td></tr>`}</tbody></table></div>`}</div>`}
@@ -1574,13 +1587,15 @@ var CS=(()=>{
   function pop(el,html){closeMenus();const b=el.getBoundingClientRect(),m=document.createElement('div');m.className='cspm';m.style.left=Math.min(b.left,innerWidth-240)+'px';m.style.top=(b.bottom+4)+'px';m.innerHTML=html;document.body.appendChild(m);
     setTimeout(()=>document.addEventListener('mousedown',function f(ev){if(!m.contains(ev.target)){m.remove();document.removeEventListener('mousedown',f)}}),0);return m}
   function stMenu(el,o){const m=pop(el,STS.map(s=>`<div class="it" data-s="${s}"><span class="st ${ST[s]||'s-none'}">${s||'未開始'}</span></div>`).join(''));
-    m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();if(s===o.st)return;let t='進度改成「'+(s||'未開始')+'」';if(/^完成/.test(s)&&!o.doneTxt){o.doneTxt=md(today0());t+='，完成日自動填 '+o.doneTxt}if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t)}}
+    m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();if(s===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};let t='進度改成「'+(s||'未開始')+'」';if(/^完成/.test(s)&&!o.doneTxt){o.doneTxt=md(today0());t+='，完成日自動填 '+o.doneTxt}if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t)}}
   function lkMenu(el,o){if(!o.links.length){addLink(o);return}const m=pop(el,o.links.map((x,i)=>`<a class="it" href="${esc(x.url)}" target="_blank" rel="noopener"><span style="color:#2E4466">↗</span>${esc(x.l)}<em>${LBL(x.url)}</em></a>`).join('')+'<div class="it add" data-add>＋ 貼上新連結</div>');
     m.querySelector('[data-add]').onclick=()=>{m.remove();addLink(o)}}
   function inlineEdit(td,o,f){if(td.querySelector('input'))return;const val={'報價':o.amt||'','交期':dueOf(o),'上片日':upOf(o),'完成日':o.doneTxt,'收款日':o.paidTxt,'專案':o.title,'客戶':o.client,'備註':o.memo,'我的備註':o.mynote,'檔案':o.file}[f]||'';
     td.classList.add('ing');td.innerHTML=`<input value="${esc(val)}">`;const inp=td.querySelector('input');inp.focus();inp.select();let done=false;
     const fin=ok=>{if(done)return;done=true;const x=inp.value.trim();if(ok&&x!==String(val)){if(f==='收款日'){o.paidTxt=x}upd(o,{[f]:x},'已存到剪輯表')}else{td.classList.remove('ing');rerender();drawer()}};
-    inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}if(ev.key==='Escape'){ev.preventDefault();fin(false)}};inp.onblur=()=>fin(true);inp.onmousedown=ev=>ev.stopPropagation()}
+    inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}if(ev.key==='Escape'){ev.preventDefault();fin(false)}
+      if(ev.key==='Tab'&&td.tagName==='TD'){ev.preventDefault();const fs=[...td.closest('tr').querySelectorAll('td.ed')].map(x=>x.dataset.f),nf=fs[fs.indexOf(f)+(ev.shiftKey?-1:1)];fin(true);if(nf)setTimeout(()=>{const c=document.querySelector(`tr.r[data-id="${o.id}"] td.ed[data-f="${nf}"]`);if(c)inlineEdit(c,o,nf)},0)}};
+    inp.onblur=()=>fin(true);inp.onmousedown=ev=>ev.stopPropagation()}
   // ---------- 新增案子 ----------
   const lastNum=re=>{let mx=0;ROWS.forEach(r=>{const m=r.title.match(re);if(m)mx=Math.max(mx,+m[1])});return mx};
   function templates(src,client){const T=[];
@@ -1588,12 +1603,12 @@ var CS=(()=>{
     else if(client){const l=ROWS.filter(r=>r.client===client).map(r=>r.title.match(/^([A-Z]+)(\d+)/)).filter(Boolean);if(l.length){const pre=l[l.length-1][1],n=Math.max(...l.filter(m=>m[1]===pre).map(m=>+m[2]));T.push(`${pre}${n+1} `)}}
     return T}
   const PRICE=t=>{const k=kindOf(t),l=ROWS.filter(r=>r.kind===k&&r.amt).slice(-10).map(r=>r.amt);if(!l.length)return 0;const c={};l.forEach(x=>c[x]=(c[x]||0)+1);return +Object.keys(c).sort((a,b)=>c[b]-c[a])[0]};
-  function newCase(){NC={src:srcList()[0]||'',client:'',title:'',amt:'',due:'',link:'',sch:''};const g=cls(NC.src);if(g.length===1)NC.client=g[0];drawNC()}
+  function newCase(){NC={src:srcList()[0]||'',srcNew:'',client:'',title:'',amt:'',due:'',link:'',sch:''};const g=cls(NC.src);if(g.length===1)NC.client=g[0];drawNC()}
   const cls=src=>{const c={};ROWS.filter(r=>r.src===src).forEach(r=>c[r.client]=(c[r.client]||0)+1);return Object.keys(c).sort((a,b)=>c[b]-c[a])};
   function drawNC(focus){document.querySelectorAll('.csnc').forEach(x=>x.remove());if(!NC)return;const t=today0(),tp=templates(NC.src,NC.client),sug=NC.title?PRICE(NC.title):0;
     const dd=[['今天',0],['明天',1],['後天',2],['下週一',((8-t.getDay())%7)||7]];
     const row=(lab,html)=>`<div class="ncr"><span>${lab}</span><div>${html}</div></div>`;const chip=(on,attr,txt,dot)=>`<span class="ncc ${on?'on':''}" ${attr}>${dot?`<i class="dot" style="background:${dot}"></i>`:''}${esc(txt)}</span>`;
-    const inp=(k,ph,w)=>`<input data-k="${k}" value="${esc(NC[k])}" placeholder="${ph}" style="width:${w||'100%'}">`;
+    const inp=(k,ph,w)=>`<input data-k="${k}" value="${esc(NC[k]??'')}" placeholder="${ph}" style="width:${w||'100%'}">`;
     const ov=document.createElement('div');ov.className='csov csnc';ov.innerHTML=`<div class="csdlg" style="width:580px"><div class="dh">新增案子<span class="mu" style="font-weight:400;font-size:12.5px;margin-left:8px">${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()} 進來</span><span class="sp"></span><span data-x class="x">✕</span></div><div class="ncb">
      ${row('案源',srcList().map(k=>chip(NC.src===k,`data-src="${esc(k)}"`,k,srcColor(k))).join('')+inp('srcNew','或輸入新案源','150px'))}
      ${row('客戶',cls(NC.src).slice(0,8).map(c=>chip(NC.client===c,`data-cl="${esc(c)}"`,c)).join('')+inp('client','或輸入新客戶','170px'))}
@@ -1601,7 +1616,7 @@ var CS=(()=>{
      ${row('報價',inp('amt',sug?'建議 '+sug:'金額','140px')+(sug&&!NC.amt?`<span class="mu" style="font-size:12.5px;margin-left:8px">同類型最常見 ${fmt(sug)}，按 Tab 帶入</span>`:''))}
      ${row('交期',dd.map(([x,n])=>{const v=md(new Date(+t+n*864e5));return chip(NC.due===v,`data-due="${v}"`,`${x} ${v}`)}).join('')+inp('due','或輸入 11/28','110px'))}
      ${row('連結',inp('link','貼上雲端／Frame.io 網址（可之後再加）'))}
-     ${row('時程',`<textarea data-k="sch" placeholder="選填：把客戶給的排程整段貼進來，自動拆成時程、交期跟著走">${esc(NC.sch)}</textarea>`)}
+     ${row('時程',`<textarea data-k="sch" placeholder="選填：把客戶給的排程整段貼進來，自動拆成時程、交期跟著走">${esc(NC.sch??'')}</textarea>`)}
      </div><div class="df"><span class="mu" style="font-size:12px">新增後會出現在月曆右邊的「待排」</span><span class="sp"></span><span class="mu" style="font-size:12px">⌘Enter</span><button class="btn2 dk" data-ok ${NC.title.trim()?'':'disabled'}>新增</button></div></div>`;
     document.body.appendChild(ov);
     ov.onclick=e=>{if(e.target===ov){NC=null;drawNC()}};ov.querySelector('[data-x]').onclick=()=>{NC=null;drawNC()};
@@ -1620,7 +1635,7 @@ var CS=(()=>{
   // ---------- 頁面 ----------
   const help=()=>`<div class="cshelp"><h5>選取</h5><div class="kr">點一下<span>選取（不會打開）</span></div><div class="kr">快速點兩下<span>打開案子詳細</span></div><div class="kr"><kbd>Shift</kbd>＋點<span>一筆一筆加選／取消</span></div><div class="kr"><kbd>Shift</kbd>＋按住往下拖<span>一次選一段（看金額合計）</span></div>
     <h5>編輯</h5><div class="kr">選取後再點某一格<span>直接改那格</span></div><div class="kr">點進度膠囊<span>換進度</span></div><div class="kr">點連結<span>打開／新增連結</span></div><div class="kr">右鍵<span>打開、刪除</span></div>
-    <h5>鍵盤</h5><div class="kr"><kbd>N</kbd><span>新增案子</span></div><div class="kr"><kbd>⌘Z</kbd><span>復原</span></div><div class="kr"><kbd>Esc</kbd><span>取消選取／關掉詳細</span></div></div>`;
+    <h5>鍵盤</h5><div class="kr"><kbd>↑</kbd> <kbd>↓</kbd><span>換選取的案子（詳細打開時直接換）</span></div><div class="kr"><kbd>Enter</kbd><span>打開詳細</span></div><div class="kr">改格子時 <kbd>Tab</kbd><span>跳到下一格</span></div><div class="kr"><kbd>N</kbd><span>新增案子</span></div><div class="kr"><kbd>/</kbd><span>搜尋</span></div><div class="kr"><kbd>⌘Z</kbd><span>復原</span></div><div class="kr"><kbd>Esc</kbd><span>取消選取／關掉詳細</span></div></div>`;
   function tools(){return `<div class="ptools"><input class="psrch" id="csQ" placeholder="搜尋客戶、專案、備註…" value="${esc(Q)}"><span class="pq ${HELP?'on':''}" id="csHelp">?${HELP?help():''}</span><button class="dk-add" id="csNew"><i class="ti ti-plus"></i>新增案子</button></div>`}
   function page(p){return p==='case'?casePage():p==='cli'?cliPage():p==='set'?settlePage():p==='fx'?fxPage():''}
   const SPLIT_COLS=[['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['due','交期']];
@@ -1633,6 +1648,7 @@ var CS=(()=>{
     document.querySelectorAll('#desk .dk-main .k[data-i]').forEach(k=>{const it=dayItems(parseK(k.dataset.k))[+k.dataset.i];if(!it)return;const c=caseOf(it.text);if(c&&sel.some(o=>o.title.trim()===String(c.title).trim()))k.classList.add('cshl')})}
   function bind(root){
     root.querySelectorAll('[data-fs]').forEach(c=>c.onclick=()=>{FS=c.dataset.fs;rerender()});
+    root.querySelectorAll('[data-fold]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();FOLD=!FOLD;try{localStorage.setItem('csFold',FOLD?'1':'0')}catch(e){}rerender();if(!FOLD)document.querySelectorAll('#desk th.foldable,#desk td[data-f="上片日"],#desk td[data-f="完成日"]').forEach(x=>x.animate([{opacity:0},{opacity:1}],{duration:260}))});
     root.querySelectorAll('[data-sec]').forEach(e=>e.onclick=()=>{COL[e.dataset.sec]=!COL[e.dataset.sec];if(!COL[e.dataset.sec])FX.open=e.dataset.sec;rerender()});
     root.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{MCOL[e.dataset.m]=MCOL[e.dataset.m]===false;if(MCOL[e.dataset.m]===false)FX.month=e.dataset.m;rerender()});
     root.querySelectorAll('[data-c]').forEach(e=>{if(e.closest('.cssum'))return;e.onclick=()=>{CLI=e.dataset.c;SM='all';FX.cards=true;rerender()}});
@@ -1662,15 +1678,20 @@ var CS=(()=>{
       e.onmouseenter=ev=>{if(DRAG&&ev.buttons&&ev.shiftKey){SEL.add(id);rerender()}}});
     sumBar();drawer();highlight();fx(root)}
   function fx(root){const ease='cubic-bezier(.2,.8,.2,1)';
-    if(FX.pop){const p=root.querySelector(`tr.r[data-id="${FX.pop}"] [data-stp]`);if(p)p.animate([{transform:'scale(.6)',opacity:.4},{transform:'scale(1.12)'},{transform:'scale(1)',opacity:1}],{duration:380,easing:'cubic-bezier(.3,1.6,.5,1)'});FX.pop=null}
-    if(FX.flash){const r=root.querySelector(`tr.r[data-id="${FX.flash}"]`);if(r)r.querySelectorAll('td').forEach(td=>td.animate([{background:'#FFF3D1'},{background:'transparent'}],{duration:1100,easing:'ease-out'}));FX.flash=null}
+    if(FX.pop){root.querySelectorAll(`[data-stp="${FX.pop}"]`).forEach(p=>p.animate([{transform:'scale(.94)',opacity:.35,filter:'blur(1px)'},{transform:'scale(1)',opacity:1,filter:'blur(0)'}],{duration:420,easing:'cubic-bezier(.22,.8,.3,1)'}));FX.pop=null}
+    if(FX.flash){const r=root.querySelector(`tr.r[data-id="${FX.flash}"]`);if(r){r.querySelectorAll('td').forEach(td=>td.animate([{background:'#FFF6DE'},{background:'#FFF6DE',offset:.25},{background:'transparent'}],{duration:1400,easing:'ease-out'}));const b=r.getBoundingClientRect();if(b.top<60||b.bottom>innerHeight-20)r.scrollIntoView({block:'center',behavior:'smooth'})}FX.flash=null}
     if(FX.open){const t=root.querySelector(`[data-sec="${FX.open}"]`);const tw=t&&t.parentNode.querySelector('.tw');if(tw)tw.animate([{opacity:0,transform:'translateY(-6px)'},{opacity:1,transform:'none'}],{duration:240,easing:ease});FX.open=null}
     if(FX.month){const g=root.querySelectorAll(`tr.r`);root.querySelectorAll(`tr.g[data-m="${FX.month}"] ~ tr.r`).forEach((r,i)=>{if(i<40)r.animate([{opacity:0,transform:'translateY(-4px)'},{opacity:1,transform:'none'}],{duration:200,delay:i*12,easing:ease,fill:'backwards'})});FX.month=null}
     if(FX.cards){root.querySelectorAll('.ccard,.bigc').forEach((c,i)=>c.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:260,delay:i*35,easing:ease,fill:'backwards'}));FX.cards=false}}
   document.addEventListener('mouseup',()=>{DRAG=false});
+  document.addEventListener('mousedown',ev=>{if(!OPEN)return;const t=ev.target;if(t.closest('.csdrw,tr.r,.cspm,.csov,.sheet,#toast,.cssum'))return;OPEN=null;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'))});
   function key(ev){const k=ev.key;if(NC&&!document.querySelector('.csnc'))NC=null;if(NC||document.querySelector('.csov')){if(k==='Escape'){NC=null;document.querySelectorAll('.csov').forEach(x=>x.remove())}return true}
     if(k==='Escape'){if(OPEN){OPEN=null;drawer();rerender()}else if(SEL.size){SEL.clear();MULTI=false;rerender()}else if(HELP){HELP=false;rerender()}closeMenus();return true}
     if((k==='n'||k==='N')&&!ev.metaKey&&!ev.ctrlKey&&PAGE!=='cal'){ev.preventDefault();newCase();return true}
+    if((k==='ArrowDown'||k==='ArrowUp')&&(PAGE==='case'||(PAGE==='split'&&SEL.size))){const tr=[...document.querySelectorAll('#desk tr.r[data-id]')],ids=tr.map(x=>x.dataset.id);if(!ids.length)return true;ev.preventDefault();
+      const cur=OPEN||(SEL.size===1?[...SEL][0]:null);let i=cur?ids.indexOf(cur):-1;i=Math.max(0,Math.min(ids.length-1,i<0?0:i+(k==='ArrowDown'?1:-1)));const id=ids[i];SEL=new Set([id]);MULTI=false;LAST=id;if(OPEN)OPEN=id;
+      tr.forEach(x=>x.classList.toggle('sel',x.dataset.id===id));tr.forEach(x=>x.classList.toggle('op',x.dataset.id===OPEN));tr[i].scrollIntoView({block:'nearest',behavior:'smooth'});if(OPEN)drawer();sumBar();highlight();return true}
+    if(k==='Enter'&&SEL.size===1&&PAGE!=='cal'){ev.preventDefault();OPEN=[...SEL][0];drawer();document.querySelectorAll('#desk tr.r[data-id]').forEach(x=>x.classList.toggle('op',x.dataset.id===OPEN));return true}
     if(k==='/'&&PAGE!=='cal'){ev.preventDefault();const q=$('#csQ');if(q)q.focus();return true}
     if((k==='Delete'||k==='Backspace')&&PAGE!=='cal'&&PAGE!=='split'){const o=SEL.size===1?byId([...SEL][0]):null;if(o){ev.preventDefault();delCase(o)}return true}
     return PAGE!=='cal'&&PAGE!=='split'}
@@ -1687,7 +1708,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113035702';
+const VER=/*VER*/'20261113040255';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
