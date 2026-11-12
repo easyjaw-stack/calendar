@@ -448,7 +448,7 @@ tr.g td{background:#FAFAF8;font-weight:600;font-size:12.5px;color:#6b6a66;cursor
 .s-done{background:#F2F1EE;color:#9B9993}.s-unpaid{background:#FBEFD9;color:#8A5A12}.s-check{background:#DCE6EE;color:#2E4466}.s-rev{background:#F6DCD9;color:#791F1F}.s-cut{background:#3A3A38;color:#fff}.s-none{background:#fff;color:#9B9993;box-shadow:inset 0 0 0 1px #D3D1C7}.s-cancel{background:#fff;color:#C9C7C0;box-shadow:inset 0 0 0 1px #E6E4DF;text-decoration:line-through}
 .lk{color:#2E4466;font-size:12.5px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;border-radius:6px;padding:1px 4px;margin-left:-4px}.lk:hover{background:#EEF2F6}.lk svg{width:12px;height:12px}.lk b{font-weight:600;background:#DCE6EE;border-radius:99px;padding:0 6px;font-size:11px}.lk.add{color:#C9C7C0;opacity:0}tr.r:hover .lk.add{opacity:1}
 .nx{color:#45443F}.mu{color:#9B9993}
-.cspage th.foldh{width:34px;text-align:center;cursor:pointer;color:#9B9993;letter-spacing:1px;padding:9px 4px}.cspage th.foldh:hover{color:#262624;background:#F2F1EE}.cspage td.foldc{padding:0;width:34px;background:repeating-linear-gradient(90deg,transparent 0 16px,#F2F1EE 16px 17px,transparent 17px)}
+.cspage .fchip{margin-left:8px;font-size:11px;color:#B5B3AD;background:#F7F6F3;border-radius:99px;padding:1px 8px;cursor:pointer;transition:color .15s,background .15s}.cspage .fchip:hover{color:#262624;background:#ECEAE5}
 .cspage th.foldable .fbtn{margin-left:6px;cursor:pointer;color:#C9C7C0;padding:0 4px;border-radius:5px}.cspage th.foldable .fbtn:hover{color:#262624;background:#F2F1EE}
 .cspage mark,.cs-split mark{background:#FFF0B8;color:inherit;border-radius:3px;padding:0 1px}
 .st{transition:background-color .35s,color .35s,box-shadow .35s}
@@ -1468,8 +1468,8 @@ var CS=(()=>{
   // 「上片日、完成日」可以在表格上直接收起來（記住你的選擇）
   let FOLD=true;try{FOLD=localStorage.getItem('csFold')!=='0'}catch(e){}
   const FOLDABLE=['up','done'];
-  const cols=c=>{c=c||COLS;if(c!==COLS||!FOLD)return c;const i=c.findIndex(x=>x[0]==='up');return c.filter(x=>!FOLDABLE.includes(x[0])).slice(0,i).concat([['fold','']],c.filter(x=>!FOLDABLE.includes(x[0])).slice(i))};
-  const head=(c)=>`<thead><tr>${cols(c).map(x=>x[0]==='fold'?`<th class="foldh" data-fold title="展開上片日、完成日">⋯</th>`:FOLDABLE.includes(x[0])&&c!==SPLIT_COLS?`<th class="foldable">${x[1]}${x[0]==='up'?'<span class="fbtn" data-fold title="收起上片日、完成日">‹</span>':''}</th>`:`<th>${x[1]}</th>`).join('')}</tr></thead>`;
+  const cols=c=>{c=c||COLS;if(c!==COLS||!FOLD)return c;return c.filter(x=>!FOLDABLE.includes(x[0]))};
+  const head=(c)=>`<thead><tr>${cols(c).map(x=>x[0]==='due'&&(c||COLS)===COLS?`<th>交期${FOLD?'<span class="fchip" data-fold title="展開上片日、完成日">＋上片日・完成日</span>':''}</th>`:FOLDABLE.includes(x[0])&&c!==SPLIT_COLS?`<th class="foldable">${x[1]}${x[0]==='up'?'<span class="fbtn" data-fold title="收起上片日、完成日">‹</span>':''}</th>`:`<th>${x[1]}</th>`).join('')}</tr></thead>`;
   const LINK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.8 2.8 0 014 4l-1 1M9 11.5l-1 1a2.8 2.8 0 01-4-4l1-1"/></svg>';
   const lkCell=r=>r.links.length?`<span class="lk" data-lk="${r.id}">${LINK}${r.links.length>1?`<b>${r.links.length}</b>`:esc(r.links[0].l)}</span>`:`<span class="lk add" data-lk="${r.id}">＋</span>`;
   const escRe=t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const hl=t=>{const e=esc(t);if(!Q.trim())return e;try{return e.replace(new RegExp(escRe(esc(Q.trim())),'gi'),m=>`<mark>${m}</mark>`)}catch(x){return e}};
@@ -1633,7 +1633,7 @@ var CS=(()=>{
       i.onkeydown=e=>{e.stopPropagation();if(e.key==='Tab'&&i.dataset.k==='amt'&&!i.value&&sug){e.preventDefault();NC.amt=String(sug);drawNC()}if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))add();if(e.key==='Escape'){NC=null;drawNC()}}});
     const fi=ov.querySelector(`[data-k="${focus||'title'}"]`);if(fi){fi.focus();fi.setSelectionRange(fi.value.length,fi.value.length)}}
   // ---------- 頁面 ----------
-  const help=()=>`<div class="cshelp"><h5>選取</h5><div class="kr">點一下<span>選取（不會打開）</span></div><div class="kr">快速點兩下<span>打開案子詳細</span></div><div class="kr"><kbd>Shift</kbd>＋點<span>一筆一筆加選／取消</span></div><div class="kr"><kbd>Shift</kbd>＋按住往下拖<span>一次選一段（看金額合計）</span></div>
+  const help=()=>`<div class="cshelp"><h5>選取</h5><div class="kr">點一下<span>選取（不會打開）</span></div><div class="kr">快速點兩下<span>打開／關掉案子詳細</span></div><div class="kr"><kbd>Shift</kbd>＋點<span>一筆一筆加選／取消</span></div><div class="kr"><kbd>Shift</kbd>＋按住往下拖<span>一次選一段（看金額合計）</span></div>
     <h5>編輯</h5><div class="kr">選取後再點某一格<span>直接改那格</span></div><div class="kr">點進度膠囊<span>換進度</span></div><div class="kr">點連結<span>打開／新增連結</span></div><div class="kr">右鍵<span>打開、刪除</span></div>
     <h5>鍵盤</h5><div class="kr"><kbd>↑</kbd> <kbd>↓</kbd><span>換選取的案子（詳細打開時直接換）</span></div><div class="kr"><kbd>Enter</kbd><span>打開詳細</span></div><div class="kr">改格子時 <kbd>Tab</kbd><span>跳到下一格</span></div><div class="kr"><kbd>N</kbd><span>新增案子</span></div><div class="kr"><kbd>/</kbd><span>搜尋</span></div><div class="kr"><kbd>⌘Z</kbd><span>復原</span></div><div class="kr"><kbd>Esc</kbd><span>取消選取／關掉詳細</span></div></div>`;
   function tools(){return `<div class="ptools"><input class="psrch" id="csQ" placeholder="搜尋客戶、專案、備註…" value="${esc(Q)}"><span class="pq ${HELP?'on':''}" id="csHelp">?${HELP?help():''}</span><button class="dk-add" id="csNew"><i class="ti ti-plus"></i>新增案子</button></div>`}
@@ -1672,7 +1672,7 @@ var CS=(()=>{
         const td=ev.target.closest('td.ed'),wasOnly=SEL.size===1&&SEL.has(id)&&!MULTI;
         if(wasOnly&&td){clearTimeout(EDT);const f=td.dataset.f;EDT=setTimeout(()=>{const cell=document.querySelector(`tr.r[data-id="${id}"] td.ed[data-f="${f}"]`);if(cell)inlineEdit(cell,byId(id),f)},280);return}
         SEL=new Set([id]);LAST=id;MULTI=false;document.querySelectorAll('tr.r.sel').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');sumBar();highlight()};
-      e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk]'))return;OPEN=id;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};
+      e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk]'))return;if(OPEN===id){OPEN=null;drawer();e.classList.remove('op');return}OPEN=id;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};
       e.oncontextmenu=ev=>{ev.preventDefault();const o=byId(id);const m=pop(e,`<div class="it" data-a="open">打開詳細</div><div class="it" data-a="copy">複製專案名稱</div>${o.links.length?'<div class="it" data-a="link">打開連結</div>':''}<div class="it" data-a="del" style="color:#B5584E">刪除</div>`);m.style.left=ev.clientX+'px';m.style.top=ev.clientY+'px';
         m.onclick=x=>{const a=(x.target.closest('[data-a]')||{}).dataset||{};m.remove();if(a.a==='open'){OPEN=id;drawer()}else if(a.a==='copy'){try{navigator.clipboard.writeText(o.title)}catch(e){}toast('已複製')}else if(a.a==='link')lkMenu(e,o);else if(a.a==='del')delCase(o)}};
       e.onmouseenter=ev=>{if(DRAG&&ev.buttons&&ev.shiftKey){SEL.add(id);rerender()}}});
@@ -1708,7 +1708,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113040255';
+const VER=/*VER*/'20261113040733';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
