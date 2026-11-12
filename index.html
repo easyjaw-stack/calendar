@@ -211,7 +211,8 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .mr .tk i{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
 .mr .v{grid-column:2;font-size:12px;color:var(--mu);margin-top:-2px}.mr .v b{color:var(--tx);font-weight:600}
 .mr.now .m{font-weight:600}
-.pend-h{display:flex;align-items:center;gap:8px;width:100%;margin:18px 2px 8px;font-size:13px;color:var(--mu)}
+.pend-top{display:flex;align-items:center;gap:8px;margin:18px 2px 8px}.pend-h{display:flex;align-items:center;gap:8px;flex:1;min-width:0;margin:0;font-size:13px;color:var(--mu)}.pend-sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pend-h0{flex:1;font-size:13px;color:var(--mu)}
+.pend-add{flex-shrink:0;font-size:13px;color:var(--tx);background:#fff;border-radius:99px;padding:6px 12px;box-shadow:inset 0 0 0 1px #E6E4DF}.pend-add:active{transform:scale(.96)}
 .pend-h b{background:var(--ink);color:#fff;border-radius:9px;padding:1px 7px;font-size:11px;font-weight:600}
 .pend-h i{margin-left:auto;font-size:16px;transition:transform .2s}.pend-h.cl i{transform:rotate(-90deg)}
 .pi{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;margin-bottom:8px;border-radius:12px;background:#FAFAF8;border:1px solid #E6E4DF;user-select:none;-webkit-user-select:none;transition:transform .15s,opacity .15s}
@@ -505,6 +506,18 @@ tr.off td{color:#C9C7C0}tr.hist td{color:#6b6a66;background:#FCFCFB}
 .dk-body.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px}.dk-body.split .dk-main{min-width:0}
 .cs-split{min-width:0;max-height:calc(100vh - 150px);overflow:auto}.cs-split .cpanel{padding:6px}.cs-split td{max-width:200px}
 #desk .k.cshl{outline:2px solid #5B8DEF;outline-offset:1px}
+body:not(.desk) .csov{align-items:flex-end;padding-top:0;animation:fdin .2s}
+body:not(.desk) .csdlg{width:100%!important;max-height:92vh;border-radius:20px 20px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 14px);background:var(--bg);animation:edup .3s cubic-bezier(.2,.85,.25,1)}
+body:not(.desk) .csdlg .dh{font-size:17px}body:not(.desk) .csnc .kbdh{display:none}
+body:not(.desk) .ncb{background:#fff;border-radius:14px;padding:2px 12px}
+body:not(.desk) .ncr{grid-template-columns:1fr;gap:6px;padding:11px 0}body:not(.desk) .ncr>span{padding-top:0;font-size:12px}
+body:not(.desk) .ncr>div{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:center}body:not(.desk) .ncr>div::-webkit-scrollbar{display:none}
+body:not(.desk) .ncr>div>div{display:flex;flex-wrap:nowrap}body:not(.desk) .ncc{flex-shrink:0;padding:8px 13px;font-size:14px;margin:0 6px 0 0}
+body:not(.desk) .ncr input,body:not(.desk) .ncr textarea{font-size:16px;flex-shrink:0;min-width:160px}
+body:not(.desk) .ncr:nth-child(3)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(3)>div>div{width:100%;overflow-x:auto;margin-bottom:6px!important}body:not(.desk) .ncr:nth-child(3) input{width:100%!important}
+body:not(.desk) .ncr:nth-child(4)>div,body:not(.desk) .ncr:nth-child(6)>div,body:not(.desk) .ncr:nth-child(7)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(6) input,body:not(.desk) .ncr:nth-child(7) textarea{width:100%!important}
+body:not(.desk) .csdlg .df .btn2.dk{padding:10px 22px;font-size:15px}
+body:not(.desk) .csdlg{padding-bottom:0!important}body:not(.desk) .csdlg .df{position:sticky;bottom:0;z-index:2;background:var(--bg);margin:0 -14px;padding:12px 14px calc(env(safe-area-inset-bottom) + 12px);box-shadow:0 -1px 0 #E6E4DF}
 
 /* 運動：跟 Zhao's 一樣的白框、永遠排最下面、只有小火焰圖示（不要橘色火框） */
 .card.k3,.card.k3.fire{background:#fff!important;box-shadow:inset 0 0 0 1px #D3D1C7!important;color:var(--tx)!important}
@@ -1102,9 +1115,12 @@ function caseOf(text){const x=normT(text);return OPEN.find(c=>{const t=String(c.
 function dueSoon(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return false;const t=new Date(T.getFullYear(),+m[1]-1,+m[2]);return (t-T)/864e5<=3}
 // 待排照交期排序：有日期的由近到遠，「待確認」或沒填的放最後
 function dueKey(d){const m=String(d||'').match(/^(\d{1,2})\/(\d{1,2})$/);if(!m)return 9e15;let t=new Date(T.getFullYear(),+m[1]-1,+m[2]);if((t-T)/864e5<-180)t=new Date(T.getFullYear()+1,+m[1]-1,+m[2]);return +t}
-function renderPend(){const el=$('#pend');if(!el)return;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));$('#day').classList.toggle('hasp',PEND.length>0);if(!PEND.length){[...el.children].forEach(c=>{if(!c.classList.contains('pdone'))c.remove()});return}
-  el.innerHTML=`<button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b>剪輯表裡還沒排進月曆的案子<i class="ti ti-chevron-down"></i></button>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
-  $('#pendH').onclick=()=>{POPEN=!POPEN;try{localStorage.setItem('pendOpen',POPEN?'1':'0')}catch(e){}renderPend()};
+// 手機：在待排區新增案子（表單跟電腦版同一個，寫進剪輯表、自動排好）
+async function phoneNewCase(){if(!CS.has()){toast('讀取剪輯表中…');try{await CS.load()}catch(e){}}if(!CS.has()){toast('讀不到剪輯表，請確認網路');return}CS.newCase()}
+function renderPend(){const el=$('#pend');if(!el)return;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));$('#day').classList.toggle('hasp',PEND.length>0);
+  if(!PEND.length){[...el.children].forEach(c=>{if(!c.classList.contains('pdone'))c.remove()});const t=document.createElement('div');t.className='pend-top';t.innerHTML='<span class="pend-h0">待排</span><button class="pend-add" id="pendAdd">＋ 新增案子</button>';el.appendChild(t);$('#pendAdd').onclick=phoneNewCase;return}
+  el.innerHTML=`<div class="pend-top"><button class="pend-h ${POPEN?'':'cl'}" id="pendH">待排<b>${PEND.length}</b><span class="pend-sub">剪輯表裡還沒排進月曆的案子</span><i class="ti ti-chevron-down"></i></button><button class="pend-add" id="pendAdd">＋ 新增案子</button></div>${POPEN?PEND.map((p,i)=>`<div class="pi" data-p="${i}"><div class="pt"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small><span>${esc(p.title)}</span></div><span class="du ${dueSoon(p.due)?'soon':''}">${p.due?'交期<br>'+esc(p.due):''}</span><i class="ti ti-grip-vertical gr"></i></div>`).join(''):''}`;
+  $('#pendH').onclick=()=>{POPEN=!POPEN;try{localStorage.setItem('pendOpen',POPEN?'1':'0')}catch(e){}renderPend()};$('#pendAdd').onclick=phoneNewCase;
   el.querySelectorAll('.pi').forEach(bindPend)}
 function bindPend(el){const p=PEND[+el.dataset.p];let timer,sx,sy,moved=false,dragging=false,ghost=null,off=0,day=null;
   const start=(x,y)=>{sx=x;sy=y;moved=false;timer=setTimeout(()=>{dragging=true;PDRAG=true;haptic();const r=el.getBoundingClientRect();off=y-r.top;ghost=el.cloneNode(true);ghost.className='pi pghost';Object.assign(ghost.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px'});document.body.appendChild(ghost);el.style.opacity=.3},380)};
@@ -1622,11 +1638,11 @@ var CS=(()=>{
      ${row('案源',srcList().map(k=>chip(NC.src===k,`data-src="${esc(k)}"`,k,srcColor(k))).join('')+inp('srcNew','或輸入新案源','150px'))}
      ${row('客戶',cls(NC.src).slice(0,8).map(c=>chip(NC.client===c,`data-cl="${esc(c)}"`,c)).join('')+inp('client','或輸入新客戶','170px'))}
      ${row('專案',(tp.length?`<div style="margin-bottom:6px">${tp.map(x=>`<span class="ncc tp" data-tp="${esc(x)}">${esc(x)}…</span>`).join('')}</div>`:'')+inp('title','專案名稱（點上面的快速開頭會自動接著編號）'))}
-     ${row('報價',inp('amt',sug?'建議 '+sug:'金額','140px')+(sug&&!NC.amt?`<span class="mu" style="font-size:12.5px;margin-left:8px">同類型最常見 ${fmt(sug)}，按 Tab 帶入</span>`:''))}
+     ${row('報價',inp('amt',sug?'建議 '+sug:'金額','140px')+(sug&&!NC.amt?`<span class="mu" style="font-size:12.5px;margin-left:8px">同類型最常見 ${fmt(sug)}，${DESK?'按 Tab 帶入':'點一下帶入'}</span>`:''))}
      ${row('交期',dd.map(([x,n])=>{const v=md(new Date(+t+n*864e5));return chip(NC.due===v,`data-due="${v}"`,`${x} ${v}`)}).join('')+inp('due','或輸入 11/28','110px'))}
      ${row('連結',inp('link','貼上雲端／Frame.io 網址（可之後再加）'))}
      ${row('時程',`<textarea data-k="sch" placeholder="選填：把客戶給的排程整段貼進來，自動拆成時程、交期跟著走">${esc(NC.sch??'')}</textarea>`)}
-     </div><div class="df"><span class="mu" style="font-size:12px">新增後會出現在月曆右邊的「待排」</span><span class="sp"></span><span class="mu" style="font-size:12px">⌘Enter</span><button class="btn2 dk" data-ok ${NC.title.trim()?'':'disabled'}>新增</button></div></div>`;
+     </div><div class="df"><span class="mu" style="font-size:12px">新增後會出現在${DESK?'月曆右邊的':''}「待排」</span><span class="sp"></span><span class="mu kbdh" style="font-size:12px">⌘Enter</span><button class="btn2 dk" data-ok ${NC.title.trim()?'':'disabled'}>新增</button></div></div>`;
     document.body.appendChild(ov);
     ov.onclick=e=>{if(e.target===ov){NC=null;drawNC()}};ov.querySelector('[data-x]').onclick=()=>{NC=null;drawNC()};
     ov.querySelectorAll('[data-src]').forEach(b=>b.onclick=()=>{NC.src=b.dataset.src;NC.srcNew='';const c=cls(NC.src);NC.client=c.length===1?c[0]:'';NC.title='';drawNC('title')});
@@ -1639,6 +1655,7 @@ var CS=(()=>{
       FX.newTitle=null;write('caseAdd',{intake:(()=>{const t=today0();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')})(),set,links},`已新增「${ti}」，在待排等你排`).then(r=>{if(r&&r.id){FX.flash=r.id;rerender()}syncNow(true);if(isNewSrc)cliForm(null)}).catch(()=>{})};
     ov.querySelector('[data-ok]').onclick=add;
     ov.querySelectorAll('[data-k]').forEach(i=>{i.oninput=()=>{NC[i.dataset.k]=i.value;const ok=ov.querySelector('[data-ok]');ok.disabled=!NC.title.trim()};i.onblur=()=>{if(i.dataset.k==='title'&&document.querySelector('.csnc'))setTimeout(()=>{if(NC&&!ov.contains(document.activeElement))drawNC()},120)};
+      if(i.dataset.k==='amt'&&!DESK)i.onfocus=()=>{if(!i.value&&sug){NC.amt=String(sug);i.value=NC.amt}};
       i.onkeydown=e=>{e.stopPropagation();if(e.key==='Tab'&&i.dataset.k==='amt'&&!i.value&&sug){e.preventDefault();NC.amt=String(sug);drawNC()}if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))add();if(e.key==='Escape'){NC=null;drawNC()}}});
     const fi=ov.querySelector(`[data-k="${focus||'title'}"]`);if(fi){fi.focus();fi.setSelectionRange(fi.value.length,fi.value.length)}}
   // ---------- 頁面 ----------
@@ -1720,7 +1737,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113041758';
+const VER=/*VER*/'20261113042050';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
