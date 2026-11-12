@@ -437,8 +437,9 @@ body.desk #desk{display:block;max-width:1480px;margin:0 auto;padding:22px 28px 4
 .sec{display:flex;align-items:baseline;gap:10px;padding:6px 8px 8px;font-size:14.5px;font-weight:600;cursor:pointer}.sec .ar{width:10px;color:#9B9993;font-weight:400;font-size:10px}.sec .m{font-weight:400;color:#9B9993;font-size:12.5px}.sec .sp,.bar .sp,.dh .sp,.df .sp,.cpanel .sp,.pfoot .sp,.det h3 .sp{flex:1}
 .tw{overflow-x:auto}
 .cspage table,.cs-split table{width:100%;border-collapse:collapse;font-size:13.5px}
-.cspage th,.cs-split th{text-align:left;font-weight:500;color:#9B9993;font-size:12.5px;padding:7px 9px;border-bottom:1px solid #E6E4DF;white-space:nowrap}
-.cspage td,.cs-split td{padding:8px 9px;border-bottom:1px solid #F0EFEB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.cspage th,.cs-split th{text-align:left;font-weight:500;color:#9B9993;font-size:12.5px;padding:9px 14px;border-bottom:1px solid #E6E4DF;white-space:nowrap}
+.cspage td,.cs-split td{padding:11px 14px;border-bottom:1px solid #F0EFEB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.cspage th:first-child,.cspage td:first-child{padding-left:16px}.cspage td[data-f="專案"]{max-width:340px}.cspage td[data-f="備註"]{max-width:220px;color:#6b6a66}.cpanel{padding:12px 12px 6px}
 .cspage td.wrap,.cs-split td.wrap{white-space:normal;min-width:120px;max-width:240px;color:#45443F}
 tr.r:hover td{background:#FAFAF8}tr.r.sel td{background:#EEF2F6}tr.r.op td{background:#F3F6FA}tr.r.done td{color:#9B9993}tr.r.cx td{color:#C9C7C0;text-decoration:line-through}
 tr.g td{background:#FAFAF8;font-weight:600;font-size:12.5px;color:#6b6a66;cursor:pointer}tr.g td span{font-weight:400;color:#9B9993;margin-left:8px}
@@ -529,6 +530,7 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 .dc,.dw .cl{transition:background .15s}
 
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
+body.desk #desk.wide{max-width:1720px;padding:20px 72px 36px}
 .k.hid,.dp.hid{display:none}
 /* 編輯視窗：欄位名稱、「無」、沒選到的選項、輸入框提示字都加深，比較好讀 */
 #ovl .ed .k,#ovl .ed .h button,#ovl .ed .chips span:not(.on){color:#5E5C57!important}
@@ -1062,7 +1064,7 @@ async function go(o){edit=null;openIdx=-1;cur={...o};if(DESK){DREF={...o};deskLo
 let PK=null;
 function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};drawPicker();loadMonth(PK.y,PK.m).then(drawPicker).catch(()=>{})}
 // 整月總覽的一格：日期、前 3 件（卡片顏色／冒火淡橘／完成刪除線）、多的寫 +n、全部完成加 ✦
-function cellHTML(mm,o){const l=mm&&mm.days[o.d]?mm.days[o.d]:[],real=l.filter(x=>!x.span),all=real.length&&real.every(x=>x.done);
+function cellHTML(mm,o){const l=(mm&&mm.days[o.d]?mm.days[o.d]:[]).filter(x=>!x.virtual&&String(x.text).trim()!=='運動'),real=l.filter(x=>!x.span),all=real.length&&real.every(x=>x.done);
   const short=t=>{const p=String(t).split('｜');return (p.length>1?p[p.length-1]:p[0]).replace(/[【】]/g,'').replace(/\s*-\s*/g,'-').trim()};
   const chip=it=>{const n=parseNote(it.note),fire=!it.done&&!n.nofire&&(n.fire||dueOf(it)===o.m+'/'+o.d);return `<i class="${kCls(it)} ${it.done?'x':''}" style="${fire?'box-shadow:inset 0 0 0 1px #F08A4B':''}">${esc(short(it.text))}</i>`};
   return `<b>${o.d}${all?'<s>✦</s>':''}${perIcon(o)}</b>${l.slice(0,3).map(chip).join('')}${l.length>3?`<em>+${l.length-3}</em>`:''}`}
@@ -1229,10 +1231,11 @@ function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day
 function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>滑鼠指著卡片（或點一下選取）按空白鍵＝完成劃線（再按一次取消）；按 Delete＝刪除、⌘Z 復原。<br>快速點兩下＝直接改文字、右鍵或 Enter＝完整編輯。<br>⌘C 複製卡片 → 滑鼠移到別天按 ⌘V 貼上。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、F 找空檔、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
 function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
   const tabs=`<div class="pgbar"><div class="pg">${[['cal','月曆'],['case','案件'],['cli','客戶'],['set','結算'],['fx','花費'],['split','並排']].map(x=>`<span data-pg="${x[0]}" class="${PAGE===x[0]?'on':''}">${x[1]}</span>`).join('')}</div>${PAGE!=='cal'&&PAGE!=='split'?CS.tools():''}</div>`;
+  el.classList.toggle('wide',PAGE!=='cal');
   if(PAGE!=='cal'&&PAGE!=='split'){const sy=scrollY;el.innerHTML=tabs+`<div class="cspage">${CS.page(PAGE)}</div>`;bindPg(el);CS.bind(el);if(!CS.has())CS.load();scrollTo(0,sy);return}
   el.innerHTML=tabs+`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1>${DV==='day'&&menOf(DREF)?(p=>`<span class="tag pdt ${p.k==='p'?'pr':''}">${DROPI(p.k,'')}${p.k==='a'?`經期第 ${p.n} 天`:'預測經期'}</span>`)(menOf(DREF)):''}<button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div>${DV!=='day'?`<button class="dk-btn ${DFIND?'fon':''}" id="dkFind" title="標出可以排剪片的日子（F）">${DFIND?'✓ 找空檔中':'找空檔'}</button>${DFIND?`<span class="dk-fl">可排剪片 ${deskDays().filter(o=>(DV!=='month'||o.m===DREF.m)&&freeDay(o)).length} 天</span>`:''}`:''}<span class="dk-sp"></span><button class="dk-btn ${sideOn()?'on':''}" id="dkPd" title="打開／收起待排">待排${PEND.length?' '+PEND.length:''}</button><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body ${PAGE==='split'?'split':''}"><div class="dk-main ${DFIND&&DV!=='day'?'find':''}">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${PAGE==='split'?CS.splitPanel():sideOn()?deskSide():''}</div>`;
   bindDesk();bindPg(el);if(PAGE==='split'){const sp=el.querySelector('.cs-split');if(sp)CS.bind(sp);if(!CS.has())CS.load()}const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}deskFx()}
-function bindPg(el){el.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{if(PAGE===b.dataset.pg)return;PAGE=b.dataset.pg;try{localStorage.setItem('deskPage',PAGE)}catch(e){}document.querySelectorAll('.cspm').forEach(x=>x.remove());CS.drawer();if(PAGE!=='cal')CS.load(true);renderDesk();const m=$('#desk .cspage,#desk .dk-body');if(m)m.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:200,easing:'ease-out'})})}
+function bindPg(el){el.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{if(PAGE===b.dataset.pg)return;CS.cardsFx&&CS.cardsFx();PAGE=b.dataset.pg;try{localStorage.setItem('deskPage',PAGE)}catch(e){}document.querySelectorAll('.cspm').forEach(x=>x.remove());CS.drawer();if(PAGE!=='cal')CS.load(true);renderDesk();const m=$('#desk .cspage,#desk .dk-body');if(m)m.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:200,easing:'ease-out'})})}
 function deskFx(){const fx=DFX;
   if(fx.slide){const m=$('.dk-main>*');if(m)m.animate([{transform:`translateX(${fx.slide*28}px)`,opacity:0},{transform:'none',opacity:1}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'});fx.slide=0}
   const pop=$('#desk .k.pop');if(pop){pop.animate([{boxShadow:'0 0 0 0 rgba(134,115,154,.55)'},{boxShadow:'0 0 0 9px rgba(134,115,154,0)'}],{duration:650,easing:'ease-out'});
@@ -1405,7 +1408,7 @@ async function dEnd(P,cancel){try{getSelection().removeAllRanges()}catch(e){}P.o
 // =====================================================================
 var PAGE='cal';try{PAGE=localStorage.getItem('deskPage')||'cal'}catch(e){}
 var CS=(()=>{
-  let D=null,LOADING=null,ROWS=[],FS='全部',Q='',SEL=new Set(),LAST=null,MULTI=false,OPEN=null,EDT=null,COL={'已結案':true},MCOL={},HELP=false,CLI=null,SM='all',FOPEN={},NC=null,DRAG=false,SY=null;
+  let FX={},D=null,LOADING=null,ROWS=[],FS='全部',Q='',SEL=new Set(),LAST=null,MULTI=false,OPEN=null,EDT=null,COL={'已結案':true},MCOL={},HELP=false,CLI=null,SM='all',FOPEN={},NC=null,DRAG=false,SY=null;
   try{const c=JSON.parse(localStorage.getItem('casecache')||'null');if(c)D=c}catch(e){}
   const SRC_PAL=['#7C9CBF','#D9A35E','#8FAF7E','#B68FB8','#C98F8F','#7FB0AC','#C9A27E','#9AA7B0'];
   const SRC_FIX={'Medicathon':'#7C9CBF','嗨咖品妤':'#D9A35E','蔡森數位':'#8FAF7E','簡訊設計':'#B68FB8','自由接案':'#C9C7C0'};
@@ -1428,7 +1431,7 @@ var CS=(()=>{
   function absorb(r){if(r&&r.tabs){D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build()}}
   const rerender=()=>{if(DESK&&PAGE!=='cal')renderDesk()};
   async function write(action,payload,okMsg,undo){try{const r=await call(action,payload);absorb(r);rerender();if(okMsg)toast(okMsg,undo);return r}catch(e){toast('沒存成功：'+(e.message||e));load(true);throw e}}
-  function upd(o,set,msg,links){// 先改畫面，再存
+  function upd(o,set,msg,links){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;// 先改畫面，再存
     Object.keys(set).forEach(k=>{const f={'專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期')o.dueTxt=set[k];if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());rerender();
     return write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg)}
@@ -1454,7 +1457,7 @@ var CS=(()=>{
   const flt=l=>l.filter(r=>(FS==='全部'||r.src===FS)&&(!Q||(r.client+r.title+r.src+r.memo+r.mynote).toLowerCase().includes(Q.toLowerCase())));
   const dueOf=r=>{const n=nextMe(r);return n?md(n.d):r.dueTxt};const dueKey=r=>{const n=nextMe(r);return n?+n.d:r.due?+r.due:9e15};
   const byDue=l=>l.slice().sort((a,b)=>dueKey(a)-dueKey(b));
-  const COLS=[['src','案源'],['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['next','下一步'],['due','交期'],['up','上片日'],['done','完成日'],['link','連結'],['memo','備註'],['mynote','我的備註']];
+  const COLS=[['src','案源'],['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['next','下一步'],['due','交期'],['up','上片日'],['done','完成日'],['link','連結'],['memo','備註']];
   const head=(c)=>`<thead><tr>${(c||COLS).map(x=>`<th>${x[1]}</th>`).join('')}</tr></thead>`;
   const LINK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.8 2.8 0 014 4l-1 1M9 11.5l-1 1a2.8 2.8 0 01-4-4l1-1"/></svg>';
   const lkCell=r=>r.links.length?`<span class="lk" data-lk="${r.id}">${LINK}${r.links.length>1?`<b>${r.links.length}</b>`:esc(r.links[0].l)}</span>`:`<span class="lk add" data-lk="${r.id}">＋</span>`;
@@ -1562,7 +1565,7 @@ var CS=(()=>{
     d.querySelector('[data-ladd]').onclick=()=>addLink(o);
     const ta=d.querySelector('[data-sch]');ta.onpaste=()=>setTimeout(()=>{const v=ta.value.trim();if(!v)return;const p=parseSched(v,o.intake);if(!p||!p.steps.length){toast('看不出日期，請確認排程裡有 11/23 這種日期');return}const set={'時程':v};const nx=p.steps.find(s=>s.kind==='me');if(nx)set['交期']=md(nx.d);upd(o,set,`已拆成 ${p.steps.length} 步${nx?'，交期改成 '+md(nx.d):''}`)},0);
     d.querySelector('[data-del]').onclick=()=>delCase(o)}
-  async function delCase(o){if(await choose(`刪除「${o.title}」？`,[['y','刪除（可以復原）']])!=='y')return;OPEN=null;drawer();SEL.delete(o.id);ROWS=ROWS.filter(r=>r!==o);rerender();
+  async function delCase(o){if(await choose(`刪除「${o.title}」？`,[['y','刪除（可以復原）']])!=='y')return;OPEN=null;drawer();SEL.delete(o.id);const tr=document.querySelector(`tr.r[data-id="${o.id}"]`);if(tr)await tr.animate([{opacity:1},{opacity:0,transform:'translateX(-12px)'}],{duration:220,easing:'ease-in',fill:'forwards'}).finished.catch(()=>{});ROWS=ROWS.filter(r=>r!==o);rerender();
     write('caseDelete',{tab:o.tab,id:o.id},'已刪除',()=>write('caseRestore',{id:o.id},'已復原')).catch(()=>{})}
   const LBL=url=>/drive\.google\.com\/drive\/folders/.test(url)?'資料夾':/drive\.google\.com|docs\.google/.test(url)?'雲端檔案':/frame\.io/.test(url)?'Frame.io':/youtu/.test(url)?'YouTube':/dropbox/.test(url)?'Dropbox':'連結';
   function addLink(o){const url=prompt('貼上網址');if(!url||!/^https?:\/\//.test(url.trim()))return;const l=prompt('名稱（例：素材、腳本、Acopy）',o.links.length?LBL(url):'素材');if(!l)return;upd(o,{},'已加連結',o.links.concat([{l:l.trim(),url:url.trim()}]))}
@@ -1609,7 +1612,7 @@ var CS=(()=>{
     const add=()=>{if(!NC.title.trim())return;const src=(NC.srcNew||'').trim()||NC.src,sch=NC.sch.trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
       const set={'案源':src,'客戶':NC.client.trim()||src,'專案':NC.title.trim(),'報價':String(NC.amt||PRICE(NC.title)||''),'交期':NC.due||(nx?md(nx.d):''),'時程':sch};
       const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null;const ti=NC.title.trim(),isNewSrc=!srcList().includes(src);NC=null;drawNC();
-      write('caseAdd',{intake:(()=>{const t=today0();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')})(),set,links},`已新增「${ti}」，在待排等你排`).then(()=>{syncNow(true);if(isNewSrc)cliForm(null)}).catch(()=>{})};
+      FX.newTitle=null;write('caseAdd',{intake:(()=>{const t=today0();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')})(),set,links},`已新增「${ti}」，在待排等你排`).then(r=>{if(r&&r.id){FX.flash=r.id;rerender()}syncNow(true);if(isNewSrc)cliForm(null)}).catch(()=>{})};
     ov.querySelector('[data-ok]').onclick=add;
     ov.querySelectorAll('[data-k]').forEach(i=>{i.oninput=()=>{NC[i.dataset.k]=i.value;const ok=ov.querySelector('[data-ok]');ok.disabled=!NC.title.trim()};i.onblur=()=>{if(i.dataset.k==='title'&&document.querySelector('.csnc'))setTimeout(()=>{if(NC&&!ov.contains(document.activeElement))drawNC()},120)};
       i.onkeydown=e=>{e.stopPropagation();if(e.key==='Tab'&&i.dataset.k==='amt'&&!i.value&&sug){e.preventDefault();NC.amt=String(sug);drawNC()}if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))add();if(e.key==='Escape'){NC=null;drawNC()}}});
@@ -1630,10 +1633,10 @@ var CS=(()=>{
     document.querySelectorAll('#desk .dk-main .k[data-i]').forEach(k=>{const it=dayItems(parseK(k.dataset.k))[+k.dataset.i];if(!it)return;const c=caseOf(it.text);if(c&&sel.some(o=>o.title.trim()===String(c.title).trim()))k.classList.add('cshl')})}
   function bind(root){
     root.querySelectorAll('[data-fs]').forEach(c=>c.onclick=()=>{FS=c.dataset.fs;rerender()});
-    root.querySelectorAll('[data-sec]').forEach(e=>e.onclick=()=>{COL[e.dataset.sec]=!COL[e.dataset.sec];rerender()});
-    root.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{MCOL[e.dataset.m]=MCOL[e.dataset.m]===false;rerender()});
-    root.querySelectorAll('[data-c]').forEach(e=>{if(e.closest('.cssum'))return;e.onclick=()=>{CLI=e.dataset.c;SM='all';rerender()}});
-    root.querySelectorAll('[data-back]').forEach(e=>e.onclick=()=>{CLI=null;rerender()});
+    root.querySelectorAll('[data-sec]').forEach(e=>e.onclick=()=>{COL[e.dataset.sec]=!COL[e.dataset.sec];if(!COL[e.dataset.sec])FX.open=e.dataset.sec;rerender()});
+    root.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{MCOL[e.dataset.m]=MCOL[e.dataset.m]===false;if(MCOL[e.dataset.m]===false)FX.month=e.dataset.m;rerender()});
+    root.querySelectorAll('[data-c]').forEach(e=>{if(e.closest('.cssum'))return;e.onclick=()=>{CLI=e.dataset.c;SM='all';FX.cards=true;rerender()}});
+    root.querySelectorAll('[data-back]').forEach(e=>e.onclick=()=>{CLI=null;FX.cards=true;rerender()});
     root.querySelectorAll('[data-newcli]').forEach(e=>e.onclick=()=>cliForm(null));
     root.querySelectorAll('[data-editcli]').forEach(e=>e.onclick=()=>cliForm(clients().find(x=>x.key===CLI)));
     const sm=root.querySelector('#csSm');if(sm)sm.onchange=()=>{SM=sm.value;rerender()};const sy=root.querySelector('#csSy');if(sy)sy.onchange=()=>{SY=+sy.value;rerender()};
@@ -1657,7 +1660,13 @@ var CS=(()=>{
       e.oncontextmenu=ev=>{ev.preventDefault();const o=byId(id);const m=pop(e,`<div class="it" data-a="open">打開詳細</div><div class="it" data-a="copy">複製專案名稱</div>${o.links.length?'<div class="it" data-a="link">打開連結</div>':''}<div class="it" data-a="del" style="color:#B5584E">刪除</div>`);m.style.left=ev.clientX+'px';m.style.top=ev.clientY+'px';
         m.onclick=x=>{const a=(x.target.closest('[data-a]')||{}).dataset||{};m.remove();if(a.a==='open'){OPEN=id;drawer()}else if(a.a==='copy'){try{navigator.clipboard.writeText(o.title)}catch(e){}toast('已複製')}else if(a.a==='link')lkMenu(e,o);else if(a.a==='del')delCase(o)}};
       e.onmouseenter=ev=>{if(DRAG&&ev.buttons&&ev.shiftKey){SEL.add(id);rerender()}}});
-    sumBar();drawer();highlight()}
+    sumBar();drawer();highlight();fx(root)}
+  function fx(root){const ease='cubic-bezier(.2,.8,.2,1)';
+    if(FX.pop){const p=root.querySelector(`tr.r[data-id="${FX.pop}"] [data-stp]`);if(p)p.animate([{transform:'scale(.6)',opacity:.4},{transform:'scale(1.12)'},{transform:'scale(1)',opacity:1}],{duration:380,easing:'cubic-bezier(.3,1.6,.5,1)'});FX.pop=null}
+    if(FX.flash){const r=root.querySelector(`tr.r[data-id="${FX.flash}"]`);if(r)r.querySelectorAll('td').forEach(td=>td.animate([{background:'#FFF3D1'},{background:'transparent'}],{duration:1100,easing:'ease-out'}));FX.flash=null}
+    if(FX.open){const t=root.querySelector(`[data-sec="${FX.open}"]`);const tw=t&&t.parentNode.querySelector('.tw');if(tw)tw.animate([{opacity:0,transform:'translateY(-6px)'},{opacity:1,transform:'none'}],{duration:240,easing:ease});FX.open=null}
+    if(FX.month){const g=root.querySelectorAll(`tr.r`);root.querySelectorAll(`tr.g[data-m="${FX.month}"] ~ tr.r`).forEach((r,i)=>{if(i<40)r.animate([{opacity:0,transform:'translateY(-4px)'},{opacity:1,transform:'none'}],{duration:200,delay:i*12,easing:ease,fill:'backwards'})});FX.month=null}
+    if(FX.cards){root.querySelectorAll('.ccard,.bigc').forEach((c,i)=>c.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:260,delay:i*35,easing:ease,fill:'backwards'}));FX.cards=false}}
   document.addEventListener('mouseup',()=>{DRAG=false});
   function key(ev){const k=ev.key;if(NC&&!document.querySelector('.csnc'))NC=null;if(NC||document.querySelector('.csov')){if(k==='Escape'){NC=null;document.querySelectorAll('.csov').forEach(x=>x.remove())}return true}
     if(k==='Escape'){if(OPEN){OPEN=null;drawer();rerender()}else if(SEL.size){SEL.clear();MULTI=false;rerender()}else if(HELP){HELP=false;rerender()}closeMenus();return true}
@@ -1666,7 +1675,7 @@ var CS=(()=>{
     if((k==='Delete'||k==='Backspace')&&PAGE!=='cal'&&PAGE!=='split'){const o=SEL.size===1?byId([...SEL][0]):null;if(o){ev.preventDefault();delCase(o)}return true}
     return PAGE!=='cal'&&PAGE!=='split'}
   const busy=()=>!!NC||!!document.querySelector('.csov,td.ing,.csdrw .ing')||DRAG;
-  return {load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight};
+  return {load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
 })();
 
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
@@ -1678,7 +1687,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113034726';
+const VER=/*VER*/'20261113035702';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
