@@ -492,7 +492,9 @@ td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;fo
 .pbar{height:8px;border-radius:4px;background:#F2F1EE;overflow:hidden}.pbar i{display:block;height:100%;background:#9FB89A}.pfoot{display:flex;font-size:12px;color:#9B9993;margin-top:6px}
 .carry{margin-top:10px;font-size:12.5px;color:#8A5A12;background:#FBF4E6;border-radius:8px;padding:6px 10px}
 .mb{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#F2F1EE}.mb i{display:block}.lg{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px}
-.fxs{display:flex;gap:28px;padding:16px 18px;font-size:12.5px;color:#9B9993}.fxs b{display:block;font-size:20px;color:#262624;font-variant-numeric:tabular-nums}
+.fxs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}.fxc{background:#fff;border-radius:14px;padding:14px 18px}.fxc small{display:block;font-size:12.5px;color:#9B9993;margin-bottom:6px}.fxc b{display:block;font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fxc em{font-style:normal;font-size:12px;color:#9B9993}
+.fxhow{font-size:13px;color:#6b6a66;margin:0 4px 12px;line-height:1.6}.fxhow b{color:#262624}.fxfoot{font-size:12px;padding:8px 14px 4px}
+.fxact{text-align:right;white-space:nowrap}.btn3{display:inline-block;font-size:12.5px;padding:4px 12px;border-radius:99px;background:#F2F1EE;color:#45443F;cursor:pointer;margin-left:6px;transition:background .15s,color .15s}.btn3:hover{background:#E6E4DF}.btn3.dk{background:#262624;color:#fff}.btn3.dk:hover{background:#45443F}
 tr.off td{color:#C9C7C0}tr.hist td{color:#6b6a66;background:#FCFCFB}
 .csov{position:fixed;inset:0;background:rgba(38,38,36,.28);z-index:90;display:flex;align-items:flex-start;justify-content:center;padding-top:7vh}
 .csdlg{background:#fff;border-radius:18px;width:480px;max-height:86vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);padding:18px 22px 16px;font-size:14px}
@@ -1572,9 +1574,15 @@ var CS=(()=>{
   // ---------- 花費 ----------
   function subs(){const g={};(D&&D.fx||[]).forEach(r=>{(g[r.p]=g[r.p]||[]).push(r)});return Object.keys(g).map(p=>{const l=g[p].slice().sort((a,b)=>String(a.d)<String(b.d)?-1:1),last=l[l.length-1],off=l.some(x=>/停用/.test(x.memo));
     let nx=isoD(last.next);if(!nx){const d=isoD(last.d);if(d)nx=new Date(d.getFullYear(),d.getMonth()+1,d.getDate())}return {p,l,last,amt:last.amt,next:off?null:nx,off}}).sort((a,b)=>(a.off-b.off)||((a.next||9e15)-(b.next||9e15)))}
-  function fxPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const S=subs(),on=S.filter(s=>!s.off),mon=on.reduce((a,b)=>a+b.amt,0),t=today0(),dd=d=>Math.round((d-t)/864e5);
-    return `<div class="cpanel fxs"><div><b>${fmt(mon)}</b>每月固定花費</div><div><b>${fmt(mon*12)}</b>一年約</div><div><b>${on.length} 個</b>使用中</div>${on[0]&&on[0].next?`<div><b>${esc(on[0].p)} ${md(on[0].next)}</b>下一筆扣款（${dd(on[0].next)} 天後）</div>`:''}</div>
-    <div class="cpanel"><div class="tw"><table><thead><tr><th>服務</th><th>每月</th><th>下次扣款</th><th>上次續訂</th><th>備註</th><th></th></tr></thead><tbody>${S.map(s=>{const d=s.next?dd(s.next):null;return `<tr class="r ${s.off?'off':''}" data-fx="${esc(s.p)}"><td>${FOPEN[s.p]?'▾':'▸'}　${esc(s.p)}</td><td class="ed" data-fxamt="${s.last.r}">${fmt(s.amt)}</td><td>${s.next?md(s.next)+(d<=7?`<span class="mu">　${d} 天後</span>`:''):'—'}</td><td>${md(isoD(s.last.d))||esc(s.last.d)}</td><td>${s.off?'已停用':esc(s.last.memo||'')}</td><td>${s.off?'':`<span class="st s-none" data-renew="${esc(s.p)}">✓ 已續訂</span>`}</td></tr>`+(FOPEN[s.p]?s.l.slice().reverse().map(x=>`<tr class="hist"><td style="padding-left:34px">${md(isoD(x.d))||esc(x.d)}</td><td>${fmt(x.amt)}</td><td colspan="4"></td></tr>`).join(''):'')}).join('')}</tbody></table></div></div>`}
+  function fxPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const S=subs(),on=S.filter(s=>!s.off),mon=on.reduce((a,b)=>a+b.amt,0),t=today0(),dd=d=>Math.round((d-t)/864e5);const nx=on.filter(s=>s.next).sort((a,b)=>a.next-b.next)[0];
+    const sum=`<div class="fxs">${[['每月固定花費',fmt(mon)],['一年大約',fmt(mon*12)],['使用中',on.length+' 個'],['下一筆扣款',nx?`${esc(nx.p)}　${md(nx.next)}`:'—',nx?(dd(nx.next)<=0?'今天':dd(nx.next)+' 天後'):'']].map(x=>`<div class="fxc"><small>${x[0]}</small><b>${x[1]}</b>${x[2]?`<em>${x[2]}</em>`:''}</div>`).join('')}</div>`;
+    const how=`<div class="fxhow">扣款之後按「<b>我繳了</b>」，就會記下這一期，下次扣款自動往後一個月。不續訂了就按「<b>停用</b>」，之後要用再按「恢復使用」。</div>`;
+    const row=s=>{const d=s.next?dd(s.next):null,due=d!=null&&d<=0;
+      const st=s.off?'<span class="st s-cancel" style="cursor:default">已停用</span>':due?`<span class="st s-unpaid" style="cursor:default">該繳了</span>`:`<span class="st s-check" style="cursor:default">還沒到</span>`;
+      return `<tr class="r ${s.off?'off':''}" data-fx="${esc(s.p)}"><td>${FOPEN[s.p]?'▾':'▸'}　${esc(s.p)}</td><td class="ed" data-fxamt="${s.last.r}" title="點兩下改金額">${fmt(s.amt)}</td><td>${s.next?md(s.next)+`<span class="mu">　${d<0?'過了 '+(-d)+' 天':d===0?'今天':d+' 天後'}</span>`:'—'}</td><td>${st}</td><td class="mu">${md(isoD(s.last.d))||esc(s.last.d)}</td>
+        <td class="fxact">${s.off?`<span class="btn3" data-fxon="${esc(s.p)}">恢復使用</span>`:`<span class="btn3 dk" data-paid2="${esc(s.p)}">我繳了</span><span class="btn3" data-fxoff="${esc(s.p)}">停用</span>`}</td></tr>`+
+        (FOPEN[s.p]?s.l.slice().reverse().map(x=>`<tr class="hist"><td style="padding-left:34px">${md(isoD(x.d))||esc(x.d)} 繳</td><td>${fmt(x.amt)}</td><td colspan="4" class="mu">${x.memo?esc(x.memo):''}</td></tr>`).join(''):'')};
+    return sum+how+`<div class="cpanel"><div class="tw"><table><thead><tr><th>服務</th><th>每月</th><th>下次扣款</th><th>這一期</th><th>上次繳</th><th></th></tr></thead><tbody>${S.map(row).join('')}</tbody></table></div><div class="fxfoot mu">點服務名稱可以看每一次繳費的紀錄</div></div>`}
   // ---------- 月曆提醒卡：入帳日到了還沒收到、扣款前一天 ----------
   async function addCalCard(o,text){await ensureMonth(o.y,o.m);const l=dayItems(o);if(l.some(x=>String(x.text).includes(text.split(' ')[0])&&String(x.text).includes(text.split(' ').pop())))return;await save([{o,items:clone(l).concat([{text,done:false,bg:'',fc:'',bold:false,note:''}])}])}
   let REMINDED=false;
@@ -1684,11 +1692,16 @@ var CS=(()=>{
     root.querySelectorAll('[data-editcli]').forEach(e=>e.onclick=()=>cliForm(clients().find(x=>x.key===CLI)));
     const sm=root.querySelector('#csSm');if(sm)sm.onchange=()=>{SM=sm.value;rerender()};const sy=root.querySelector('#csSy');if(sy)sy.onchange=()=>{SY=+sy.value;rerender()};
     root.querySelectorAll('[data-cp]').forEach(e=>e.onclick=()=>copyBox(stmtText(CLI)));
-    root.querySelectorAll('[data-fx]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('[data-renew],[data-fxamt]'))return;FOPEN[e.dataset.fx]=!FOPEN[e.dataset.fx];rerender()});
+    root.querySelectorAll('[data-fx]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('[data-fxamt],.fxact'))return;FOPEN[e.dataset.fx]=!FOPEN[e.dataset.fx];rerender()});
     root.querySelectorAll('[data-paid]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();const o=byId(e.dataset.paid);o._prev={d:o.doneTxt,p:o.paidTxt};if(!o.paidTxt)o.paidTxt=md(today0());const tr=e.closest('tr');const go=()=>upd(o,{'進度':'完成'},`「${o.title}」收到了 ${fmt(o.amt)}，收款日 ${o.paidTxt}`);if(tr)tr.animate([{opacity:1},{opacity:0,transform:'translateX(12px)'}],{duration:220,fill:'forwards'});setTimeout(go,tr?230:0)}});
     root.querySelectorAll('[data-owek]').forEach(e=>e.onclick=()=>{const k=+e.dataset.owek,S=settle();S.pop();const l=S.filter(x=>x.key===k&&x.r.st==='完成未付款').map(x=>x.r);
       const m=pop(e,`<div style="padding:6px 10px 4px;font-size:12px;color:#9B9993">還沒收到 ${l.length} 件</div>`+l.map(r=>`<div class="it"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}　<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">${esc(r.title)}</span><em>${fmt(r.amt)}</em></div>`).join(''));m.style.minWidth='360px'});
-    root.querySelectorAll('[data-renew]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();write('fxRenew',{p:e.dataset.renew},`已記錄 ${e.dataset.renew} 續訂，下次扣款往後推一個月`)});
+    root.querySelectorAll('[data-paid2]').forEach(e=>e.onclick=async ev=>{ev.stopPropagation();const s=subs().find(x=>x.p===e.dataset.paid2);const date=s.next||today0();
+      if(await choose(`${s.p}　${md(date)}　${fmt(s.amt)}`,[['y','記為已繳（下次往後一個月）']])!=='y')return;
+      const iso=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+      write('fxRenew',{p:s.p,date:iso},`已記下 ${s.p} ${md(date)} 繳了，下次 ${md(new Date(date.getFullYear(),date.getMonth()+1,date.getDate()))}`,()=>{const n=(D.fx||[]).filter(x=>x.p===s.p&&x.d===iso).pop();if(n)write('fxDel',{r:n.r,p:s.p,d:iso},'已復原')})});
+    root.querySelectorAll('[data-fxoff]').forEach(e=>e.onclick=async ev=>{ev.stopPropagation();const p=e.dataset.fxoff;if(await choose(`${p} 不續訂了？`,[['y','停用（之後可以恢復）']])!=='y')return;write('fxStop',{p,stop:true},`${p} 已停用`,()=>write('fxStop',{p,stop:false},'已恢復'))});
+    root.querySelectorAll('[data-fxon]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.fxon;write('fxStop',{p,stop:false},`${p} 恢復使用`,()=>write('fxStop',{p,stop:true},'已改回停用'))});
     root.querySelectorAll('[data-fxamt]').forEach(e=>e.ondblclick=ev=>{ev.stopPropagation();const s=subs().find(x=>String(x.last.r)===e.dataset.fxamt);const v=prompt(`${s.p} 每月金額`,s.amt);if(v!=null&&v.trim())write('fxSet',{r:s.last.r,expect:s.p,amt:v},'已更新金額')});
     root.querySelectorAll('[data-open]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();const id=e.dataset.open;OPEN=OPEN===id?null:id;SEL=new Set([id]);MULTI=false;drawer();document.querySelectorAll('#desk tr.r[data-id]').forEach(x=>{x.classList.toggle('op',x.dataset.id===OPEN);x.classList.toggle('sel',x.dataset.id===id)})}});
     root.querySelectorAll('[data-stp]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();stMenu(e,byId(e.dataset.stp))}});
@@ -1737,7 +1750,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113042050';
+const VER=/*VER*/'20261113042408';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
