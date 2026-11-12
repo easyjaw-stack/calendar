@@ -449,7 +449,7 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 @keyframes pcc{to{stroke-dashoffset:0}}@keyframes pck{to{stroke-dashoffset:0}}
 .dc,.dw .cl{transition:background .15s}
 
-body.desk #desk{max-width:1760px;padding:20px 80px 36px}
+body.desk #desk{max-width:1640px;padding:20px 120px 36px}
 .dk-main{padding:6px}
 .dc{padding:4px 4px 6px}.dc .k{padding:3px 5px;font-size:11.5px}
 .dk-btn.on{background:var(--ink);color:#fff}
@@ -1116,7 +1116,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112124238';
+const VER=/*VER*/'20261112124437';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
