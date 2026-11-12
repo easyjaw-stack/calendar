@@ -450,6 +450,18 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 .dc,.dw .cl{transition:background .15s}
 
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
+.k.hid,.dp.hid{display:none}
+.slot{border-radius:6px;background:rgba(38,38,36,.05);box-shadow:inset 0 0 0 1.5px rgba(38,38,36,.14);transition:height .18s cubic-bezier(.2,.8,.3,1),margin .18s,opacity .15s;box-sizing:border-box;overflow:hidden}
+.dw .slot{border-radius:8px}.dd .slot{border-radius:12px}.dk-side .slot{border-radius:10px}
+.ghost{box-shadow:0 14px 32px rgba(38,38,36,.28),0 3px 8px rgba(38,38,36,.14)!important;cursor:grabbing;will-change:transform}
+.ghost.k2,.ghost.k3{box-shadow:inset 0 0 0 1px #D3D1C7,0 14px 32px rgba(38,38,36,.28),0 3px 8px rgba(38,38,36,.14)!important}
+body.dragging,body.dragging *{cursor:grabbing!important}
+body.dragging #desk{user-select:none;-webkit-user-select:none}
+body.dragging #desk .k:hover{filter:none;width:auto;min-width:0;overflow:hidden;z-index:auto}
+#desk .over{background:#EEF2F6!important;transition:background .15s}
+.dk-top .nav button.hot{background:var(--ink);color:#fff;animation:hotp .65s ease-out}
+@keyframes hotp{from{box-shadow:0 0 0 0 rgba(38,38,36,.35)}to{box-shadow:0 0 0 10px rgba(38,38,36,0)}}
+.k{cursor:pointer}.k:active{transform:none}
 .dk-main{padding:6px}
 .dc{padding:4px 4px 6px}.dc .k{padding:3px 5px;font-size:11.5px}
 .dk-btn.on{background:var(--ink);color:#fff}
@@ -1033,7 +1045,7 @@ async function deskLoad(){renderDesk();await Promise.all(deskKeys().map(k=>{cons
 function deskTitle(){if(DV==='month')return `${DREF.y} 年 ${DREF.m} 月`;if(DV==='day')return `${DREF.m}/${DREF.d}　週${WD[new Date(DREF.y,DREF.m-1,DREF.d).getDay()]}`;const w=weekOf(DREF);return `${w[0].m}/${w[0].d} – ${w[6].m}/${w[6].d}`}
 function deskStep(n){if(DV==='month'){const t=new Date(DREF.y,DREF.m-1+n,1);DREF={y:t.getFullYear(),m:t.getMonth()+1,d:1}}else DREF=addDays(DREF,DV==='week'?7*n:n);DADD=null;DFX.slide=n;deskLoad()}
 function kHTML(it,o,i){const n=parseNote(it.note),fire=!it.done&&!it.span&&!n.nofire&&(n.fire||dueOf(it)===o.m+'/'+o.d),lock=it.span||it.virtual;
-  return `<div class="k ${kCls(it)} ${it.done?'x':''} ${fire?'fire':''} ${DPOP===keyOf(o)+'/'+i?'pop':''} ${DSEL&&DSEL.k===keyOf(o)&&DSEL.i===i?'sel':''}" draggable="${lock?'false':'true'}" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><span data-full="${esc(it.text)}">${esc(shortName(it.text))}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
+  return `<div class="k ${kCls(it)} ${it.done?'x':''} ${fire?'fire':''} ${DPOP===keyOf(o)+'/'+i?'pop':''} ${DSEL&&DSEL.k===keyOf(o)&&DSEL.i===i?'sel':''} ${DDRAG&&DDRAG.type==='item'&&DDRAG.key===keyOf(o)&&DDRAG.i===i?'hid':''}" draggable="false" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><span data-full="${esc(it.text)}">${esc(shortName(it.text))}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
 function zones(o,ex){const l=dayItems(o).map((it,i)=>({it,i})).filter(x=>ex||!x.it.virtual);
   return {a:l.filter(x=>catOf(x.it)<2).map(x=>kHTML(x.it,o,x.i)).join(''),b:l.filter(x=>catOf(x.it)>=2).map(x=>kHTML(x.it,o,x.i)).join('')}}
 const addHTML=o=>DADD&&same(DADD,o)?'<div class="k inp"><input id="dkInp" placeholder="輸入後按 Enter"></div>':'';
@@ -1045,7 +1057,7 @@ function deskWeek(){const days=deskDays();let h=`<div class="dw"><div></div>${da
   h+='<div class="ln"></div><div class="lb">工作</div>'+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).a}${addHTML(o)}</div>`).join('');
   h+=`<div class="ln"></div><div class="lb">Zhao's</div>`+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).b}</div>`).join('');return h+'</div>'}
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
-function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp" draggable="true" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>點一下＝完成（畫線）、雙擊＝編輯、右鍵＝更多；滑鼠指著按 Delete＝刪除、⌘Z 復原。<br>N 新增、← → 換頁、T 回今天。</div></div>`}
+function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>點一下＝完成（畫線）、雙擊＝編輯、右鍵＝更多；滑鼠指著按 Delete＝刪除、⌘Z 復原。<br>N 新增、← → 換頁、T 回今天。</div></div>`}
 function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
   el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div><span class="dk-sp"></span><button class="dk-btn ${sideOn()?'on':''}" id="dkPd" title="打開／收起待排">待排${PEND.length?' '+PEND.length:''}</button><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${sideOn()?deskSide():''}</div>`;
   bindDesk();const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}deskFx()}
@@ -1055,9 +1067,11 @@ function deskFx(){const fx=DFX;
     const day=pop.closest('[data-day]');const st=day&&$(`#desk [data-day="${pop.dataset.k}"] s.fin`);if(st&&fx.fin===pop.dataset.k){st.animate([{transform:'scale(0) rotate(-40deg)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:520,easing:'cubic-bezier(.3,1.6,.5,1)'});fx.fin=''}}
   if(fx.bump){const hd=$(`#desk [data-day="${fx.bump}"] .dn b`)||$(`#desk .hd[data-day="${fx.bump}"] b`);if(hd){hd.animate([{transform:'scale(1)'},{transform:'scale(1.3)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'});
     const b=document.createElement('span');b.className='bd1';b.textContent='+1';hd.parentNode.appendChild(b);b.animate([{transform:'translateY(4px)',opacity:0},{transform:'none',opacity:1,offset:.2},{opacity:1,offset:.75},{opacity:0,transform:'translateY(-6px)'}],{duration:1300}).onfinish=()=>b.remove()}fx.bump=''}
+  if(fx.land){if(Date.now()-fx.land.at>2500)fx.land=null;else{const ks=[...document.querySelectorAll(`#desk .k[data-k="${fx.land.k}"]`)].filter(k=>{const sp=k.querySelector('span[data-full]');return sp&&sp.dataset.full===fx.land.t});const k=ks[ks.length-1];
+    if(k){k.animate([{transform:'scale(1.05)',filter:'brightness(1.08)'},{transform:'scale(.97)',offset:.55},{transform:'none',filter:'none'}],{duration:340,easing:'cubic-bezier(.3,1.3,.5,1)'});fx.land=null}}}
   if(fx.nw){const ks=[...document.querySelectorAll(`#desk .k[data-k="${fx.nw.k}"]`)].filter(k=>k.title.split('　')[0].split('\n')[0]===fx.nw.t);const k=ks[ks.length-1];
     if(k){k.animate([{opacity:0,transform:'translateY(-6px) scale(.97)'},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});fx.nw=null}}}
-async function deskVanish(el){if(!el)return;el.style.overflow='hidden';await el.animate([{height:el.offsetHeight+'px',opacity:1,marginBottom:getComputedStyle(el).marginBottom},{height:'0px',opacity:0,paddingTop:'0px',paddingBottom:'0px',marginBottom:'0px'}],{duration:200,easing:'ease-in',fill:'forwards'}).finished}
+async function deskVanish(el){if(!el)return;el.style.overflow='hidden';await settle(el.animate([{height:el.offsetHeight+'px',opacity:1,marginBottom:getComputedStyle(el).marginBottom},{height:'0px',opacity:0,paddingTop:'0px',paddingBottom:'0px',marginBottom:'0px'}],{duration:200,easing:'ease-in',fill:'forwards'}),200)}
 
 async function deskAddItem(o,text){text=text.trim();if(!text)return;DFX.nw={k:keyOf(o),t:text};await ensureMonth(o.y,o.m);save([{o,items:clone(dayItems(o)).concat([{text,done:false,bg:'',fc:'',bold:false,note:''}])}]);toast(`已新增到 ${o.m}/${o.d}（${CATN[autoCat(text)]}）`)}
 async function deskDrop(o,bi){const d=DDRAG;DDRAG=null;if(!d)return;await ensureMonth(o.y,o.m);
@@ -1081,21 +1095,13 @@ function bindDesk(){const el=$('#desk');
     inp.onblur=()=>setTimeout(()=>{if($('#dkInp')===inp)fin(inp.value)},120)}
   el.querySelectorAll('.k[data-i]').forEach(k=>{const o=parseK(k.dataset.k),i=+k.dataset.i,it=dayItems(o)[i];
     let ct=null;
-    k.onclick=()=>{clearTimeout(ct);ct=setTimeout(()=>{if(!it)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}DSEL={k:k.dataset.k,i};DPOP=it.done?'':k.dataset.k+'/'+i;{const l=dayItems(o).filter((x,j)=>!x.span&&!x.virtual);if(!it.done&&l.filter(x=>!x.done).length===1)DFX.fin=k.dataset.k}cur=o;toggle(i);setTimeout(()=>{DPOP=''},600)},230)};
+    k.onclick=()=>{if(Date.now()-NOCLICK<350)return;clearTimeout(ct);ct=setTimeout(()=>{if(!it)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}DSEL={k:k.dataset.k,i};DPOP=it.done?'':k.dataset.k+'/'+i;{const l=dayItems(o).filter((x,j)=>!x.span&&!x.virtual);if(!it.done&&l.filter(x=>!x.done).length===1)DFX.fin=k.dataset.k}cur=o;toggle(i);setTimeout(()=>{DPOP=''},600)},230)};
     k.ondblclick=()=>{clearTimeout(ct);if(!it||it.virtual)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}cur=o;openEdit(i)};
-    k.onmouseenter=()=>{DHOV={k:k.dataset.k,i};const sp=k.querySelector('span[data-full]');if(sp){sp._s=sp.textContent;sp.textContent=sp.dataset.full}k.style.transform='';const r=k.getBoundingClientRect(),mx=$('#desk .dk-main').getBoundingClientRect().right-8;if(r.right>mx)k.style.transform=`translateX(${mx-r.right}px)`};k.onmouseleave=()=>{const sp=k.querySelector('span[data-full]');if(sp&&sp._s!=null)sp.textContent=sp._s;k.style.transform='';if(DHOV&&DHOV.k===k.dataset.k&&DHOV.i===i)DHOV=null};
+    k.onmouseenter=()=>{if(PDR&&PDR.on)return;DHOV={k:k.dataset.k,i};const sp=k.querySelector('span[data-full]');if(sp){sp._s=sp.textContent;sp.textContent=sp.dataset.full}k.style.transform='';const r=k.getBoundingClientRect(),mx=$('#desk .dk-main').getBoundingClientRect().right-8;if(r.right>mx)k.style.transform=`translateX(${mx-r.right}px)`};k.onmouseleave=()=>{const sp=k.querySelector('span[data-full]');if(sp&&sp._s!=null)sp.textContent=sp._s;k.style.transform='';if(DHOV&&DHOV.k===k.dataset.k&&DHOV.i===i)DHOV=null};
     k.oncontextmenu=ev=>{ev.preventDefault();if(!it||it.span)return;cur=o;cardMenu(i)};
-    k.ondragstart=ev=>{DDRAG={type:'item',key:k.dataset.k,i};ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',it.text)}catch(e){}setTimeout(()=>k.classList.add('drag'),0)};
-    k.ondragend=()=>{k.classList.remove('drag');DDRAG=null;clearIns();setTimeout(flushRender,50)}});
-  el.querySelectorAll('.dp').forEach(p=>{p.ondragstart=ev=>{DDRAG={type:'pend',p:PEND[+p.dataset.p]};ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain','p')}catch(e){}};p.ondragend=()=>{DDRAG=null;clearIns();setTimeout(flushRender,50)};
-    p.onclick=()=>pendMenu(PEND[+p.dataset.p])});
-  const clearIns=()=>el.querySelectorAll('.over,.insb,.insa').forEach(x=>x.classList.remove('over','insb','insa'));
-  el.querySelectorAll('[data-day]').forEach(z=>{const o=parseK(z.dataset.day);let bi=null;
-    z.ondragover=ev=>{if(!DDRAG)return;ev.preventDefault();clearIns();z.classList.add('over');bi=null;const k=ev.target.closest('.k[data-i]');
-      if(k&&k.dataset.k===z.dataset.day&&DDRAG.type==='item'){const r=k.getBoundingClientRect(),after=ev.clientY>r.top+r.height/2;bi=+k.dataset.i+(after?1:0);k.classList.add(after?'insa':'insb')}};
-    z.ondragleave=ev=>{if(!z.contains(ev.relatedTarget))z.classList.remove('over')};
-    z.ondrop=ev=>{ev.preventDefault();clearIns();deskDrop(o,bi)}});
-  const sd=$('#dkSide');if(sd)sd.ondragover=ev=>{if(DDRAG&&DDRAG.type==='item'){ev.preventDefault();sd.classList.add('over')}};if(sd)sd.ondragleave=ev=>{if(!sd.contains(ev.relatedTarget))sd.classList.remove('over')};if(sd)sd.ondrop=ev=>{ev.preventDefault();sd.classList.remove('over');deskBack()}}
+  });
+  el.querySelectorAll('.dp').forEach(p=>{p.onclick=()=>{if(Date.now()-NOCLICK<350)return;pendMenu(PEND[+p.dataset.p])}});
+}
 function deskDelete(){const t=DHOV||DSEL;if(!t)return;const o=parseK(t.k),it=dayItems(o)[t.i];if(!it)return;
   if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}
   if(it.virtual){const items=clone(dayItems(o));const gone=items.splice(t.i,1)[0];save([{o,items}]);toast('今天跳過運動',()=>{save([{o,items:clone(dayItems(o)).concat([gone])}])})}
@@ -1107,6 +1113,73 @@ document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelec
   if(ev.key==='n'||ev.key==='N'){ev.preventDefault();const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};renderDesk();return}
   if(ev.key==='ArrowLeft')deskStep(-1);else if(ev.key==='ArrowRight')deskStep(1);else if(ev.key==='t'||ev.key==='T')$('#dkTd').click()});
 
+
+// ── 電腦版拖曳：拿起微微傾斜、跟著滑鼠晃、其他卡片讓位、放下回彈、拖到邊緣換頁 ──
+let PDR=null,NOCLICK=0;
+const hitEl=(sel,x,y)=>[...document.querySelectorAll(sel)].find(e=>{const r=e.getBoundingClientRect();return r.width&&x>=r.left&&x<r.right&&y>=r.top&&y<r.bottom});
+document.addEventListener('pointerdown',ev=>{if(!DESK||ev.button!==0||edit||PDR)return;const s=ev.target.closest('#desk .k[data-i],#desk .dp');if(!s)return;
+  if(s.classList.contains('k')){const it=dayItems(parseK(s.dataset.k))[+s.dataset.i];if(!it||it.span||it.virtual)return}
+  PDR={src:s,x0:ev.clientX,y0:ev.clientY,x:ev.clientX,y:ev.clientY,on:false}});
+document.addEventListener('pointermove',ev=>{const P=PDR;if(!P)return;P.x=ev.clientX;P.y=ev.clientY;
+  if(!P.on){if(Math.hypot(P.x-P.x0,P.y-P.y0)<5)return;dStart(P)}
+  P.vx=P.vx*.5+(P.x-P.lx)*.5;P.lx=P.x;dHit(P)});
+document.addEventListener('pointerup',()=>{const P=PDR;if(!P)return;if(!P.on){PDR=null;return}dEnd(P,false)});
+document.addEventListener('pointercancel',()=>{if(PDR&&PDR.on)dEnd(PDR,true);else PDR=null});
+document.addEventListener('keydown',ev=>{if(PDR&&PDR.on&&ev.key==='Escape'){ev.stopImmediatePropagation();ev.preventDefault();dEnd(PDR,true)}},true);
+window.addEventListener('blur',()=>{if(PDR&&PDR.on)dEnd(PDR,true)});
+function dStart(P){const s=P.src;P.on=true;clearTimeout(s._ct);if(s.onmouseleave)s.onmouseleave();
+  const r=s.getBoundingClientRect(),cs=getComputedStyle(s);P.dx=P.x0-r.left;P.dy=P.y0-r.top;P.h=r.height;P.mb=cs.marginBottom;P.vx=0;P.lx=P.x;P.rot=0;P.sc=1;
+  P.pend=s.classList.contains('dp');DDRAG=P.pend?{type:'pend',p:PEND[+s.dataset.p]}:{type:'item',key:s.dataset.k,i:+s.dataset.i};
+  const g=s.cloneNode(true);g.classList.remove('sel','pop','hid');g.classList.add('ghost');
+  ['fontSize','padding','borderRadius','lineHeight','fontWeight','backgroundColor','color','boxShadow','border'].forEach(k=>g.style[k]=cs[k]);
+  Object.assign(g.style,{position:'fixed',left:'0',top:'0',width:r.width+'px',margin:'0',zIndex:'999',pointerEvents:'none',transition:'none',transform:`translate(${r.left}px,${r.top}px)`});
+  document.body.appendChild(g);P.g=g;
+  // 原位換成一個空格（一開始就在原位，看起來像卡片被拿起來）
+  const slot=document.createElement('div');slot.className='slot';slot.style.height=P.h+'px';slot.style.marginBottom=P.mb;s.parentNode.insertBefore(slot,s);s.classList.add('hid');
+  P.slot=slot;P.zone=P.pend?null:s.closest('[data-day]');{let n=s.nextElementSibling;while(n&&!(n.matches('.k[data-i]')&&!n.classList.contains('hid')))n=n.nextElementSibling;P.before=n}
+  document.body.classList.add('dragging');haptic&&haptic();
+  const loop=()=>{if(!P.on)return;P.vx*=.86;const tr=Math.max(-7,Math.min(7,P.vx*.45))-1.5;P.rot+=(tr-P.rot)*.22;P.sc+=((P.pend&&P.tgt&&P.tgt.t==='day'?.92:1.045)-P.sc)*.25;
+    g.style.transform=`translate(${P.x-P.dx}px,${P.y-P.dy}px) rotate(${P.rot.toFixed(2)}deg) scale(${P.sc.toFixed(3)})`;P.raf=requestAnimationFrame(loop)};loop();
+  dHit(P)}
+function dSlot(P,zone,before){if(P.slot&&P.slot.isConnected&&P.zone===zone&&P.before===before)return;
+  const old=P.slot;if(old&&old.isConnected){old.style.height='0px';old.style.marginBottom='0px';old.style.opacity='0';setTimeout(()=>old.remove(),200)}
+  P.slot=null;P.zone=zone;P.before=before;if(!zone)return;
+  const smp=zone.querySelector('.k[data-i]:not(.hid)')||document.querySelector('#desk .dk-main .k[data-i]:not(.hid)');const h=P.pend?(smp?smp.offsetHeight:22):P.h,mb=P.pend?(smp?getComputedStyle(smp).marginBottom:'3px'):P.mb;
+  const sl=document.createElement('div');sl.className='slot';sl.style.height='0px';sl.style.marginBottom='0px';sl.style.opacity='0';
+  if(before)zone.insertBefore(sl,before);else{const ks=zone.querySelectorAll('.k[data-i]:not(.hid)'),last=ks[ks.length-1];if(last)last.after(sl);else{const inp=zone.querySelector('.k.inp,.dd-add');if(inp)zone.insertBefore(sl,inp);else zone.appendChild(sl)}}
+  sl.offsetHeight;sl.style.height=h+'px';sl.style.marginBottom=mb;sl.style.opacity='1';P.slot=sl}
+function dHit(P){const x=P.x,y=P.y;document.querySelectorAll('#desk .over,#desk .hot').forEach(e=>e.classList.remove('over','hot'));
+  // 拖到左右邊緣或 ‹ › 停一下＝換頁
+  const nav=hitEl('#dkPv,#dkNx',x,y),dir=nav?(nav.id==='dkPv'?-1:1):x<70?-1:x>innerWidth-70?1:0;
+  if(dir){const b=$(dir<0?'#dkPv':'#dkNx');if(b)b.classList.add('hot');if(P.edge!==dir){P.edge=dir;clearTimeout(P.et);P.et=setTimeout(function f(){if(!P.on||P.edge!==dir)return;deskStep(dir);P.slot=null;P.zone=null;setTimeout(()=>{if(P.on)dHit(P)},30);P.et=setTimeout(f,1000)},650)}}
+  else{P.edge=0;clearTimeout(P.et)}
+  const sd=hitEl('#dkSide',x,y);
+  if(sd){if(!P.pend){sd.classList.add('over');P.tgt={t:'side'}}else P.tgt=null;dSlot(P,null,null);return}
+  let z=hitEl('#desk .dk-main [data-day]:not(.hd)',x,y);
+  if(!z){const hd=hitEl('#desk .dw .hd[data-day]',x,y);if(hd)z=$(`#desk .dw .cl[data-day="${hd.dataset.day}"]`)}
+  if(!z){P.tgt=null;dSlot(P,null,null);return}
+  z.classList.add('over');
+  const ks=[...z.querySelectorAll('.k[data-i]:not(.hid)')];let before=null;
+  // 用「沒有空格時」的位置判斷，避免空格一動卡片就跳來跳去
+  const sls=[...z.querySelectorAll('.slot')].map(e=>({e,h:e.getBoundingClientRect().height+(parseFloat(getComputedStyle(e).marginBottom)||0)}));
+  for(const k of ks){const r=k.getBoundingClientRect();let off=0;sls.forEach(o=>{if(o.e.compareDocumentPosition(k)&Node.DOCUMENT_POSITION_FOLLOWING)off+=o.h});if(y<r.top-off+r.height/2){before=k;break}}
+  dSlot(P,z,before)
+  const b=P.before;P.tgt={t:'day',o:parseK(z.dataset.day),bi:b&&b.classList.contains('k')?+b.dataset.i:null}}
+const settle=(a,ms)=>Promise.race([a.finished.catch(()=>{}),new Promise(f=>setTimeout(f,ms+80))]);
+async function dEnd(P,cancel){P.on=false;PDR=null;cancelAnimationFrame(P.raf);clearTimeout(P.et);NOCLICK=Date.now();document.body.classList.remove('dragging');
+  document.querySelectorAll('#desk .over,#desk .hot').forEach(e=>e.classList.remove('over','hot'));
+  const g=P.g,t=cancel?null:P.tgt;
+  const fly=(r,ex)=>settle(g.animate([{transform:g.style.transform,opacity:1},{transform:`translate(${r.left}px,${r.top}px) rotate(0deg) scale(1)`,opacity:ex?0:1}],{duration:ex?200:190,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'}),200);
+  if(t&&t.t==='day'&&P.slot&&P.slot.isConnected){const r=P.slot.getBoundingClientRect();await fly(r,P.pend);
+    if(!P.pend)DFX.land={k:keyOf(t.o),t:dayItems(parseK(DDRAG.key))[DDRAG.i]?.text,at:Date.now()};
+    await deskDrop(t.o,t.bi);setTimeout(()=>g.remove(),16);if(P.src.isConnected&&P.src.classList.contains('hid'))renderDesk()}
+  else if(t&&t.t==='side'){const sd=$('#dkSide').getBoundingClientRect();await fly({left:sd.left+20,top:sd.top+30},true);g.remove();deskBack();if(P.src.isConnected)renderDesk()}
+  else{DDRAG=null;if(P.slot&&P.slot.isConnected)P.slot.remove();let r=null;
+    if(P.src.isConnected){P.src.classList.remove('hid');P.src.style.visibility='hidden';r=P.src.getBoundingClientRect()}
+    if(r){await settle(g.animate([{transform:g.style.transform},{transform:`translate(${r.left}px,${r.top}px) rotate(0deg) scale(1)`}],{duration:320,easing:'cubic-bezier(.3,1.35,.5,1)',fill:'forwards'}),320);P.src.style.visibility=''}
+    else await settle(g.animate([{opacity:1},{opacity:0}],{duration:160,fill:'forwards'}),160);
+    g.remove();if(!P.src.isConnected)renderDesk()}
+  setTimeout(flushRender,60)}
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
 $('#moBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()});
 $('#srBtn').onclick=openSearch;
@@ -1116,7 +1189,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112124437';
+const VER=/*VER*/'20261112135440';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
