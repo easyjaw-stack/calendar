@@ -424,6 +424,15 @@ body.desk .ov{inset:24px auto 24px 50%;width:560px;margin-left:-280px;border-rad
 body.desk .ov .mg div.mc{min-height:76px}
 body.desk .sheet .bx{max-width:420px;margin:0 auto 40px;border-radius:18px}
 body.desk .sheet .pvw{max-width:420px;margin:0 auto 12px;width:100%}
+
+.k{display:block;white-space:normal;word-break:break-word;overflow:visible;cursor:pointer;line-height:1.4;transition:transform .12s,filter .12s}
+.k>span{background:linear-gradient(currentColor,currentColor) no-repeat 0 58%/0 1.3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.k.x>span{text-decoration:none;background-size:100% 1.3px}
+.k.pop.x>span{animation:strike .35s ease-out}
+.k em{margin-left:6px;white-space:nowrap}.k .flame{vertical-align:-2px;margin-left:4px}
+.k:hover{filter:brightness(.95)}.k.k0:hover{filter:brightness(1.25)}.k:active{transform:scale(.98)}
+.k.sel{outline:2px solid #9B9993;outline-offset:1px}
+.k.inp{display:block}
 </style>
 </head>
 <body>
@@ -974,12 +983,13 @@ function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜
   $('#srCl').onclick=()=>{$('#ovl').innerHTML=''};const inp=$('#srIn');inp.focus();let t;
   inp.oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{const q=inp.value.trim();if(!q){$('#srRes').innerHTML='';return}$('#srRes').innerHTML='<div class="empty">搜尋中…</div>';try{const r=await call('search',{q});if(inp.value.trim()!==q)return;$('#srRes').innerHTML=r.results.length?r.results.map((x,i)=>`<div class="res ${x.done?'x':''}" data-i="${i}"><span class="dt">${x.y!==T.getFullYear()?x.y+'/':''}${x.m}/${x.d}</span><span class="t">${esc(x.text)}</span></div>`).join(''):'<div class="empty">找不到</div>';document.querySelectorAll('.res').forEach(el=>el.onclick=()=>{const x=r.results[+el.dataset.i];$('#ovl').innerHTML='';go({y:x.y,m:x.m,d:x.d})})}catch(e){$('#srRes').innerHTML='<div class="empty">搜尋失敗</div>'}},350)}}
 
-function toast(msg,undo){clearTimeout(undoTimer);$('#toast').innerHTML=`<div class="toast"><span>${esc(msg)}</span>${undo?'<button id="tUndo">復原</button>':''}</div>`;const u=$('#tUndo');if(u)u.onclick=()=>{$('#toast').innerHTML='';undo()};undoTimer=setTimeout(()=>$('#toast').innerHTML='',undo?6000:2500)}
+let LASTUNDO=null;
+function toast(msg,undo){clearTimeout(undoTimer);if(undo)LASTUNDO=undo;$('#toast').innerHTML=`<div class="toast"><span>${esc(msg)}</span>${undo?'<button id="tUndo">復原</button>':''}</div>`;const u=$('#tUndo');if(u)u.onclick=()=>{$('#toast').innerHTML='';undo()};undoTimer=setTimeout(()=>$('#toast').innerHTML='',undo?6000:2500)}
 
 
 // ---- 電腦版（螢幕夠寬、用滑鼠）：月／週／天，滑鼠拖曳，每天都能直接新增 ----
 const DQ=matchMedia('(min-width:1000px) and (hover:hover) and (pointer:fine)');
-let DESK=false,DV='month',DREF={...cur},DDRAG=null,DADD=null;
+let DESK=false,DV='month',DREF={...cur},DDRAG=null,DADD=null,DSEL=null,DHOV=null,DPOP='';
 try{DV=localStorage.getItem('deskView')||'month'}catch(e){}
 const parseK=k=>{const [y,m,d]=String(k).split('-').map(Number);return {y,m,d}};
 function setDesk(){DESK=DQ.matches;document.body.classList.toggle('desk',DESK);if(DESK)deskLoad()}
@@ -992,7 +1002,7 @@ async function deskLoad(){renderDesk();await Promise.all(deskKeys().map(k=>{cons
 function deskTitle(){if(DV==='month')return `${DREF.y} 年 ${DREF.m} 月`;if(DV==='day')return `${DREF.m}/${DREF.d}　週${WD[new Date(DREF.y,DREF.m-1,DREF.d).getDay()]}`;const w=weekOf(DREF);return `${w[0].m}/${w[0].d} – ${w[6].m}/${w[6].d}`}
 function deskStep(n){if(DV==='month'){const t=new Date(DREF.y,DREF.m-1+n,1);DREF={y:t.getFullYear(),m:t.getMonth()+1,d:1}}else DREF=addDays(DREF,DV==='week'?7*n:n);DADD=null;deskLoad()}
 function kHTML(it,o,i){const n=parseNote(it.note),fire=!it.done&&!it.span&&(n.fire||dueOf(it)===o.m+'/'+o.d),lock=it.span||it.virtual;
-  return `<div class="k ${kCls(it)} ${it.done?'x':''} ${fire?'fire':''}" draggable="${lock?'false':'true'}" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><i class="c" data-tg>${it.done?'✓':''}</i><span>${esc(it.text)}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
+  return `<div class="k ${kCls(it)} ${it.done?'x':''} ${fire?'fire':''} ${DPOP===keyOf(o)+'/'+i?'pop':''} ${DSEL&&DSEL.k===keyOf(o)&&DSEL.i===i?'sel':''}" draggable="${lock?'false':'true'}" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><span>${esc(it.text)}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
 function zones(o,ex){const l=dayItems(o).map((it,i)=>({it,i})).filter(x=>ex||!x.it.virtual);
   return {a:l.filter(x=>catOf(x.it)<2).map(x=>kHTML(x.it,o,x.i)).join(''),b:l.filter(x=>catOf(x.it)>=2).map(x=>kHTML(x.it,o,x.i)).join('')}}
 const addHTML=o=>DADD&&same(DADD,o)?'<div class="k inp"><input id="dkInp" placeholder="輸入後按 Enter"></div>':'';
@@ -1003,7 +1013,7 @@ function deskWeek(){const days=deskDays();let h=`<div class="dw"><div></div>${da
   h+='<div class="ln"></div><div class="lb">工作</div>'+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).a}${addHTML(o)}</div>`).join('');
   h+=`<div class="ln"></div><div class="lb">Zhao's</div>`+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).b}</div>`).join('');return h+'</div>'}
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
-function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp" draggable="true" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>雙擊卡片編輯、右鍵更多選項；← → 換頁、T 回今天。</div></div>`}
+function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp" draggable="true" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>點一下＝完成（畫線）、雙擊＝編輯、右鍵＝更多；滑鼠指著按 Delete＝刪除、⌘Z 復原。<br>N 新增、← → 換頁、T 回今天。</div></div>`}
 function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
   el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div><span class="dk-sp"></span><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${deskSide()}</div>`;
   bindDesk();const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}}
@@ -1027,8 +1037,10 @@ function bindDesk(){const el=$('#desk');
     inp.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();const v=inp.value;done=true;inp.value='';if(v.trim())deskAddItem(o,v);done=false}else if(ev.key==='Escape'){fin('')}};
     inp.onblur=()=>setTimeout(()=>{if($('#dkInp')===inp)fin(inp.value)},120)}
   el.querySelectorAll('.k[data-i]').forEach(k=>{const o=parseK(k.dataset.k),i=+k.dataset.i,it=dayItems(o)[i];
-    k.querySelector('[data-tg]').onclick=ev=>{ev.stopPropagation();if(it&&it.span){toast('跨多天的行程，請在電腦的表格修改');return}cur=o;toggle(i)};
-    k.ondblclick=()=>{if(!it||it.virtual)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}cur=o;openEdit(i)};
+    let ct=null;
+    k.onclick=()=>{clearTimeout(ct);ct=setTimeout(()=>{if(!it)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}DSEL={k:k.dataset.k,i};DPOP=it.done?'':k.dataset.k+'/'+i;cur=o;toggle(i);setTimeout(()=>{DPOP=''},600)},230)};
+    k.ondblclick=()=>{clearTimeout(ct);if(!it||it.virtual)return;if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}cur=o;openEdit(i)};
+    k.onmouseenter=()=>{DHOV={k:k.dataset.k,i}};k.onmouseleave=()=>{if(DHOV&&DHOV.k===k.dataset.k&&DHOV.i===i)DHOV=null};
     k.oncontextmenu=ev=>{ev.preventDefault();if(!it||it.span)return;cur=o;cardMenu(i)};
     k.ondragstart=ev=>{DDRAG={type:'item',key:k.dataset.k,i};ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',it.text)}catch(e){}setTimeout(()=>k.classList.add('drag'),0)};
     k.ondragend=()=>{k.classList.remove('drag');DDRAG=null;clearIns();setTimeout(flushRender,50)}});
@@ -1041,7 +1053,15 @@ function bindDesk(){const el=$('#desk');
     z.ondragleave=ev=>{if(!z.contains(ev.relatedTarget))z.classList.remove('over')};
     z.ondrop=ev=>{ev.preventDefault();clearIns();deskDrop(o,bi)}});
   const sd=$('#dkSide');sd.ondragover=ev=>{if(DDRAG&&DDRAG.type==='item'){ev.preventDefault();sd.classList.add('over')}};sd.ondragleave=ev=>{if(!sd.contains(ev.relatedTarget))sd.classList.remove('over')};sd.ondrop=ev=>{ev.preventDefault();sd.classList.remove('over');deskBack()}}
+function deskDelete(){const t=DHOV||DSEL;if(!t)return;const o=parseK(t.k),it=dayItems(o)[t.i];if(!it)return;
+  if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}
+  if(it.virtual){const items=clone(dayItems(o));const gone=items.splice(t.i,1)[0];save([{o,items}]);toast('今天跳過運動',()=>{save([{o,items:clone(dayItems(o)).concat([gone])}])})}
+  else{cur=o;removeAt(t.i)}DSEL=null;DHOV=null}
 document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelector('.sheet,.yr,#ovl .ov')||/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))return;
+  if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='z'){ev.preventDefault();if(LASTUNDO){const u=LASTUNDO;LASTUNDO=null;$('#toast').innerHTML='';u()}return}
+  if(ev.key==='Delete'||ev.key==='Backspace'){ev.preventDefault();deskDelete();return}
+  if(ev.key==='Escape'){DSEL=null;renderDesk();return}
+  if(ev.key==='n'||ev.key==='N'){ev.preventDefault();const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};renderDesk();return}
   if(ev.key==='ArrowLeft')deskStep(-1);else if(ev.key==='ArrowRight')deskStep(1);else if(ev.key==='t'||ev.key==='T')$('#dkTd').click()});
 
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
@@ -1053,7 +1073,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112120036';
+const VER=/*VER*/'20261112120527';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
