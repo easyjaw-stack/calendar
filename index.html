@@ -1579,7 +1579,7 @@ var CS=(()=>{
   function subs(){const g={};(D&&D.fx||[]).forEach(r=>{(g[r.p]=g[r.p]||[]).push(r)});return Object.keys(g).map(p=>{const l=g[p].slice().sort((a,b)=>String(a.d)<String(b.d)?-1:1),last=l[l.length-1],off=l.some(x=>/停用/.test(x.memo));
     let nx=isoD(last.next);if(!nx){const d=isoD(last.d);if(d)nx=new Date(d.getFullYear(),d.getMonth()+1,d.getDate())}return {p,l,last,amt:last.amt,next:off?null:nx,off}}).sort((a,b)=>(a.off-b.off)||((a.next||9e15)-(b.next||9e15)))}
   function fxPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const S=subs(),on=S.filter(s=>!s.off),mon=on.reduce((a,b)=>a+b.amt,0),t=today0(),dd=d=>Math.round((d-t)/864e5);const nx=on.filter(s=>s.next).sort((a,b)=>a.next-b.next)[0];
-    const sum=`<div class="fxs">${[['每月固定花費',fmt(mon)],['一年大約',fmt(mon*12)],['使用中',on.length+' 個'],['下一筆扣款',nx?`${esc(nx.p)} ${md(nx.next)}<em>・${dd(nx.next)<=0?'今天':dd(nx.next)+' 天後'}</em>`:'—']].map(x=>`<div class="fxc"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('')}</div>`;
+    const sum=`<div class="fxs">${[['每月固定花費',fmt(mon)],['一年大約',fmt(mon*12)],['使用中',on.length+' 個'],[nx?`下一筆扣款／${dd(nx.next)<=0?'今天':dd(nx.next)+' 天後'}`:'下一筆扣款',nx?`${esc(nx.p)} ${md(nx.next)}`:'—']].map(x=>`<div class="fxc"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('')}</div>`;
     const how=`<div class="fxhow">扣款之後按「<b>我繳了</b>」，就會記下這一期，下次扣款自動往後一個月。不續訂了就按「<b>停用</b>」，之後要用再按「恢復使用」。</div>`;
     const row=s=>{const d=s.next?dd(s.next):null,due=d!=null&&d<=0;
       const st=s.off?'<span class="st s-cancel" style="cursor:default">已停用</span>':due?`<span class="st s-unpaid" style="cursor:default">該繳了</span>`:`<span class="st s-check" style="cursor:default">還沒到</span>`;
@@ -1754,7 +1754,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113042708';
+const VER=/*VER*/'20261113042858';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
