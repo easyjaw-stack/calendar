@@ -452,6 +452,11 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
 .k.hid,.dp.hid{display:none}
+.dk-btn.fon{background:#5E8C61;color:#fff}.dk-fl{font-size:12.5px;color:#3F6E43;font-weight:600}
+.dk-main.find .k{opacity:.22}.dk-main.find .k.w{opacity:1}.dk-main.find .k.x{opacity:.15}
+.dk-main.find .free{background:#EEF6EC!important}
+.slotC{display:block;width:100%;border:1.5px dashed #8DB48F;border-radius:6px;color:#3F6E43;font-size:11px;text-align:center;padding:4px 0;margin:2px 0 3px;font-weight:600;background:transparent;cursor:pointer;font-family:inherit}
+.slotC:hover{background:#DDEDD9}.dw .slotC{font-size:12.5px;padding:8px 0;border-radius:8px}
 .slot{border-radius:6px;background:rgba(38,38,36,.05);box-shadow:inset 0 0 0 1.5px rgba(38,38,36,.14);transition:height .18s cubic-bezier(.2,.8,.3,1),margin .18s,opacity .15s;box-sizing:border-box;overflow:hidden}
 .dw .slot{border-radius:8px}.dd .slot{border-radius:12px}.dk-side .slot{border-radius:10px}
 .ghost{box-shadow:0 14px 32px rgba(38,38,36,.28),0 3px 8px rgba(38,38,36,.14)!important;cursor:grabbing;will-change:transform}
@@ -1072,6 +1077,11 @@ function toast(msg,undo){clearTimeout(undoTimer);if(undo)LASTUNDO=undo;$('#toast
 const DQ=matchMedia('(min-width:1000px) and (hover:hover) and (pointer:fine)');
 let DESK=false,DV='month',DREF={...cur},DDRAG=null,DADD=null,DSEL=null,DHOV=null,DPOP='',DFX={},DSIDE=null;
 const sideOn=()=>DSIDE===null?PEND.length>0:DSIDE;
+// 找空檔：平日、不是假日、不是過去、沒有未完成的剪片、也沒有出國／預留空不工作 → 可以排剪片
+let DFIND=false;const OFF_RE=/預留空不工作|休假|放假|出國/;
+function freeDay(o){const w=new Date(o.y,o.m-1,o.d).getDay(),t0=new Date(T.getFullYear(),T.getMonth(),T.getDate());if(w===0||w===6||holiday(o)||new Date(o.y,o.m-1,o.d)<t0)return false;
+  const l=dayItems(o);if(!M[ym(o.y,o.m)])return false;return !l.some(x=>x.span||OFF_RE.test(x.text)||(catOf(x)>=2&&!x.virtual&&perOf(x))||(catOf(x)===0&&!x.done))}  // 多天的私人行程（出國、旅行）也算不能工作
+const slotC=o=>DFIND&&freeDay(o)?`<button class="slotC" data-add="${keyOf(o)}">可排剪片</button>`:'';
 try{DV=localStorage.getItem('deskView')||'month'}catch(e){}
 const parseK=k=>{const [y,m,d]=String(k).split('-').map(Number);return {y,m,d}};
 function setDesk(){DESK=DQ.matches;document.body.classList.toggle('desk',DESK);if(DESK)deskLoad()}
@@ -1084,21 +1094,21 @@ async function deskLoad(){renderDesk();await Promise.all(deskKeys().map(k=>{cons
 function deskTitle(){if(DV==='month')return `${DREF.y} 年 ${DREF.m} 月`;if(DV==='day')return `${DREF.m}/${DREF.d}　週${WD[new Date(DREF.y,DREF.m-1,DREF.d).getDay()]}`;const w=weekOf(DREF);return `${w[0].m}/${w[0].d} – ${w[6].m}/${w[6].d}`}
 function deskStep(n){if(DV==='month'){const t=new Date(DREF.y,DREF.m-1+n,1);DREF={y:t.getFullYear(),m:t.getMonth()+1,d:1}}else DREF=addDays(DREF,DV==='week'?7*n:n);DADD=null;DFX.slide=n;deskLoad()}
 function kHTML(it,o,i){const n=parseNote(it.note),fire=!it.done&&!it.span&&!n.nofire&&(n.fire||dueOf(it)===o.m+'/'+o.d),lock=it.span||it.virtual;
-  return `<div class="k ${kCls(it)} ${it.done?'x':''} ${fire?'fire':''} ${DPOP===keyOf(o)+'/'+i?'pop':''} ${DSEL&&DSEL.k===keyOf(o)&&DSEL.i===i?'sel':''} ${DDRAG&&DDRAG.type==='item'&&DDRAG.key===keyOf(o)&&DDRAG.i===i?'hid':''}" draggable="false" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><span data-full="${esc(it.text)}">${esc(shortName(it.text))}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
+  return `<div class="k ${kCls(it)} ${catOf(it)===0?'w':''} ${it.done?'x':''} ${fire?'fire':''} ${DPOP===keyOf(o)+'/'+i?'pop':''} ${DSEL&&DSEL.k===keyOf(o)&&DSEL.i===i?'sel':''} ${DDRAG&&DDRAG.type==='item'&&DDRAG.key===keyOf(o)&&DDRAG.i===i?'hid':''}" draggable="false" data-k="${keyOf(o)}" data-i="${i}" title="${esc(it.text)}${n.tm?'　'+esc(n.tm):''}${n.pl?'　'+esc(n.pl):''}${n.nt?'\n'+esc(n.nt):''}"><span data-full="${esc(it.text)}">${esc(shortName(it.text))}</span>${it.span||n.per?'<em>多天</em>':''}${n.tm?`<em>${esc(n.tm)}</em>`:''}${fire?FLAME:''}</div>`}
 function zones(o,ex){const l=dayItems(o).map((it,i)=>({it,i})).filter(x=>ex||!x.it.virtual);
   return {a:l.filter(x=>catOf(x.it)<2).map(x=>kHTML(x.it,o,x.i)).join(''),b:l.filter(x=>catOf(x.it)>=2).map(x=>kHTML(x.it,o,x.i)).join('')}}
 const addHTML=o=>DADD&&same(DADD,o)?'<div class="k inp"><input id="dkInp" placeholder="輸入後按 Enter"></div>':'';
 const allDone=o=>{const l=dayItems(o).filter(x=>!x.span&&!x.virtual);return l.length>0&&l.every(x=>x.done)};
 const isWe=o=>{const w=new Date(o.y,o.m-1,o.d).getDay();return w===0||w===6||!!holiday(o)};
 function deskMonth(){return `<div class="dm">${'一二三四五六日'.split('').map(w=>`<div class="wh">週${w}</div>`).join('')}${deskDays().map(o=>{const z=zones(o),h=holiday(o);
-  return `<div class="dc ${o.m!==DREF.m?'out':''} ${isToday(o)?'td':''} ${isWe(o)?'we':''}" data-day="${keyOf(o)}"><div class="dn"><b>${o.d}</b>${allDone(o)?'<s class="fin">✦</s>':''}${h?`<span class="hn">${esc(h)}</span>`:''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button></div>${z.a}${z.a&&z.b?'<div class="zl"></div>':''}${z.b}${addHTML(o)}</div>`}).join('')}</div>`}
+  return `<div class="dc ${DFIND&&freeDay(o)?'free':''} ${o.m!==DREF.m?'out':''} ${isToday(o)?'td':''} ${isWe(o)?'we':''}" data-day="${keyOf(o)}"><div class="dn"><b>${o.d}</b>${allDone(o)?'<s class="fin">✦</s>':''}${h?`<span class="hn">${esc(h)}</span>`:''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button></div>${z.a}${slotC(o)}${z.a&&z.b?'<div class="zl"></div>':''}${z.b}${addHTML(o)}</div>`}).join('')}</div>`}
 function deskWeek(){const days=deskDays();let h=`<div class="dw"><div></div>${days.map(o=>{const hd=holiday(o);return `<div class="hd ${isToday(o)?'td':''} ${isWe(o)?'we':''}" data-day="${keyOf(o)}"><b>${o.d}</b><span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span>${allDone(o)?'<s class="fin">✦</s>':''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button>${hd?`<span class="hn">${esc(hd)}</span>`:''}</div>`}).join('')}`;
-  h+='<div class="ln"></div><div class="lb">工作</div>'+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).a}${addHTML(o)}</div>`).join('');
+  h+='<div class="ln"></div><div class="lb">工作</div>'+days.map(o=>`<div class="cl ${DFIND&&freeDay(o)?'free':''}" data-day="${keyOf(o)}">${zones(o).a}${slotC(o)}${addHTML(o)}</div>`).join('');
   h+=`<div class="ln"></div><div class="lb">Zhao's</div>`+days.map(o=>`<div class="cl" data-day="${keyOf(o)}">${zones(o).b}</div>`).join('');return h+'</div>'}
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
-function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>點一下＝完成（畫線）、快速點兩下＝編輯、右鍵＝更多；滑鼠指著按 Delete＝刪除、⌘Z 復原。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
+function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>點一下＝完成（畫線）、快速點兩下＝編輯、右鍵＝更多；滑鼠指著按 Delete＝刪除、⌘Z 復原。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、F 找空檔、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
 function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
-  el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div><span class="dk-sp"></span><button class="dk-btn ${sideOn()?'on':''}" id="dkPd" title="打開／收起待排">待排${PEND.length?' '+PEND.length:''}</button><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${sideOn()?deskSide():''}</div>`;
+  el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div>${DV!=='day'?`<button class="dk-btn ${DFIND?'fon':''}" id="dkFind" title="標出可以排剪片的日子（F）">${DFIND?'✓ 找空檔中':'找空檔'}</button>${DFIND?`<span class="dk-fl">可排剪片 ${deskDays().filter(o=>(DV!=='month'||o.m===DREF.m)&&freeDay(o)).length} 天</span>`:''}`:''}<span class="dk-sp"></span><button class="dk-btn ${sideOn()?'on':''}" id="dkPd" title="打開／收起待排">待排${PEND.length?' '+PEND.length:''}</button><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main ${DFIND&&DV!=='day'?'find':''}">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${sideOn()?deskSide():''}</div>`;
   bindDesk();const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}deskFx()}
 function deskFx(){const fx=DFX;
   if(fx.slide){const m=$('.dk-main>*');if(m)m.animate([{transform:`translateX(${fx.slide*28}px)`,opacity:0},{transform:'none',opacity:1}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'});fx.slide=0}
@@ -1126,6 +1136,7 @@ function bindDesk(){const el=$('#desk');
   $('#dkTd').onclick=()=>{DREF={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=null;deskLoad()};
   el.querySelectorAll('.dk-seg [data-v]').forEach(b=>b.onclick=()=>{const order=['month','week','day'];DFX.slide=order.indexOf(b.dataset.v)>order.indexOf(DV)?1:-1;DV=b.dataset.v;DADD=null;try{localStorage.setItem('deskView',DV)}catch(e){}deskLoad()});
   $('#dkPd').onclick=()=>{DSIDE=!sideOn();renderDesk()};
+  const fb=$('#dkFind');if(fb)fb.onclick=()=>{DFIND=!DFIND;renderDesk();if(DFIND)document.querySelectorAll('#desk .slotC').forEach((x,j)=>x.animate([{opacity:0,transform:'scale(.9)'},{opacity:1,transform:'none'}],{duration:260,delay:j*25,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}))};
   $('#dkRf').onclick=()=>syncNow();$('#dkSr').onclick=openSearch;$('#dkIn').onclick=openIncome;
   $('#dkAdd').onclick=()=>{const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};cur=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};openEdit(-1)};
   el.querySelectorAll('[data-add]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();DADD=parseK(b.dataset.add);renderDesk()});
@@ -1165,6 +1176,7 @@ document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelec
   if(DSEL&&(ev.key===' '||ev.key==='Enter')){ev.preventDefault();const k=$(`#desk .k[data-k="${DSEL.k}"][data-i="${DSEL.i}"]`);if(!k)return;
     if(ev.key===' ')deskToggle(k);else{const o=parseK(DSEL.k),it=dayItems(o)[DSEL.i];if(!it||it.virtual)return;if(it.span){spanMenu(o,DSEL.i,'e');return}cur=o;openEdit(DSEL.i)}return}
   if(DSEL&&ev.shiftKey&&(ev.key==='ArrowLeft'||ev.key==='ArrowRight')){ev.preventDefault();deskShift(ev.key==='ArrowRight'?1:-1);return}
+  if((ev.key==='f'||ev.key==='F')&&!ev.metaKey&&!ev.ctrlKey){const fb=$('#dkFind');if(fb){ev.preventDefault();fb.click()}return}
   if(ev.key==='n'||ev.key==='N'){ev.preventDefault();const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};renderDesk();return}
   if(ev.key==='ArrowLeft')deskStep(-1);else if(ev.key==='ArrowRight')deskStep(1);else if(ev.key==='t'||ev.key==='T')$('#dkTd').click()});
 
@@ -1244,7 +1256,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112141618';
+const VER=/*VER*/'20261112142459';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
