@@ -595,7 +595,8 @@ async function call(action,payload){
     throw new Error(r.error);
   }finally{if(w){pending--;syncTxt()}}
 }
-function syncTxt(){const n=typeof qN==='function'?qN():0,t=pending?'儲存中…':n?`未同步 ${n} 筆・點我重送`:'';[$('#sync'),$('#dkSync')].forEach(el=>{if(!el)return;el.textContent=t;el.classList.toggle('qwait',!pending&&n>0);el.onclick=n?()=>flushQ(true):null})}
+let SYNCERR='';
+function syncTxt(){const n=typeof qN==='function'?qN():0,t=pending?'儲存中…':n?`未同步 ${n} 筆・點我重送`:SYNCERR?`⚠ 讀取失敗（${SYNCERR}）・點我重試`:'';[$('#sync'),$('#dkSync')].forEach(el=>{if(!el)return;el.textContent=t;el.classList.toggle('qwait',!pending&&(n>0||!!SYNCERR));el.onclick=n?()=>flushQ(true):SYNCERR?()=>syncNow():null})}
 function absorb(r){if(r&&r.months){Object.keys(r.months).forEach(k=>{M[k]=normM(r.months[k]);delete STALE[k]});applyQ();persist()}}
 const INF={};
 // 手機裡存一份最近幾個月，打開先顯示，再背景同步（STALE＝還沒跟試算表確認過）
@@ -1063,9 +1064,9 @@ function syncNow(quiet){if(syncing)return syncing;LASTSYNC=Date.now();if(!quiet)
   syncing=call('boot',{months:keys.map(k=>k.split('-').map(Number))}).then(r=>{
       Object.keys(r.months||{}).forEach(k=>{M[k]=normM(r.months[k]);delete STALE[k]});
       PEND=r.pending||[];OPEN=r.open||[];if(r.periods){PER=r.periods;PERC=null;try{localStorage.setItem('percache',JSON.stringify(PER))}catch(e){}}try{localStorage.setItem('pendcache',JSON.stringify({pending:PEND,open:OPEN}))}catch(e){}
-      applyQ();persist();if(quiet&&snap()===before){if(qN())flushQ(true);return}  // 沒變就不重畫
+      SYNCERR='';syncTxt();applyQ();persist();if(quiet&&snap()===before){if(qN())flushQ(true);return}  // 沒變就不重畫
       if(busyUI())renderPend();bgRender();if(!quiet)syncPill('ok');if(qN())flushQ(true)})
-    .catch(e=>{if(!quiet)syncPill('err',e&&e.message==='Failed to fetch'?'連不上網路':(e&&e.message)||'');if(qN())qLater()})
+    .catch(e=>{const why=e&&e.message==='Failed to fetch'?'連不上網路':(e&&e.message)||'';SYNCERR=why||'稍後再試';syncTxt();if(!quiet)syncPill('err',why);if(qN())qLater()})
     .finally(()=>{$('#list').classList.remove('syncing');syncing=null});
   return syncing}
 
@@ -1331,7 +1332,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113014222';
+const VER=/*VER*/'20261113014524';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
