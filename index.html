@@ -458,6 +458,10 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
 .k.hid,.dp.hid{display:none}
+/* 編輯視窗：欄位名稱、「無」、沒選到的選項、輸入框提示字都加深，比較好讀 */
+#ovl .ed .k,#ovl .ed .h button,#ovl .ed .chips span:not(.on){color:#5E5C57!important}
+#ovl .ed .v.ph{color:#8E8C86!important}
+#ovl .ed input::placeholder,#ovl .ed textarea::placeholder{color:#9B9993}
 .pdrop{width:9px;height:11px;flex-shrink:0;fill:#D9827F;vertical-align:0}.pdrop.pr{opacity:.4}
 .strip .s .pdrop{position:absolute;top:5px;right:6px;width:7px;height:9px}
 .mg .pdrop{width:7px;height:9px;margin-left:2px;vertical-align:1px}
@@ -1324,7 +1328,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112204208';
+const VER=/*VER*/'20261112204550';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
