@@ -448,6 +448,11 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 .pclr .ck{stroke-dashoffset:26;animation:pck .32s ease-out .42s forwards}
 @keyframes pcc{to{stroke-dashoffset:0}}@keyframes pck{to{stroke-dashoffset:0}}
 .dc,.dw .cl{transition:background .15s}
+
+body.desk #desk{max-width:none;padding:18px 18px 30px}
+.dk-main{padding:6px}
+.dc{padding:4px 4px 6px}.dc .k{padding:3px 5px;font-size:11.5px}
+.dk-btn.on{background:var(--ink);color:#fff}
 </style>
 </head>
 <body>
@@ -1013,7 +1018,8 @@ function toast(msg,undo){clearTimeout(undoTimer);if(undo)LASTUNDO=undo;$('#toast
 
 // ---- 電腦版（螢幕夠寬、用滑鼠）：月／週／天，滑鼠拖曳，每天都能直接新增 ----
 const DQ=matchMedia('(min-width:1000px) and (hover:hover) and (pointer:fine)');
-let DESK=false,DV='month',DREF={...cur},DDRAG=null,DADD=null,DSEL=null,DHOV=null,DPOP='',DFX={};
+let DESK=false,DV='month',DREF={...cur},DDRAG=null,DADD=null,DSEL=null,DHOV=null,DPOP='',DFX={},DSIDE=null;
+const sideOn=()=>DSIDE===null?PEND.length>0:DSIDE;
 try{DV=localStorage.getItem('deskView')||'month'}catch(e){}
 const parseK=k=>{const [y,m,d]=String(k).split('-').map(Number);return {y,m,d}};
 function setDesk(){DESK=DQ.matches;document.body.classList.toggle('desk',DESK);if(DESK)deskLoad()}
@@ -1040,7 +1046,7 @@ function deskWeek(){const days=deskDays();let h=`<div class="dw"><div></div>${da
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
 function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp" draggable="true" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>點一下＝完成（畫線）、雙擊＝編輯、右鍵＝更多；滑鼠指著按 Delete＝刪除、⌘Z 復原。<br>N 新增、← → 換頁、T 回今天。</div></div>`}
 function renderDesk(){if(!DESK)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
-  el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div><span class="dk-sp"></span><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${deskSide()}</div>`;
+  el.innerHTML=`<div class="dk-top"><div class="nav"><button id="dkPv" title="上一頁"><i class="ti ti-chevron-left"></i></button><button id="dkNx" title="下一頁"><i class="ti ti-chevron-right"></i></button></div><h1>${deskTitle()}</h1><button class="dk-btn" id="dkTd">今天</button><div class="dk-seg">${[['month','月'],['week','週'],['day','天']].map(v=>`<button data-v="${v[0]}" class="${DV===v[0]?'on':''}">${v[1]}</button>`).join('')}</div><span class="dk-sp"></span><button class="dk-btn ${sideOn()?'on':''}" id="dkPd" title="打開／收起待排">待排${PEND.length?' '+PEND.length:''}</button><span class="sync" id="dkSync">${pending?'儲存中…':''}</span><button class="dk-ic" id="dkRf" title="重新同步"><i class="ti ti-refresh"></i></button><button class="dk-ic" id="dkSr" title="搜尋"><i class="ti ti-search"></i></button><button class="dk-ic" id="dkIn" title="收入"><i class="ti ti-coin"></i></button><button class="dk-add" id="dkAdd"><i class="ti ti-plus"></i>新增</button></div><div class="dk-body"><div class="dk-main">${DV==='month'?deskMonth():DV==='week'?deskWeek():deskDay()}</div>${sideOn()?deskSide():''}</div>`;
   bindDesk();const inp=$('#dkInp');if(inp){if(pv!==null)inp.value=pv;inp.focus()}deskFx()}
 function deskFx(){const fx=DFX;
   if(fx.slide){const m=$('.dk-main>*');if(m)m.animate([{transform:`translateX(${fx.slide*28}px)`,opacity:0},{transform:'none',opacity:1}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'});fx.slide=0}
@@ -1065,6 +1071,7 @@ function bindDesk(){const el=$('#desk');
   $('#dkPv').onclick=()=>deskStep(-1);$('#dkNx').onclick=()=>deskStep(1);
   $('#dkTd').onclick=()=>{DREF={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};DADD=null;deskLoad()};
   el.querySelectorAll('.dk-seg [data-v]').forEach(b=>b.onclick=()=>{const order=['month','week','day'];DFX.slide=order.indexOf(b.dataset.v)>order.indexOf(DV)?1:-1;DV=b.dataset.v;DADD=null;try{localStorage.setItem('deskView',DV)}catch(e){}deskLoad()});
+  $('#dkPd').onclick=()=>{DSIDE=!sideOn();renderDesk()};
   $('#dkRf').onclick=()=>syncNow();$('#dkSr').onclick=openSearch;$('#dkIn').onclick=openIncome;
   $('#dkAdd').onclick=()=>{const t={y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate()};cur=DV==='month'&&!(t.y===DREF.y&&t.m===DREF.m)?{y:DREF.y,m:DREF.m,d:1}:DV==='month'?t:{...DREF};openEdit(-1)};
   el.querySelectorAll('[data-add]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();DADD=parseK(b.dataset.add);renderDesk()});
@@ -1087,7 +1094,7 @@ function bindDesk(){const el=$('#desk');
       if(k&&k.dataset.k===z.dataset.day&&DDRAG.type==='item'){const r=k.getBoundingClientRect(),after=ev.clientY>r.top+r.height/2;bi=+k.dataset.i+(after?1:0);k.classList.add(after?'insa':'insb')}};
     z.ondragleave=ev=>{if(!z.contains(ev.relatedTarget))z.classList.remove('over')};
     z.ondrop=ev=>{ev.preventDefault();clearIns();deskDrop(o,bi)}});
-  const sd=$('#dkSide');sd.ondragover=ev=>{if(DDRAG&&DDRAG.type==='item'){ev.preventDefault();sd.classList.add('over')}};sd.ondragleave=ev=>{if(!sd.contains(ev.relatedTarget))sd.classList.remove('over')};sd.ondrop=ev=>{ev.preventDefault();sd.classList.remove('over');deskBack()}}
+  const sd=$('#dkSide');if(sd)sd.ondragover=ev=>{if(DDRAG&&DDRAG.type==='item'){ev.preventDefault();sd.classList.add('over')}};if(sd)sd.ondragleave=ev=>{if(!sd.contains(ev.relatedTarget))sd.classList.remove('over')};if(sd)sd.ondrop=ev=>{ev.preventDefault();sd.classList.remove('over');deskBack()}}
 function deskDelete(){const t=DHOV||DSEL;if(!t)return;const o=parseK(t.k),it=dayItems(o)[t.i];if(!it)return;
   if(it.span){toast('跨多天的行程，請在電腦的表格修改');return}
   if(it.virtual){const items=clone(dayItems(o));const gone=items.splice(t.i,1)[0];save([{o,items}]);toast('今天跳過運動',()=>{save([{o,items:clone(dayItems(o)).concat([gone])}])})}
@@ -1108,7 +1115,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261112122116';
+const VER=/*VER*/'20261112122522';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){touchedSinceVisible=false;checkVer();if(!edit&&!D)syncNow()}});
