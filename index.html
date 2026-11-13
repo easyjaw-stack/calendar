@@ -1669,6 +1669,8 @@ var CS=(()=>{
     d.querySelector('[data-del]').onclick=()=>delCase(o)}
   async function delCase(o){if(await choose(`刪除「${o.title}」？`,[['y','刪除（可以復原）']])!=='y')return;OPEN=null;drawer();SEL.delete(o.id);const tr=document.querySelector(`tr.r[data-id="${o.id}"]`);if(tr){tr.animate([{opacity:1},{opacity:0,transform:'translateX(-12px)'}],{duration:220,easing:'ease-in',fill:'forwards'});await new Promise(f=>setTimeout(f,230))}ROWS=ROWS.filter(r=>r!==o);rerender();
     write('caseDelete',{tab:o.tab,id:o.id},'已刪除',()=>write('caseRestore',{id:o.id},'已復原')).catch(()=>{})}
+  const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const openUrl=u=>IOS?String(u).replace(/^https:\/\//,'googlechromes://').replace(/^http:\/\//,'googlechrome://'):u;
   const LBL=url=>/drive\.google\.com\/drive\/folders/.test(url)?'資料夾':/drive\.google\.com|docs\.google/.test(url)?'雲端檔案':/frame\.io/.test(url)?'Frame.io':/youtu/.test(url)?'YouTube':/dropbox/.test(url)?'Dropbox':'連結';
   // 新增／修改連結：名稱和網址在同一個視窗；貼上網址會自動建議名稱
   let LCLIP=null;
@@ -1860,7 +1862,7 @@ var CS=(()=>{
     const kv=(k,v)=>v?`<div class="pkv"><span>${k}</span><div>${v}</div></div>`:'';
     ov.innerHTML=`<div class="csdlg"><div class="dh"><span style="font-size:17px;line-height:1.35">${esc(o.title)}</span><span class="sp"></span><span data-x class="x">✕</span></div><div class="mu" style="font-size:12.5px;margin:-2px 0 12px"><i class="dot" style="background:${srcColor(o.src)}"></i> ${esc(o.src)}・${esc(o.client)}</div>
       <div class="pgrp">${kv('進度',`<span class="st ${ST[o.st]||'s-none'}">${esc(o.st||'未開始')}</span>`)}${kv('交期',esc(dueOf(o)||'—'))}${kv('報價',o.amt?fmt(o.amt):'—')}${kv('上片日',esc(upOf(o)))}${kv('完成日',esc(o.doneTxt))}${kv('備註',esc(o.memo))}${kv('我的備註',esc(o.mynote))}</div>
-      ${o.links.length?`<div class="pgrp">${o.links.map(x=>`<a class="plk" href="${esc(x.url)}" target="_blank" rel="noopener"><i class="ti ti-link"></i>${esc(x.l)}<span class="mu">${esc(LBL(x.url))}</span><i class="ti ti-external-link"></i></a>`).join('')}</div>`:''}
+      ${o.links.length?`<div class="pgrp">${o.links.map(x=>`<a class="plk" href="${esc(openUrl(x.url))}" target="_blank" rel="noopener"><i class="ti ti-link"></i>${esc(x.l)}<span class="mu">${esc(LBL(x.url))}</span><i class="ti ti-external-link"></i></a>`).join('')}</div>`:''}
       ${o.sch?`<div class="pgrp" style="padding:8px 14px">${o.sch.sub?`<div class="mu" style="font-size:12px;margin-bottom:4px">${esc(o.sch.sub)}</div>`:''}${o.sch.steps.map(s=>`<div class="pstp ${s.ok?'ok':''} ${n&&s===n?'now':''}"><span class="d2">${md(s.d)}</span><span>${esc(s.t)}${s.kind==='me'?'<span class="tg me">你要交</span>':''}</span></div>`).join('')}</div>`:''}
       <div class="pbtns"><button class="btn2" data-pst>改進度</button>${o.st==='完成未付款'?'<button class="btn2 ok" data-ppaid>收到了</button>':''}</div></div>`;
     document.body.appendChild(ov);const close=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)close()};ov.querySelector('[data-x]').onclick=close;
@@ -1879,7 +1881,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113115632';
+const VER=/*VER*/'20261113133753';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
