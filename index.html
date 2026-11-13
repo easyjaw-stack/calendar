@@ -1489,7 +1489,8 @@ var CS=(()=>{
       links:r.links&&r.links.length?r.links:[],due:isoD(r.iso['交期']),dueTxt:g('交期'),done:isoD(r.iso['完成日']),doneTxt:g('完成日'),paid:isoD(r.iso['收款日']),paidTxt:g('收款日'),file:g('檔案'),memo:g('備註'),mynote:g('我的備註'),up:isoD(r.iso['上片日']),upTxt:g('上片日'),schText:g('時程'),kind:g('類型')||kindOf(g('專案'))};
     o.sch=parseSched(o.schText,intake||today0());ROWS.push(o)})})}
   build();
-  function load(quiet){if(CQ.length){runCQ();return Promise.resolve()}if(LOADING)return LOADING;LOADING=call('cases',{}).then(r=>{D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build();if(!busy())rerender();autoReminders()}).catch(e=>{if(!quiet)toast('案件讀取失敗：'+(e.message||e))}).finally(()=>{LOADING=null});return LOADING}
+  let WGEN=0;  // 每次改動 +1：讀取途中有新的改動，就不要用那份舊資料蓋掉畫面
+  function load(quiet){if(CQ.length){runCQ();return Promise.resolve()}if(LOADING)return LOADING;const g0=WGEN;LOADING=call('cases',{}).then(r=>{if(g0!==WGEN||CQ.length)return;D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build();if(!busy())rerender();autoReminders()}).catch(e=>{if(!quiet)toast('案件讀取失敗：'+(e.message||e))}).finally(()=>{LOADING=null});return LOADING}
   function absorb(r){if(r&&r.tabs){D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build()}}
   const rerender=()=>{if(DESK&&PAGE!=='cal')renderDesk()};
   // 存檔佇列：畫面先改好；改動一件一件依序送出（不會互相蓋掉）；全部送完才用伺服器的最新資料更新畫面
@@ -1497,7 +1498,7 @@ var CS=(()=>{
   let CQ=[];try{CQ=JSON.parse(localStorage.getItem('caseq')||'[]')||[]}catch(e){CQ=[]}
   let CQRUN=null,CQT=null,CQWAIT=8000,CQWARN=false,CQERR=false;const WAIT={},IDMAP={};
   const cqPut=()=>{try{localStorage.setItem('caseq',JSON.stringify(CQ))}catch(e){}};
-  function write(action,payload,okMsg,undo,tmp){const op={id:'q'+Date.now()+Math.random().toString(36).slice(2,6),action,payload:JSON.parse(JSON.stringify(payload||{})),tmp:tmp||null};
+  function write(action,payload,okMsg,undo,tmp){WGEN++;const op={id:'q'+Date.now()+Math.random().toString(36).slice(2,6),action,payload:JSON.parse(JSON.stringify(payload||{})),tmp:tmp||null};
     if(okMsg)toast(okMsg,undo);const pr=new Promise((res,rej)=>{WAIT[op.id]={res,rej}});CQ.push(op);cqPut();cqPill();runCQ();return pr}
   function runCQ(){if(CQRUN||!CQ.length)return;clearTimeout(CQT);CQRUN=(async()=>{let last=null;
     while(CQ.length){const op=CQ[0],p=op.payload;if(p.id&&IDMAP[p.id])p.id=IDMAP[p.id];
@@ -1550,6 +1551,7 @@ var CS=(()=>{
       let d=new Date(y,+m[1]-1,+m[2]);if(ref&&d<new Date(ref.getFullYear(),ref.getMonth()-6,1))d=new Date(y+1,+m[1]-1,+m[2]);
       const kind=/上線|發佈|上架/.test(t)?'up':/回覆|確認|拍攝|錄製|審稿/.test(t)&&!/提供|copy|final/i.test(t)?'wait':/copy|final|初稿|調整|提供|AC|BC|輸出/i.test(t)?'me':'wait';
       out.steps.push({d,t:t||'（未命名）',kind,ok,raw:l0})});return out.steps.length||out.sub?out:null}
+  const schLine=(o,j)=>{let n=-1,k=-1;o.schText.split('\n').forEach((l,i)=>{if(/(\d{1,2})\/(\d{1,2})/.test(l)){n++;if(n===j)k=i}});return k};
   const nextMe=o=>o.sch&&o.sch.steps.find(s=>!s.ok&&s.kind==='me');
   const upOf=o=>o.upTxt||(()=>{const s=o.sch&&o.sch.steps.find(s=>s.kind==='up');return s?md(s.d):''})();
   const shortStep=t=>t.replace(/（.*?）|\(.*?\)/g,'').replace(/提供|影片/g,'').trim().slice(0,12);
@@ -1749,7 +1751,10 @@ var CS=(()=>{
     const fin=ok=>{if(done)return;const x=inp.value.trim();
       if(ok&&x&&['交期','上片日','完成日','收款日'].includes(f)&&!/^\d{1,2}\/\d{1,2}$/.test(x)){toast('日期請寫成 11/28 這樣');inp.focus();inp.select();return}
       if(ok&&x&&f==='報價'&&!/^(NT\$)?[\d,]+$/i.test(x)){toast('報價請只打數字，例如 3500');inp.focus();inp.select();return}
-      done=true;if(ok&&x!==String(val)){if(f==='收款日'){o.paidTxt=x}upd(o,{[f]:x},'已存到剪輯表')}else{td.classList.remove('ing');rerender();drawer()}};
+      done=true;if(ok&&x!==String(val)){if(f==='收款日'){o.paidTxt=x}
+        // 有時程的案子，交期是看時程「下一個你要交」→ 改交期時把那一步的日期也一起改，才不會跳回去
+        const nx=f==='交期'&&x&&nextMe(o);if(nx){const k=schLine(o,o.sch.steps.indexOf(nx));if(k>=0){const L=o.schText.split('\n');L[k]=L[k].replace(/\d{1,2}\/\d{1,2}/,x);upd(o,{'交期':x,'時程':L.join('\n')},`交期改成 ${x}（時程「${shortStep(nx.t)}」也一起改了）`);return}}
+        upd(o,{[f]:x},'已存到剪輯表')}else{td.classList.remove('ing');rerender();drawer()}};
     inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}if(ev.key==='Escape'){ev.preventDefault();fin(false)}
       if(ev.key==='Tab'&&td.tagName==='TD'){ev.preventDefault();const fs=[...td.closest('tr').querySelectorAll('td.ed')].map(x=>x.dataset.f),nf=fs[fs.indexOf(f)+(ev.shiftKey?-1:1)];fin(true);if(nf)setTimeout(()=>{const c=document.querySelector(`tr.r[data-id="${o.id}"] td.ed[data-f="${nf}"]`);if(c)inlineEdit(c,o,nf)},0)}};
     inp.onblur=()=>fin(true);inp.onmousedown=ev=>ev.stopPropagation()}
@@ -1927,7 +1932,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261114014607';
+const VER=/*VER*/'20261114015138';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
