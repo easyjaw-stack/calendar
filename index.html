@@ -1471,8 +1471,8 @@ var CS=(()=>{
   const SRC_PAL=['#7C9CBF','#D9A35E','#8FAF7E','#B68FB8','#C98F8F','#7FB0AC','#C9A27E','#9AA7B0'];
   const SRC_FIX={'Medicathon':'#7C9CBF','嗨咖品妤':'#D9A35E','蔡森數位':'#8FAF7E','簡訊設計':'#B68FB8','自由接案':'#C9C7C0'};
   const srcColor=k=>SRC_FIX[k]||SRC_PAL[[...String(k)].reduce((a,c)=>a+c.charCodeAt(0),0)%SRC_PAL.length];
-  const ST={'完成':'s-done','完成未付款':'s-unpaid','客戶確認中':'s-check','修改中':'s-rev','剪輯中':'s-cut','等輸出中':'s-cut','做封面輸出':'s-cut','等待交檔':'s-wait','取消':'s-cancel','':'s-none'};
-  const STS=['','剪輯中','客戶確認中','修改中','等輸出中','做封面輸出','等待交檔','完成未付款','完成','取消'];
+  const ST={'完成':'s-done','完成未付款':'s-unpaid','客戶確認中':'s-check','修改中':'s-rev','剪輯中':'s-cut','等輸出中':'s-cut','做封面輸出':'s-cut','封面製作':'s-cut','等待交檔':'s-wait','取消':'s-cancel','':'s-none'};
+  const STS=['','剪輯中','客戶確認中','修改中','等輸出中','封面製作','等待交檔','完成未付款','完成','取消'];
   const fmt=n=>'NT$'+(Number(n)||0).toLocaleString();
   const today0=()=>{const t=new Date();return new Date(t.getFullYear(),t.getMonth(),t.getDate())};
   const isoD=s=>{const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null};
@@ -1522,7 +1522,10 @@ var CS=(()=>{
     if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
     Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期')o.dueTxt=set[k];if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
-    return write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo)}
+    const pr=write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo);
+    // 改成修改中／等輸出中／封面製作 → 回到待排，存好後馬上更新待排
+    if(set['進度']!=null&&/修改|輸出|封面/.test(set['進度']))pr.then(()=>{syncNow(true);if(msg)setTimeout(()=>toast('已放回待排，等你排「'+(set['進度'].match(/修改|輸出|封面/)[0])+'」'),1800)}).catch(()=>{});
+    return pr}
   // 案子完成／取消：月曆上這個案子還沒劃線的卡片，問要一起劃掉還是刪掉
   const nz=t=>String(t).toUpperCase().replace(/[\s｜|.．・·\-–—:：()（）【】]/g,'');
   function calMatch(text,title){const a=nz(String(text).replace(STAGE_TAIL,'')),b=nz(String(title).replace(/^業配｜/,''));if(a.length<3||b.length<3)return false;
@@ -1897,7 +1900,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113184049';
+const VER=/*VER*/'20261113213840';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
