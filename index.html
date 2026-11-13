@@ -476,10 +476,10 @@ td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;fo
 .stg{position:relative;padding:6px 0 10px;display:flex;align-items:center;gap:10px;cursor:pointer}.stg:before{content:'';position:absolute;left:-27px;top:9px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px #C9C7C0}
 .stg.me:before{box-shadow:inset 0 0 0 2px #262624}.stg.ok:before{background:#9FB89A;box-shadow:none}.stg.ok .t{color:#9B9993;text-decoration:line-through}.stg.now:before{background:#262624;box-shadow:0 0 0 4px #E6E4DF}
 .stg .d{width:44px;flex-shrink:0;font-variant-numeric:tabular-nums;color:#6b6a66}.stg.ok .d{color:#C9C7C0}.stg.now .t{font-weight:600}
-.stg .sact{margin-left:auto;display:flex;gap:2px;opacity:0;transition:opacity .15s}.stg:hover .sact{opacity:1}.stg .sact span{font-size:11.5px;color:#9B9993;padding:1px 6px;border-radius:5px;cursor:pointer}.stg .sact span:hover{background:#F2F1EE;color:#262624}
+.stg .sx{margin-left:2px;color:#B4B2AC;cursor:pointer;padding:2px 6px;border-radius:5px;font-size:12px}.stg .sx:hover{background:#F2F1EE;color:#B5584E}
 .stg.edit{cursor:default}.stg.edit:before{display:none}.stg input{font:inherit;font-size:13px;border:1.5px solid #D3D1C7;border-radius:7px;padding:4px 7px;outline:0}.stg input:focus{border-color:#262624}.stg input.di{width:62px}.stg input.ti{flex:1;min-width:0}
 .schh{display:flex;align-items:baseline;gap:8px}.schh .lk{margin-left:auto;font-size:12px;color:#9B9993;cursor:pointer;font-weight:400}.schh .lk:hover{color:#262624}
-.csdrw .schall{width:100%;border:1.5px solid #D3D1C7;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;min-height:160px;resize:vertical;outline:0;line-height:1.6}
+/*x*/.csdrw .schall{width:100%;border:1.5px solid #D3D1C7;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;min-height:160px;resize:vertical;outline:0;line-height:1.6}
 .tg{font-size:11px;border-radius:6px;padding:1px 6px;flex-shrink:0}.tg.me{background:#262624;color:#fff}.tg.up{background:#E3EEDF;color:#3F6E43}.stg.ok .tg{opacity:.4}
 .flag{font-size:12px;color:#8A5A12;margin:0 0 8px}
 .csdrw .paste{width:100%;border:1.5px dashed #D3D1C7;border-radius:10px;padding:10px 12px;font:inherit;font-size:12.5px;min-height:48px;resize:vertical;outline:0;user-select:text;-webkit-user-select:text}
@@ -1556,28 +1556,24 @@ var CS=(()=>{
     if(!s.ok&&s.kind==='me'){o.schText=set['時程'];o.sch=parseSched(o.schText,o.intake);const nx=nextMe(o);if(/a\s?copy|AC|初稿/i.test(s.t)&&(!o.st||/剪輯中|修改中|等輸出/.test(o.st)))set['進度']='客戶確認中';
       if(nx){set['交期']=md(nx.d);msg=`交期改成 ${md(nx.d)}，下一步「${shortStep(nx.t)}」已加到待排`;call('pendAdd',{client:o.client,title:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`,due:md(nx.d),text:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`}).then(()=>syncNow(true)).catch(()=>{})}else msg='時程上你要交的都交完了 ✓'}
     else if(!s.ok)msg+='（不是你要交的，交期不變）';upd(o,set,msg)}
-  // 時程：改日期／文字、刪一步、加一步、整段編輯
-  const schLine=(o,j)=>{let n=-1,k=-1;o.schText.split('\n').forEach((l,i)=>{if(/(\d{1,2})\/(\d{1,2})/.test(l)){n++;if(n===j)k=i}});return k};
+  // 時程：按「編輯」整個時程一起改（每一步一列：日期＋內容，✕ 刪掉，＋ 新增一步），儲存時照日期排好
   const normD=v=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})日?$/)||String(v).trim().match(/^(\d{1,2})(\d{2})$/);return m&&+m[1]>=1&&+m[1]<=12&&+m[2]>=1&&+m[2]<=31?(+m[1])+'/'+(+m[2]):''};
   function schSave(o,txt,msg){const set={'時程':txt};const p=parseSched(txt,o.intake||today0());const nx=p&&p.steps.find(s=>!s.ok&&s.kind==='me');if(nx&&md(nx.d)!==o.dueTxt){set['交期']=md(nx.d);msg+='，交期改成 '+md(nx.d)}upd(o,set,msg)}
-  function stepEdit(o,row,j){const s=o.sch.steps[j];row.classList.add('edit');
-    row.innerHTML=`<input class="di" value="${md(s.d)}" placeholder="11/23"><input class="ti" value="${esc(s.t)}" placeholder="這一步要做什麼">`;
-    const [di,ti]=row.querySelectorAll('input');ti.focus();ti.select();let done=false;
-    const save=()=>{if(done)return;done=true;const d=normD(di.value),t=ti.value.trim();if(!d){toast('日期看不懂，請打 11/23 這種格式');drawer();return}if(d===md(s.d)&&t===s.t){drawer();return}
-      const lines=o.schText.split('\n'),k=schLine(o,j);if(k<0){drawer();return}lines[k]=d+' '+(t||'（未命名）')+(s.ok?' ✓':'');schSave(o,lines.join('\n'),`已改成「${d} ${shortStep(t)}」`)};
-    row.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();save()}else if(ev.key==='Escape'){ev.stopPropagation();done=true;drawer()}};
-    row.addEventListener('focusout',()=>setTimeout(()=>{if(!row.contains(document.activeElement))save()},0))}
-  async function stepDel(o,j){const s=o.sch.steps[j];if(await choose(`刪掉「${md(s.d)} ${s.t}」這一步？`,[['y','刪掉']])!=='y')return;const lines=o.schText.split('\n'),k=schLine(o,j);if(k<0)return;lines.splice(k,1);schSave(o,lines.join('\n'),`已刪掉「${shortStep(s.t)}」`)}
-  function stepAdd(o,btn){const row=document.createElement('div');row.className='stg edit';btn.before(row);btn.style.display='none';
-    row.innerHTML=`<input class="di" placeholder="11/23"><input class="ti" placeholder="這一步要做什麼，例：提供 A copy">`;const [di,ti]=row.querySelectorAll('input');di.focus();let done=false;
-    const save=()=>{if(done)return;done=true;const d=normD(di.value),t=ti.value.trim();if(!di.value.trim()&&!t){drawer();return}if(!d){toast('日期看不懂，請打 11/23 這種格式');drawer();return}
-      const ref=o.intake||today0(),nd=parseSched(d+' x',ref).steps[0].d,lines=o.schText.split('\n');let at=lines.length;const st=o.sch.steps;for(let i=0;i<st.length;i++)if(st[i].d>nd){at=schLine(o,i);break}
-      lines.splice(at,0,d+' '+(t||'（未命名）'));schSave(o,lines.join('\n'),`已加上「${d} ${shortStep(t)}」`)};
-    row.onkeydown=ev=>{if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();if(document.activeElement===di&&!ti.value.trim())ti.focus();else save()}else if(ev.key==='Escape'){ev.stopPropagation();done=true;drawer()}};
-    row.addEventListener('focusout',()=>setTimeout(()=>{if(!row.contains(document.activeElement))save()},0))}
-  function schAll(o,d){const tl=d.querySelector('.tl');if(!tl)return;const w=document.createElement('div');w.innerHTML=`<textarea class="schall">${esc(o.schText)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end;margin:6px 0 12px"><button class="btn2" data-c style="color:inherit">取消</button><button class="btn2 dk" data-ok>儲存</button></div><div class="mu" style="font-size:12px;margin-top:-6px">一行一步，開頭打日期（例：11/23 提供 A copy），行尾的 ✓ 代表已完成。</div>`;tl.replaceWith(w);
-    const ta=w.querySelector('textarea');ta.focus();w.querySelector('[data-c]').onclick=()=>drawer();
-    w.querySelector('[data-ok]').onclick=()=>{const v=ta.value.trim();if(v===o.schText.trim()){drawer();return}if(v&&!(parseSched(v,o.intake)||{steps:[]}).steps.length){toast('看不出日期，請確認每一步開頭有 11/23 這種日期');return}schSave(o,v,v?'時程已更新':'時程已清空')}}
+  function schEdit(o,d){const tl=d.querySelector('.tl');if(!tl)return;const lines=o.schText.split('\n');const hasD=l=>/(\d{1,2})\/(\d{1,2})/.test(l);
+    const fi=lines.findIndex(hasD);const head=lines.slice(0,fi<0?lines.length:fi).filter(l=>l.trim());const notes=lines.slice(fi<0?lines.length:fi).filter(l=>l.trim()&&!hasD(l));
+    const rowH=(dv,tv,ok)=>`<div class="stg edit" data-done="${ok?1:''}"><input class="di" value="${esc(dv)}" placeholder="11/23"><input class="ti" value="${esc(tv)}" placeholder="這一步要做什麼，例：提供 A copy"><span class="sx" title="刪掉這一步">✕</span></div>`;
+    const w=document.createElement('div');w.className='sched';
+    w.innerHTML=`<div class="tl">${o.sch.steps.map(s=>rowH(md(s.d),s.t,s.ok)).join('')}<div class="add" data-sadd style="margin-left:-4px">＋ 新增一步</div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 12px"><button class="btn2" data-c style="color:inherit">取消</button><button class="btn2 dk" data-ok>儲存</button></div>`;
+    tl.replaceWith(w);const eb=d.querySelector('[data-sedit]');if(eb)eb.style.visibility='hidden';
+    const T=w.querySelector('.tl'),bind=r=>{r.querySelector('.sx').onclick=()=>r.remove()};T.querySelectorAll('.stg').forEach(bind);
+    w.querySelector('[data-sadd]').onclick=()=>{const t=document.createElement('div');t.innerHTML=rowH('','',false);const r=t.firstChild;T.querySelector('[data-sadd]').before(r);bind(r);r.querySelector('.di').focus()};
+    w.querySelector('[data-c]').onclick=()=>drawer();
+    w.onkeydown=ev=>{if(ev.key==='Escape'){ev.stopPropagation();drawer()}else if(ev.key==='Enter'&&!ev.isComposing&&ev.target.tagName==='INPUT'){ev.preventDefault();w.querySelector('[data-ok]').click()}};
+    w.querySelector('[data-ok]').onclick=()=>{const ref=o.intake||today0(),out=[];let bad=null;
+      T.querySelectorAll('.stg').forEach(r=>{const di=r.querySelector('.di'),t=r.querySelector('.ti').value.trim();di.style.borderColor='';if(!di.value.trim()&&!t)return;const dd=normD(di.value);if(!dd){bad=bad||di;di.style.borderColor='#B5584E';return}
+        out.push({k:+parseSched(dd+' x',ref).steps[0].d,l:dd+' '+(t||'（未命名）')+(r.dataset.done?' ✓':'')})});
+      if(bad){toast('日期看不懂，請打 11/23 這種格式');bad.focus();return}
+      out.sort((a,b)=>a.k-b.k);const txt=[...head,...out.map(x=>x.l),...notes].join('\n');if(txt.trim()===o.schText.trim()){drawer();return}schSave(o,txt,out.length?'時程已更新':'時程已清空')}}
   // ---------- 篩選、區塊 ----------
   const active=r=>!/^完成|^取消/.test(r.st),unpaid=r=>r.st==='完成未付款',closed=r=>r.st==='完成'||r.st==='取消';
   const flt=l=>l.filter(r=>(FS==='全部'||r.src===FS)&&(!Q||(r.client+r.title+r.src+r.memo+r.mynote).toLowerCase().includes(Q.toLowerCase())));
@@ -1692,16 +1688,13 @@ var CS=(()=>{
     d.innerHTML=`<div class="dhd"><h3 class="ed" data-df="專案">${esc(o.title)}</h3><span class="x" data-x>✕</span></div><div class="sub"><i class="dot" style="background:${srcColor(o.src)}"></i> ${esc(o.src)}・${esc(o.client)}・${esc(o.mlabel)} 進來</div>
      <div class="fl">${f('案源','案源',o.src)}${f('客戶','客戶',o.client)}<span>類型</span><div><span class="tagx" data-kind style="cursor:pointer">${esc(o.kind)} ▾</span></div>${f('報價','報價',o.amt?fmt(o.amt):'')}<span>進度</span><div><span class="st ${ST[o.st]||'s-none'}" data-stp="${o.id}">${esc(o.st||'未開始')}</span></div>${f('交期','交期',dueOf(o))}${f('上片日','上片日',upOf(o))}${f('完成日','完成日',o.doneTxt)}${f('收款日','收款日',o.paidTxt)}${cloudOn(o)||o.file?`<span>檔案</span><div><span class="st ${FILE_CLS[o.file]||'s-none'}" data-fpick style="cursor:pointer">${esc(o.file||'未設定')} ▾</span></div>`:''}${f('備註','備註',o.memo)}${f('我的備註','我的備註',o.mynote)}</div>
      <div class="h4">連結</div><div class="lkl">${o.links.map((x,i)=>`<div class="row"><span class="tag ed" data-ll="${i}">${esc(x.l)}</span><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,''))}</a><span class="lcp" data-lcp="${i}" title="複製這個連結，貼到別的案子">複製</span><span class="x" data-ld="${i}" title="移除">✕</span></div>`).join('')}<div class="add" data-ladd>＋ 新增連結</div></div>
-     <div class="h4 schh" style="margin-top:14px">時程${o.sch?'<span class="mu" style="font-weight:400;font-size:12px">點一下＝這步完成</span><span class="lk" data-sall>整段編輯</span>':''}</div>${o.sch&&o.sch.sub?`<div class="mu" style="font-size:12px">${esc(o.sch.sub)}</div>`:''}
-     ${o.sch?`<div class="tl">${o.sch.steps.map((s,j)=>`<div class="stg ${s.kind==='me'?'me':''} ${s.ok?'ok':''} ${n&&s===n?'now':''}" data-s="${j}"><span class="d">${md(s.d)}</span><span class="t">${esc(s.t)}</span>${s.kind==='me'?'<span class="tg me">你要交</span>':s.kind==='up'?'<span class="tg up">上片</span>':''}<span class="sact"><span data-se="${j}">改</span><span data-sx="${j}">刪</span></span></div>`).join('')}<div class="add" data-sadd style="margin-left:-4px">＋ 新增一步</div></div>`:''}
+     <div class="h4 schh" style="margin-top:14px">時程${o.sch?'<span class="mu" style="font-weight:400;font-size:12px">點一下＝這步完成</span><span class="lk" data-sedit>編輯</span>':''}</div>${o.sch&&o.sch.sub?`<div class="mu" style="font-size:12px">${esc(o.sch.sub)}</div>`:''}
+     ${o.sch?`<div class="tl">${o.sch.steps.map((s,j)=>`<div class="stg ${s.kind==='me'?'me':''} ${s.ok?'ok':''} ${n&&s===n?'now':''}" data-s="${j}"><span class="d">${md(s.d)}</span><span class="t">${esc(s.t)}</span>${s.kind==='me'?'<span class="tg me">你要交</span>':s.kind==='up'?'<span class="tg up">上片</span>':''}</div>`).join('')}</div>`:''}
      ${o.sch&&o.sch.notes.length?`<div class="flag">⚑ ${esc(o.sch.notes.join('・'))}</div>`:''}<textarea class="paste" data-sch placeholder="📋 貼上客戶給的排程（整段），自動拆成時程${o.sch?'；會取代現在的':''}"></textarea>
      <div class="dfoot"><button class="btn2" data-del>刪除這個案子</button></div>`;
     d.querySelector('[data-x]').onclick=()=>{OPEN=null;drawer();rerender()};
-    d.querySelectorAll('[data-s]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('.sact')||e.classList.contains('edit'))return;toggleStep(o,+e.dataset.s)});
-    d.querySelectorAll('[data-se]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();stepEdit(o,e.closest('.stg'),+e.dataset.se)});
-    d.querySelectorAll('[data-sx]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();stepDel(o,+e.dataset.sx)});
-    const sad=d.querySelector('[data-sadd]');if(sad)sad.onclick=()=>stepAdd(o,sad);
-    const sal=d.querySelector('[data-sall]');if(sal)sal.onclick=()=>schAll(o,d);
+    d.querySelectorAll('[data-s]').forEach(e=>e.onclick=()=>toggleStep(o,+e.dataset.s));
+    const sed=d.querySelector('[data-sedit]');if(sed)sed.onclick=()=>schEdit(o,d);
     d.querySelectorAll('[data-stp]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();stMenu(e,o)});
     d.querySelectorAll('[data-df]').forEach(e=>e.ondblclick=()=>inlineEdit(e,o,e.dataset.df));
     d.querySelectorAll('[data-fpick]').forEach(e=>e.onclick=()=>{const m=pop(e,['',...FILE_ST].map(k=>`<div class="it" data-k="${k}"><span class="st ${FILE_CLS[k]||'s-none'}">${k||'未設定'}</span>${k===o.file?'<em>✓</em>':''}</div>`).join(''));m.onclick=ev=>{const x=ev.target.closest('[data-k]');if(!x)return;m.remove();if(x.dataset.k!==o.file)upd(o,{'檔案':x.dataset.k},'檔案改成「'+(x.dataset.k||'未設定')+'」')}});
@@ -1930,7 +1923,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261114013742';
+const VER=/*VER*/'20261114014216';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
