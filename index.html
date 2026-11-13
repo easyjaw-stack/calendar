@@ -515,6 +515,20 @@ tr.off td{color:#C9C7C0}tr.hist td{color:#6b6a66;background:#FCFCFB}
 .dk-body.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px}.dk-body.split .dk-main{min-width:0}
 .cs-split{min-width:0;max-height:calc(100vh - 150px);overflow:auto}.cs-split .cpanel{padding:6px}.cs-split td{max-width:200px}
 #desk .k.cshl{outline:2px solid #5B8DEF;outline-offset:1px}
+.toast{z-index:120}.sheet{z-index:110!important}
+.pcs{position:fixed;inset:0;z-index:40;background:var(--bg);display:none;flex-direction:column}.pcs.on{display:flex;animation:pcsin .25s cubic-bezier(.2,.8,.2,1)}@keyframes pcsin{from{transform:translateX(30px);opacity:0}}
+.pch{display:flex;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 12px 6px}.pch button{display:inline-flex;align-items:center;gap:2px;color:var(--mu);font-size:15px;min-width:70px}.pch b{flex:1;text-align:center;font-size:17px}.pch span{min-width:70px}
+.pcb{flex:1;overflow:auto;padding:4px 12px calc(env(safe-area-inset-bottom) + 30px);overscroll-behavior:contain}
+.pcs-s{display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:9px 12px;color:var(--mu);margin:4px 0 4px}.pcs-s input{flex:1;border:0;outline:0;font:inherit;font-size:15px;background:none}
+.pcsec{display:flex;align-items:baseline;justify-content:space-between;margin:18px 4px 9px}.pcsec b{font-size:15px}.pcsec span{font-size:12.5px;color:var(--mu)}
+.pc3{background:#fff;border-radius:14px;margin-bottom:8px;display:flex;align-items:stretch;overflow:hidden}.pc3:active{transform:scale(.985)}
+.pc3 .pdd{width:56px;flex-shrink:0;background:#FAFAF8;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #F2F1EE}.pc3 .pdd b{font-size:18px;font-weight:600;line-height:1.1}.pc3 .pdd small{font-size:10.5px;color:var(--mu)}
+.pc3 .pbd{flex:1;min-width:0;padding:11px 13px}.pc3 .ptt{font-size:14.5px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pc3 .pln{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:12px;color:var(--mu)}.pc3 .pln .pa{margin-left:auto;color:var(--tx);font-variant-numeric:tabular-nums}
+.pc3 .dot,.pcsd .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}.pc3 .st,.pcsd .st{font-size:11.5px;padding:1px 8px}
+.pgrp{background:#fff;border-radius:14px;padding:2px 14px;margin-bottom:10px}.pkv{display:flex;padding:11px 0;border-bottom:1px solid #F4F3F0;font-size:14.5px}.pkv:last-child{border-bottom:0}.pkv>span{color:var(--mu);width:72px;flex-shrink:0}
+.plk{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid #F4F3F0;font-size:14.5px;color:#2E4466;text-decoration:none}.plk:last-child{border-bottom:0}.plk .mu{font-size:12px}.plk i:last-child{margin-left:auto;color:var(--mu)}
+.pstp{display:flex;gap:10px;padding:7px 0;font-size:14px}.pstp .d2{width:42px;color:#6b6a66;flex-shrink:0}.pstp.ok{color:#B5B3AD;text-decoration:line-through}.pstp.now{font-weight:600}.pstp .tg{margin-left:6px;white-space:nowrap;display:inline-block}
+.pbtns{display:flex;gap:8px;margin:4px 0 6px}.pbtns .btn2{flex:1;padding:12px 0;font-size:15px;background:#fff}.pbtns .btn2.ok{background:#3F6E43;color:#fff}
 body:not(.desk) .csov{align-items:flex-end;padding-top:0;animation:fdin .2s}
 body:not(.desk) .csdlg{width:100%!important;max-height:92vh;border-radius:20px 20px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 14px);background:var(--bg);animation:edup .3s cubic-bezier(.2,.85,.25,1)}
 body:not(.desk) .csdlg .dh{font-size:17px}body:not(.desk) .csnc .kbdh{display:none}
@@ -605,7 +619,7 @@ body.dragging #desk .k:hover{filter:none;width:auto;min-width:0;overflow:hidden;
 </head>
 <body>
 <div id="app">
-  <div class="top"><button class="mo" id="moBtn"><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="tdBtn" aria-label="月曆"><i class="ti ti-calendar-month"></i></button><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button></div></div>
+  <div class="top"><button class="mo" id="moBtn"><span id="moTxt"></span></button><div class="r"><span class="sync" id="sync"></span><button id="csBtn" aria-label="案件"><i class="ti ti-briefcase"></i></button><button id="tdBtn" aria-label="月曆"><i class="ti ti-calendar-month"></i></button><button id="inBtn" aria-label="收入"><i class="ti ti-coin"></i></button><button id="srBtn"><i class="ti ti-search"></i></button></div></div>
   <div class="strip" id="strip"></div>
   <div id="pull"><i></i><span>往下拉重新整理</span></div>
   <div id="day"><div class="dh" id="dh"></div><div id="list"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel" style="width:70%"></div></div><div id="pend"></div></div>
@@ -1076,7 +1090,7 @@ async function slideGo(o,swipe){if(same(o,cur)||SLIDING)return;const el=$('#day'
   await wait(300);el.style.transition='';SLIDING=false}
 (()=>{const el=$('#day'),zone=document,pull=$('#pull');let sx=0,sy=0,lock=null,dx=0,t0=0,on=false,pulling=false,ph=0,busy=false;
   // 整個畫面（卡片、週列、彈出視窗以外）左右滑都能換天
-  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.strip,#ovl,.sheet,.fab,#toast,[data-ck],.csov'))return;on=true;lock=null;dx=0;pulling=false;ph=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
+  zone.addEventListener('touchstart',e=>{if(edit||D||SLIDING||el.offsetParent===null||e.target.closest('.strip,#ovl,.sheet,.fab,#toast,[data-ck],.csov,.pcs'))return;on=true;lock=null;dx=0;pulling=false;ph=0;t0=Date.now();sx=e.touches[0].clientX;sy=e.touches[0].clientY;el.style.transition='none'},{passive:true});
   zone.addEventListener('touchmove',e=>{if(!on)return;if(PDRAG||LP||D){on=false;el.style.transform='';return}const x=e.touches[0].clientX-sx,y=e.touches[0].clientY-sy;if(!lock&&(Math.abs(x)>8||Math.abs(y)>8)){lock=Math.abs(x)>Math.abs(y)?'h':'v';pulling=lock==='v'&&y>0&&!busy&&(document.scrollingElement.scrollTop||0)<=0}
   if(pulling){e.preventDefault();ph=Math.min(96,Math.max(0,y*.5));pull.style.transition='none';pull.style.height=ph+'px';pull.querySelector('i').style.width=(18+ph*.5)+'px';const over=ph>60;if(over!==pull._over){pull._over=over;if(over)haptic()}pull.querySelector('span').textContent=over?'放開重新整理':'往下拉重新整理';return}
   if(lock==='h'){e.preventDefault();dx=x;el.style.transform=`translateX(${x}px)`}},{passive:false});
@@ -1831,7 +1845,28 @@ var CS=(()=>{
     el.innerHTML=l.length?'<div class="srh">案件</div>'+l.map(r=>`<div class="res csres" data-cid="${r.id}"><span class="dt">${esc(r.mlabel.replace(/^\d{4}\//,''))} 月</span><span class="t">${hl(r.title)}<small>　${esc(r.client)}</small></span><span class="st ${ST[r.st]||'s-none'}" style="cursor:pointer">${esc(r.st||'未開始')}</span></div>`).join(''):'';
     el.querySelectorAll('[data-cid]').forEach(x=>x.onclick=()=>{$('#ovl').innerHTML='';openCase(x.dataset.cid)})}
   function openCase(id){const o=byId(id);if(!o)return;PAGE='case';try{localStorage.setItem('deskPage','case')}catch(e){}FS='全部';Q='';if(closed(o)){COL['已結案']=false;MCOL[o.mkey]=false}SEL=new Set([id]);OPEN=id;FX.flash=id;renderDesk();drawer()}
-  return {copyPaste:ev=>PAGE!=='cal'&&copyPaste(ev),searchInto,openCase,load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
+  // ---------- 手機：案件頁（只看＋改進度、收到了） ----------
+  let PQ='';
+  function phoneOpen(){let el=$('#pcs');if(!el){el=document.createElement('div');el.id='pcs';el.className='pcs';document.body.appendChild(el)}el.classList.add('on');lockBg(true);phoneDraw();if(!D)toast('讀取剪輯表中…');load(true).then(()=>{if($('#pcs.on'))phoneDraw()})}
+  function phoneClose(){const el=$('#pcs');if(el)el.classList.remove('on');document.querySelectorAll('.pcsd').forEach(x=>x.remove());lockBg(false)}
+  function phoneCard(r){const n=nextMe(r),d=n?n.d:r.due;return `<div class="pc3" data-pid="${r.id}"><div class="pdd">${d?`<small>${d.getMonth()+1} 月</small><b>${d.getDate()}</b>`:'<small>未定</small>'}</div><div class="pbd"><div class="ptt">${esc(r.title)}</div><div class="pln"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}<span class="st ${ST[r.st]||'s-none'}">${esc(r.st||'未開始')}</span><span class="pa">${r.amt?fmt(r.amt):''}</span></div></div></div>`}
+  function phoneDraw(){const el=$('#pcs');if(!el)return;const q=PQ.trim().toLowerCase(),f=l=>l.filter(r=>!q||(r.title+r.client+r.src+r.memo+r.mynote).toLowerCase().includes(q));
+    const act=byDue(f(ROWS.filter(active))),un=f(ROWS.filter(unpaid));
+    el.innerHTML=`<div class="pch"><button data-pclose><i class="ti ti-chevron-left"></i>月曆</button><b>案件</b><span></span></div><div class="pcb"><div class="pcs-s"><i class="ti ti-search"></i><input id="pcQ" placeholder="搜尋客戶、專案" value="${esc(PQ)}"></div>
+      ${!D?'<div class="emp">讀取中…</div>':`<div class="pcsec"><b>進行中</b><span>${act.length} 件・依交期</span></div>${act.map(phoneCard).join('')||'<div class="emp">沒有</div>'}<div class="pcsec"><b>完成未付款</b><span>${un.length} 件・${fmt(un.reduce((a,b)=>a+b.amt,0))}</span></div>${un.map(phoneCard).join('')||'<div class="emp">全部都收到了</div>'}`}</div>`;
+    el.querySelector('[data-pclose]').onclick=phoneClose;const qi=el.querySelector('#pcQ');qi.oninput=()=>{PQ=qi.value;const p=qi.selectionStart;phoneDraw();const n=$('#pcQ');n.focus();n.setSelectionRange(p,p)};
+    el.querySelectorAll('[data-pid]').forEach(c=>c.onclick=()=>phoneDetail(c.dataset.pid))}
+  function phoneDetail(id){const o=byId(id);if(!o)return;document.querySelectorAll('.pcsd').forEach(x=>x.remove());const n=nextMe(o);const ov=document.createElement('div');ov.className='csov pcsd';
+    const kv=(k,v)=>v?`<div class="pkv"><span>${k}</span><div>${v}</div></div>`:'';
+    ov.innerHTML=`<div class="csdlg"><div class="dh"><span style="font-size:17px;line-height:1.35">${esc(o.title)}</span><span class="sp"></span><span data-x class="x">✕</span></div><div class="mu" style="font-size:12.5px;margin:-2px 0 12px"><i class="dot" style="background:${srcColor(o.src)}"></i> ${esc(o.src)}・${esc(o.client)}</div>
+      <div class="pgrp">${kv('進度',`<span class="st ${ST[o.st]||'s-none'}">${esc(o.st||'未開始')}</span>`)}${kv('交期',esc(dueOf(o)||'—'))}${kv('報價',o.amt?fmt(o.amt):'—')}${kv('上片日',esc(upOf(o)))}${kv('完成日',esc(o.doneTxt))}${kv('備註',esc(o.memo))}${kv('我的備註',esc(o.mynote))}</div>
+      ${o.links.length?`<div class="pgrp">${o.links.map(x=>`<a class="plk" href="${esc(x.url)}" target="_blank" rel="noopener"><i class="ti ti-link"></i>${esc(x.l)}<span class="mu">${esc(LBL(x.url))}</span><i class="ti ti-external-link"></i></a>`).join('')}</div>`:''}
+      ${o.sch?`<div class="pgrp" style="padding:8px 14px">${o.sch.sub?`<div class="mu" style="font-size:12px;margin-bottom:4px">${esc(o.sch.sub)}</div>`:''}${o.sch.steps.map(s=>`<div class="pstp ${s.ok?'ok':''} ${n&&s===n?'now':''}"><span class="d2">${md(s.d)}</span><span>${esc(s.t)}${s.kind==='me'?'<span class="tg me">你要交</span>':''}</span></div>`).join('')}</div>`:''}
+      <div class="pbtns"><button class="btn2" data-pst>改進度</button>${o.st==='完成未付款'?'<button class="btn2 ok" data-ppaid>收到了</button>':''}</div></div>`;
+    document.body.appendChild(ov);const close=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)close()};ov.querySelector('[data-x]').onclick=close;
+    ov.querySelector('[data-pst]').onclick=async()=>{const k=await choose('改進度',STS.map(x=>[x||'__none',x||'未開始']));if(!k)return;const s2=k==='__none'?'':k;if(s2===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};upd(o,{'進度':s2},'進度改成「'+(s2||'未開始')+'」');close();phoneDraw()};
+    const pp=ov.querySelector('[data-ppaid]');if(pp)pp.onclick=()=>{o._prev={d:o.doneTxt,p:o.paidTxt};if(!o.paidTxt)o.paidTxt=md(today0());upd(o,{'進度':'完成'},`收到了 ${fmt(o.amt)}，收款日 ${o.paidTxt}`);close();phoneDraw()}}
+  return {phoneOpen,copyPaste:ev=>PAGE!=='cal'&&copyPaste(ev),searchInto,openCase,load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
 })();
 
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
@@ -1839,11 +1874,12 @@ $('#moBtn').onclick=()=>slideGo({y:T.getFullYear(),m:T.getMonth()+1,d:T.getDate(
 $('#srBtn').onclick=openSearch;
 $('#inBtn').onclick=openIncome;
 $('#tdBtn').onclick=()=>openPicker('jump');
+$('#csBtn').onclick=()=>CS.phoneOpen();
 window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113112045';
+const VER=/*VER*/'20261113115632';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
