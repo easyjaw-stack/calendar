@@ -1540,6 +1540,8 @@ var CS=(()=>{
     const list=Object.values(g).map(x=>{let items=clone(dayItems(x.o));if(k==='done')x.ids.forEach(i=>{if(items[i])items[i].done=true});else items=items.filter((_,i)=>!x.ids.includes(i));return {o:x.o,items}});
     save(list);toast(k==='done'?`已把 ${hits.length} 張卡片劃線`:`已刪掉 ${hits.length} 張卡片`)}
   // ---------- 時程 ----------
+  // 把各種日期寫法統一成 11/23（11月23日、11.23、全形數字／斜線）
+  const normSch=t=>String(t||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).replace(/[／]/g,'/').replace(/(^|[^\d])(\d{1,2})\s*月\s*(\d{1,2})\s*[日號号]?/g,'$1$2/$3').replace(/(^|\n)(\s*)(\d{1,2})\.(\d{1,2})(?![\d.])/g,(m,a,w,b,c)=>+b<=12&&+c<=31?a+w+b+'/'+c:m);
   function parseSched(text,ref){const out={sub:'',steps:[],notes:[]};if(!String(text||'').trim())return null;const y=(ref||today0()).getFullYear();
     String(text).split('\n').forEach(l0=>{let l=l0.trim();if(!l)return;const ok=/\s?✓$/.test(l);l=l.replace(/\s?✓$/,'');const m=l.match(/(\d{1,2})\/(\d{1,2})/);
       if(!m){if(!out.steps.length)out.sub+=(out.sub?'・':'')+l;else out.notes.push(l);return}
@@ -1690,7 +1692,7 @@ var CS=(()=>{
      <div class="h4">連結</div><div class="lkl">${o.links.map((x,i)=>`<div class="row"><span class="tag ed" data-ll="${i}">${esc(x.l)}</span><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,''))}</a><span class="lcp" data-lcp="${i}" title="複製這個連結，貼到別的案子">複製</span><span class="x" data-ld="${i}" title="移除">✕</span></div>`).join('')}<div class="add" data-ladd>＋ 新增連結</div></div>
      <div class="h4 schh" style="margin-top:14px">時程${o.sch?'<span class="mu" style="font-weight:400;font-size:12px">點一下＝這步完成</span><span class="lk" data-sedit>編輯</span>':''}</div>${o.sch&&o.sch.sub?`<div class="mu" style="font-size:12px">${esc(o.sch.sub)}</div>`:''}
      ${o.sch?`<div class="tl">${o.sch.steps.map((s,j)=>`<div class="stg ${s.kind==='me'?'me':''} ${s.ok?'ok':''} ${n&&s===n?'now':''}" data-s="${j}"><span class="d">${md(s.d)}</span><span class="t">${esc(s.t)}</span>${s.kind==='me'?'<span class="tg me">你要交</span>':s.kind==='up'?'<span class="tg up">上片</span>':''}</div>`).join('')}</div>`:''}
-     ${o.sch&&o.sch.notes.length?`<div class="flag">⚑ ${esc(o.sch.notes.join('・'))}</div>`:''}<textarea class="paste" data-sch placeholder="📋 貼上客戶給的排程（整段），自動拆成時程${o.sch?'；會取代現在的':''}"></textarea>
+     ${o.sch&&o.sch.notes.length?`<div class="flag">⚑ ${esc(o.sch.notes.join('・'))}</div>`:''}<textarea class="paste" data-sch placeholder="貼上客戶給的排程（整段），自動拆成時程並存好${o.sch?'；會取代現在的':''}"></textarea>
      <div class="dfoot"><button class="btn2" data-del>刪除這個案子</button></div>`;
     d.querySelector('[data-x]').onclick=()=>{OPEN=null;drawer();rerender()};
     d.querySelectorAll('[data-s]').forEach(e=>e.onclick=()=>toggleStep(o,+e.dataset.s));
@@ -1703,7 +1705,9 @@ var CS=(()=>{
     d.querySelectorAll('[data-ll]').forEach(e=>e.onclick=()=>linkForm(o,+e.dataset.ll));
     d.querySelectorAll('[data-lcp]').forEach(e=>e.onclick=()=>{LCLIP={...o.links[+e.dataset.lcp]};try{navigator.clipboard.writeText(LCLIP.url)}catch(x){}toast(`已複製「${LCLIP.l}」，到別的案子按「新增連結」就能一鍵貼上`)});
     d.querySelector('[data-ladd]').onclick=()=>addLink(o);
-    const ta=d.querySelector('[data-sch]');ta.onpaste=()=>setTimeout(()=>{const v=ta.value.trim();if(!v)return;const p=parseSched(v,o.intake);if(!p||!p.steps.length){toast('看不出日期，請確認排程裡有 11/23 這種日期');return}const set={'時程':v};const nx=p.steps.find(s=>s.kind==='me');if(nx)set['交期']=md(nx.d);upd(o,set,`已拆成 ${p.steps.length} 步${nx?'，交期改成 '+md(nx.d):''}`)},0);
+    const ta=d.querySelector('[data-sch]');let taDone='';const taSave=()=>{const v=normSch(ta.value).trim();if(!v||v===taDone)return;taDone=v;const p=parseSched(v,o.intake);const set={'時程':v};
+      if(!p||!p.steps.length){upd(o,set,'已存起來，但看不出日期（要有 11/23 這種日期才會拆成一步一步）');return}const nx=p.steps.find(s=>!s.ok&&s.kind==='me');if(nx)set['交期']=md(nx.d);upd(o,set,`已存好，拆成 ${p.steps.length} 步${nx?'，交期改成 '+md(nx.d):''}`)};
+    ta.onpaste=()=>setTimeout(taSave,0);ta.onblur=taSave;ta.onkeydown=ev=>{if(ev.key==='Enter'&&(ev.metaKey||ev.ctrlKey)){ev.preventDefault();taSave()}};
     d.querySelector('[data-del]').onclick=()=>delCase(o)}
   async function delCase(o){if(await choose(`刪除「${o.title}」？`,[['y','刪除（可以復原）']])!=='y')return;OPEN=null;drawer();SEL.delete(o.id);const tr=document.querySelector(`tr.r[data-id="${o.id}"]`);if(tr){tr.animate([{opacity:1},{opacity:0,transform:'translateX(-12px)'}],{duration:220,easing:'ease-in',fill:'forwards'});await new Promise(f=>setTimeout(f,230))}ROWS=ROWS.filter(r=>r!==o);rerender();
     write('caseDelete',{tab:o.tab,id:o.id},'已刪除',()=>write('caseRestore',{id:o.id},'已復原')).catch(()=>{})}
@@ -1793,7 +1797,7 @@ var CS=(()=>{
     ov.querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{NC.client=b.dataset.cl;drawNC('title')});
     ov.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{NC.title=b.dataset.tp;drawNC('title')});
     ov.querySelectorAll('[data-due]').forEach(b=>b.onclick=()=>{NC.due=b.dataset.due;drawNC()});
-    const add=keep=>{const lines=NC.title.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)return;const src=(NC.srcNew||'').trim()||NC.src,sch=NC.sch.trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
+    const add=keep=>{const lines=NC.title.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)return;const src=(NC.srcNew||'').trim()||NC.src,sch=normSch(NC.sch).trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
       const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcList().includes(src),client=NC.client.trim()||src,due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
       lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
         const dueD=due?(()=>{const m=due.match(/(\d{1,2})\/(\d{1,2})/);return m?new Date(t0.getFullYear(),+m[1]-1,+m[2]):null})():null;
@@ -1923,7 +1927,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261114014216';
+const VER=/*VER*/'20261114014607';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
