@@ -1525,7 +1525,7 @@ var CS=(()=>{
     const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
     const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
     if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
-    Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期')o.dueTxt=set[k];if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
+    Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期'){o.dueTxt=set[k];const m=String(set[k]).match(/(\d{1,2})\/(\d{1,2})/),b=o.due||o.intake||today0();o.due=m?new Date(b.getFullYear(),+m[1]-1,+m[2]):null}if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
     const pr=write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo);
     // 改成修改中／等輸出中／封面製作 → 回到待排，存好後馬上更新待排
@@ -1581,7 +1581,7 @@ var CS=(()=>{
   // ---------- 篩選、區塊 ----------
   const active=r=>!/^完成|^取消/.test(r.st),unpaid=r=>r.st==='完成未付款',closed=r=>r.st==='完成'||r.st==='取消';
   const flt=l=>l.filter(r=>(FS==='全部'||r.src===FS)&&(!Q||(r.client+r.title+r.src+r.memo+r.mynote).toLowerCase().includes(Q.toLowerCase())));
-  const dueOf=r=>{const n=nextMe(r);return n?md(n.d):r.dueTxt};const dueKey=r=>{const n=nextMe(r);return n?+n.d:r.due?+r.due:9e15};
+  const dueOf=r=>{if(r.dueTxt)return r.dueTxt;const n=nextMe(r);return n?md(n.d):''};const dueKey=r=>{if(r.due)return +r.due;const n=nextMe(r);return n?+n.d:9e15};  // 交期格有寫就照你寫的
   const byDue=l=>l.slice().sort((a,b)=>dueKey(a)-dueKey(b));
   const COLS=[['src','案源'],['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['next','下一步'],['due','交期'],['up','上片日'],['done','完成日'],['link','連結'],['memo','備註']];
   // 「上片日、完成日」可以在表格上直接收起來（記住你的選擇）
@@ -1752,8 +1752,6 @@ var CS=(()=>{
       if(ok&&x&&['交期','上片日','完成日','收款日'].includes(f)&&!/^\d{1,2}\/\d{1,2}$/.test(x)){toast('日期請寫成 11/28 這樣');inp.focus();inp.select();return}
       if(ok&&x&&f==='報價'&&!/^(NT\$)?[\d,]+$/i.test(x)){toast('報價請只打數字，例如 3500');inp.focus();inp.select();return}
       done=true;if(ok&&x!==String(val)){if(f==='收款日'){o.paidTxt=x}
-        // 有時程的案子，交期是看時程「下一個你要交」→ 改交期時把那一步的日期也一起改，才不會跳回去
-        const nx=f==='交期'&&x&&nextMe(o);if(nx){const k=schLine(o,o.sch.steps.indexOf(nx));if(k>=0){const L=o.schText.split('\n');L[k]=L[k].replace(/\d{1,2}\/\d{1,2}/,x);upd(o,{'交期':x,'時程':L.join('\n')},`交期改成 ${x}（時程「${shortStep(nx.t)}」也一起改了）`);return}}
         upd(o,{[f]:x},'已存到剪輯表')}else{td.classList.remove('ing');rerender();drawer()}};
     inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}if(ev.key==='Escape'){ev.preventDefault();fin(false)}
       if(ev.key==='Tab'&&td.tagName==='TD'){ev.preventDefault();const fs=[...td.closest('tr').querySelectorAll('td.ed')].map(x=>x.dataset.f),nf=fs[fs.indexOf(f)+(ev.shiftKey?-1:1)];fin(true);if(nf)setTimeout(()=>{const c=document.querySelector(`tr.r[data-id="${o.id}"] td.ed[data-f="${nf}"]`);if(c)inlineEdit(c,o,nf)},0)}};
@@ -1901,7 +1899,7 @@ var CS=(()=>{
   let PQ='';
   function phoneOpen(){let el=$('#pcs');if(!el){el=document.createElement('div');el.id='pcs';el.className='pcs';document.body.appendChild(el)}el.classList.add('on');lockBg(true);phoneDraw();if(!D)toast('讀取剪輯表中…');load(true).then(()=>{if($('#pcs.on'))phoneDraw()})}
   function phoneClose(){const el=$('#pcs');if(el)el.classList.remove('on');document.querySelectorAll('.pcsd').forEach(x=>x.remove());lockBg(false)}
-  function phoneCard(r){const n=nextMe(r),d=n?n.d:r.due;return `<div class="pc3" data-pid="${r.id}"><div class="pdd">${d?`<small>${d.getMonth()+1} 月</small><b>${d.getDate()}</b>`:'<small>未定</small>'}</div><div class="pbd"><div class="ptt">${esc(r.title)}</div><div class="pln"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}<span class="st ${ST[r.st]||'s-none'}">${esc(r.st||'未開始')}</span><span class="pa">${r.amt?fmt(r.amt):''}</span></div></div></div>`}
+  function phoneCard(r){const n=nextMe(r),d=r.due||(n?n.d:null);return `<div class="pc3" data-pid="${r.id}"><div class="pdd">${d?`<small>${d.getMonth()+1} 月</small><b>${d.getDate()}</b>`:'<small>未定</small>'}</div><div class="pbd"><div class="ptt">${esc(r.title)}</div><div class="pln"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}<span class="st ${ST[r.st]||'s-none'}">${esc(r.st||'未開始')}</span><span class="pa">${r.amt?fmt(r.amt):''}</span></div></div></div>`}
   function phoneDraw(){const el=$('#pcs');if(!el)return;const q=PQ.trim().toLowerCase(),f=l=>l.filter(r=>!q||(r.title+r.client+r.src+r.memo+r.mynote).toLowerCase().includes(q));
     const act=byDue(f(ROWS.filter(active))),un=f(ROWS.filter(unpaid));
     el.innerHTML=`<div class="pch"><button data-pclose><i class="ti ti-chevron-left"></i>月曆</button><b>案件</b><span></span></div><div class="pcb"><div class="pcs-s"><i class="ti ti-search"></i><input id="pcQ" placeholder="搜尋客戶、專案" value="${esc(PQ)}"></div>
@@ -1932,7 +1930,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261114015138';
+const VER=/*VER*/'20261114021000';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
