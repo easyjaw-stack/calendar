@@ -1516,7 +1516,7 @@ var CS=(()=>{
     return `<div class="cpanel cloud"><div class="sec" data-sec="雲端待清"><span class="ar">${c?'▶':'▼'}</span>雲端待清<span class="m">Medicathon 的打包檔、成片還在你的雲端・${l.length} 支</span><span class="sp"></span><span class="btn3" data-cpt>複製片名</span><span class="btn3" data-fall="已詢問">全部問過了</span><span class="btn3" data-fall="已處理">全部刪掉了</span></div>
       ${c?'':`<div class="tw"><table><thead><tr><th>完成日</th><th>客戶</th><th>專案</th><th>狀態</th><th></th></tr></thead><tbody>${l.map(o=>{const dd=o.done?Math.round((t-o.done)/864e5):null;return `<tr class="r" data-id="${o.id}"><td class="mu">${esc(o.doneTxt||'')}${dd!=null?`<span class="mu">　${dd} 天前</span>`:''}</td><td>${esc(o.client)}</td><td title="${esc(o.title)}">${esc(o.title)}</td><td><span class="st ${FILE_CLS[o.file]}" style="cursor:default">${esc(o.file)}</span></td><td class="fxact">${o.file==='雲端中'?`<span class="btn3" data-fset="已詢問" data-fid="${o.id}">問過了</span>`:''}<span class="btn3 dk" data-fset="已處理" data-fid="${o.id}">刪掉了</span><span class="btn3" data-fset="留存" data-fid="${o.id}">客戶要留</span></td></tr>`}).join('')}</tbody></table></div>`}</div>`}
   const OLDF={'檔案':o=>o.file,'類型':o=>o.kind,'專案':o=>o.title,'客戶':o=>o.client,'案源':o=>o.src,'備註':o=>o.memo,'我的備註':o=>o.mynote,'檔案':o=>o.file,'進度':o=>o.st,'時程':o=>o.schText,'報價':o=>o.amt?String(o.amt):'','交期':o=>o.dueTxt,'上片日':o=>o.upTxt,'完成日':o=>o.doneTxt,'收款日':o=>o.paidTxt};
-  function upd(o,set,msg,links,noUndo){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;if(set['進度']!=null&&/^完成/.test(set['進度'])&&cloudOn(o)&&!o.file&&set['檔案']==null)set={...set,'檔案':'雲端中'};// 先改畫面，再存（可以復原）
+  function upd(o,set,msg,links,noUndo){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;if(set['進度']!=null&&/^完成/.test(set['進度'])&&cloudOn(o)&&!o.file&&set['檔案']==null)set={...set,'檔案':'雲端中'};if(set['進度']!=null&&!/^完成/.test(set['進度'])&&cloudOn(o)&&o.file==='雲端中'&&set['檔案']==null)set={...set,'檔案':''};  // 改回沒完成：檔案應該還沒上傳，拿掉雲端中// 先改畫面，再存（可以復原）
     const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
     const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
     if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
@@ -1897,7 +1897,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113183359';
+const VER=/*VER*/'20261113183909';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
