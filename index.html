@@ -716,7 +716,7 @@ async function call(action,payload){
   if(!KEY)KEY=getKey();
   if(!KEY&&!askKey())throw new Error('沒有金鑰');
   const w=['save','append','repeat','pendSkip','pendUnskip','spanOp','periodSet','caseUpdate','caseAdd','caseDelete','caseRestore','clientSave','fxRenew','fxSet','pendAdd'].includes(action);  // 只有寫入才顯示右上角「同步中…」
-  if(w){pending++;syncTxt()}
+  if(w){pending++;syncTxt();if(!/^case|^client|^fx/.test(action))CGEN++}
   try{
     const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),60000);let res;
     try{res=await fetch(API,{method:'POST',body:JSON.stringify({t:KEY,action,payload:payload||{}}),signal:ac.signal})}catch(e){throw new Error(e.name==='AbortError'?'連線逾時':'Failed to fetch')}finally{clearTimeout(tm)}
@@ -1510,16 +1510,17 @@ var CS=(()=>{
   let CQRUN=null,CQT=null,CQWAIT=8000,CQWARN=false,CQERR=false;const WAIT={},IDMAP={};
   const cqPut=()=>{try{localStorage.setItem('caseq',JSON.stringify(CQ))}catch(e){}};
   function write(action,payload,okMsg,undo,tmp){WGEN++;const op={id:'q'+Date.now()+Math.random().toString(36).slice(2,6),action,payload:JSON.parse(JSON.stringify(payload||{})),tmp:tmp||null};
+    if(['caseUpdate','caseAdd','caseDelete'].includes(action))op.payload.lite=true;  // 畫面已經先改好了，伺服器不用回傳整張表（省 3 秒），全部送完再讀一次
     if(okMsg)toast(okMsg,undo);const pr=new Promise((res,rej)=>{WAIT[op.id]={res,rej}});CQ.push(op);cqPut();cqPill();runCQ();return pr}
-  function runCQ(){if(CQRUN||!CQ.length)return;clearTimeout(CQT);CQRUN=(async()=>{let last=null;
-    while(CQ.length){const op=CQ[0],p=op.payload;if(p.id&&IDMAP[p.id])p.id=IDMAP[p.id];
+  function runCQ(){if(CQRUN||!CQ.length)return;clearTimeout(CQT);CQRUN=(async()=>{let last=null,lite=false;
+    while(CQ.length){const op=CQ[0],p=op.payload;if(p.lite)lite=true;if(p.id&&IDMAP[p.id])p.id=IDMAP[p.id];
       try{const r=await call(op.action,p);last=r;
-        if(op.action==='caseAdd'&&op.tmp&&r&&r.id){IDMAP[op.tmp]=r.id;CQ.forEach(x=>{if(x.payload.id===op.tmp)x.payload.id=r.id});const o=ROWS.find(x=>x.id===op.tmp);if(o){o.id=r.id;o.tab=r.tab}if(OPEN===op.tmp)OPEN=r.id;if(SEL.has(op.tmp)){SEL.delete(op.tmp);SEL.add(r.id)}}
+        if(op.action==='caseAdd'&&op.tmp&&r&&r.id){IDMAP[op.tmp]=r.id;CQ.forEach(x=>{if(x.payload.id===op.tmp){x.payload.id=r.id;if(r.tab)x.payload.tab=r.tab}});const o=ROWS.find(x=>x.id===op.tmp);if(o){o.id=r.id;o.tab=r.tab}if(OPEN===op.tmp)OPEN=r.id;if(SEL.has(op.tmp)){SEL.delete(op.tmp);SEL.add(r.id)}}
         CQ.shift();cqPut();const w=WAIT[op.id];if(w){w.res(r);delete WAIT[op.id]}CQWAIT=8000;if(CQWARN){CQWARN=false;toast('連上了，剛才的改動都存好了 ✓')}}
       catch(e){if(/Failed to fetch|逾時|忙碌|network|load failed/i.test((e&&e.message)||'')){if(!CQWARN){CQWARN=true;toast('網路不穩，改動先存在這台電腦，連上後會自動補送')}CQT=setTimeout(runCQ,CQWAIT);CQWAIT=Math.min(CQWAIT*2,60000);break}
         CQ.shift();cqPut();const w=WAIT[op.id];if(w){w.rej(e);delete WAIT[op.id]}toast('沒存成功：'+((e&&e.message)||e));CQERR=true}
       cqPill()}
-    if(!CQ.length){if(CQERR){CQERR=false;CQRUN=null;await load(true)}else if(last&&last.tabs){absorb(last);if(!busy())rerender()}}})().finally(()=>{CQRUN=null;cqPill()});}
+    if(!CQ.length){if(CQERR){CQERR=false;CQRUN=null;await load(true)}else if(last&&last.tabs){absorb(last);if(!busy())rerender()}else if(lite){CQRUN=null;await load(true)}}})().finally(()=>{CQRUN=null;cqPill()});}
   function cqPill(){const el=$('#csSave');if(!el)return;el.textContent=CQ.length?(CQWARN?`未同步 ${CQ.length} 筆・點我重送`:'儲存中…'):'';el.classList.toggle('warn',CQWARN&&CQ.length>0);el.onclick=()=>{CQWAIT=8000;clearTimeout(CQT);runCQ()}}
   addEventListener('online',()=>{CQWAIT=8000;runCQ()});setTimeout(runCQ,1500);
   // ---------- 雲端檔案（只有 Medicathon 的打包檔、成片放在我的雲端）----------
@@ -1569,7 +1570,7 @@ var CS=(()=>{
   function toggleStep(o,j){const s=o.sch.steps[j];const lines=o.schText.split('\n');let n=-1,k=-1;lines.forEach((l,i)=>{if(/(\d{1,2})\/(\d{1,2})/.test(l)){n++;if(n===j)k=i}});if(k<0)return;
     lines[k]=s.ok?lines[k].replace(/\s?✓\s*$/,''):lines[k].replace(/\s+$/,'')+' ✓';const set={'時程':lines.join('\n')};let msg=`「${shortStep(s.t)}」${s.ok?'取消打勾':'打勾了'}`;
     if(!s.ok&&s.kind==='me'){o.schText=set['時程'];o.sch=parseSched(o.schText,o.intake);const nx=nextMe(o);if(/a\s?copy|AC|初稿/i.test(s.t)&&(!o.st||/剪輯中|修改中|等輸出/.test(o.st)))set['進度']='客戶確認中';
-      if(nx){set['交期']=md(nx.d);msg=`交期改成 ${md(nx.d)}，下一步「${shortStep(nx.t)}」已加到待排`;call('pendAdd',{client:o.client,title:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`,due:md(nx.d),text:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`}).then(()=>syncNow(true)).catch(()=>{})}else msg='時程上你要交的都交完了 ✓'}
+      if(nx){set['交期']=md(nx.d);msg=`交期改成 ${md(nx.d)}，下一步「${shortStep(nx.t)}」已加到待排`;call('pendAdd',{caseId:o.id,client:o.client,title:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`,due:md(nx.d),text:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`}).then(()=>syncNow(true)).catch(()=>{})}else msg='時程上你要交的都交完了 ✓'}
     else if(!s.ok)msg+='（不是你要交的，交期不變）';upd(o,set,msg)}
   // 時程：按「編輯」整個時程一起改（每一步一列：日期＋內容，✕ 刪掉，＋ 新增一步），儲存時照日期排好
   const normD=v=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})日?$/)||String(v).trim().match(/^(\d{1,2})(\d{2})$/);return m&&+m[1]>=1&&+m[1]<=12&&+m[2]>=1&&+m[2]<=31?(+m[1])+'/'+(+m[2]):''};
@@ -1688,14 +1689,21 @@ var CS=(()=>{
         <td class="fxact">${s.off?`<span class="btn3" data-fxon="${esc(s.p)}">恢復使用</span>`:`<span class="btn3 dk" data-paid2="${esc(s.p)}">我繳了</span><span class="btn3" data-fxoff="${esc(s.p)}">停用</span>`}</td></tr>`+
         (FOPEN[s.p]?s.l.slice().reverse().map(x=>`<tr class="hist"><td style="padding-left:34px">${md(isoD(x.d))||esc(x.d)} 繳</td><td>${fmt(x.amt)}</td><td colspan="4" class="mu">${x.memo?esc(x.memo):''}</td></tr>`).join(''):'')};
     return sum+how+`<div class="cpanel"><div class="tw"><table><thead><tr><th>服務</th><th>每月</th><th>下次扣款</th><th>這一期</th><th>上次繳</th><th></th></tr></thead><tbody>${S.map(row).join('')}</tbody></table></div><div class="fxfoot mu">點服務名稱可以看每一次繳費的紀錄</div></div>`}
-  // ---------- 月曆提醒卡：入帳日到了還沒收到、扣款前一天 ----------
-  async function addCalCard(o,text){await ensureMonth(o.y,o.m);const l=dayItems(o);if(l.some(x=>String(x.text).includes(text.split(' ')[0])&&String(x.text).includes(text.split(' ').pop())))return;await save([{o,items:clone(l).concat([{text,done:false,bg:'',fc:'',bold:false,note:''}])}])}
+  // ---------- 月曆提醒卡：入帳日到了還沒收到、扣款當天 ----------
+  // 加過的提醒記在這台裝置（你刪掉那張卡，就不會一直再被加回來）
+  const remKey=(o,text)=>`${o.y}-${o.m}-${o.d}|${text}`;let REMS={};try{REMS=JSON.parse(localStorage.getItem('remAdded')||'{}')||{}}catch(e){}
+  async function addCalCard(o,text){const rk=remKey(o,text);if(REMS[rk])return;await ensureMonth(o.y,o.m);const l=dayItems(o);
+    if(!l.some(x=>String(x.text).includes(text.split(' ')[0])&&String(x.text).includes(text.split(' ').pop())))await save([{o,items:clone(l).concat([{text,done:false,bg:'',fc:'',bold:false,note:''}])}]);
+    REMS[rk]=Date.now();try{localStorage.setItem('remAdded',JSON.stringify(REMS))}catch(e){}}
   let REMINDED=false;
   async function autoReminders(){if(REMINDED||!D)return;REMINDED=true;const t=today0(),R=rules();
     const g={};ROWS.filter(unpaid).forEach(r=>{(g[r.src]=g[r.src]||[]).push(r)});
     for(const k of Object.keys(g)){const ru=R[k];if(!ru||!/次月|月底/.test(ru.k))continue;const l=g[k],first=new Date(Math.min(...l.map(r=>+(r.done||r.due||r.intake||t))));const due=ru.k==='次月'?new Date(first.getFullYear(),first.getMonth()+1,ru.n):new Date(+new Date(first.getFullYear(),first.getMonth()+1,0)+ru.n*864e5);
       if(due<=t&&(t-due)<45*864e5){const o={y:due.getFullYear(),m:due.getMonth()+1,d:due.getDate()};try{await addCalCard(o,`${k} ${fmt(l.reduce((a,b)=>a+b.amt,0))} 該入帳了`)}catch(e){}}}
-    for(const s of subs()){if(!s.next||s.off)continue;const pre=new Date(+s.next-864e5);if(Math.round((pre-t)/864e5)>=0&&Math.round((pre-t)/864e5)<=14){const o={y:pre.getFullYear(),m:pre.getMonth()+1,d:pre.getDate()};try{await addCalCard(o,`${s.p} 明天扣款 ${fmt(s.amt)}`)}catch(e){}}}}
+    for(const s of subs()){if(!s.next||s.off)continue;const dd=Math.round((s.next-t)/864e5);if(dd<0||dd>14)continue;const o={y:s.next.getFullYear(),m:s.next.getMonth()+1,d:s.next.getDate()};
+      // 舊的「明天扣款」卡（扣款前一天那張）拿掉，改成扣款當天一張
+      const pre=new Date(+s.next-864e5),po={y:pre.getFullYear(),m:pre.getMonth()+1,d:pre.getDate()};try{if(pre>=t){await ensureMonth(po.y,po.m);const l=dayItems(po),keep=l.filter(x=>!(String(x.text).startsWith(s.p+' 明天扣款')&&!x.done));if(keep.length!==l.length)await save([{o:po,items:clone(keep)}])}}catch(e){}
+      try{await addCalCard(o,`${s.p} 今天扣款 ${fmt(s.amt)}`)}catch(e){}}}
   // ---------- 詳細面板 ----------
   const byId=id=>ROWS.find(r=>r.id===id);
   function drawer(){let d=$('#csDrw');if(!d){d=document.createElement('div');d.id='csDrw';d.className='csdrw';document.body.appendChild(d)}const o=PAGE!=='cal'?byId(OPEN):null;d.classList.toggle('on',!!o);if(!o)return;const n=nextMe(o);
@@ -1816,7 +1824,7 @@ var CS=(()=>{
       lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
         const dueD=due?(()=>{const m=due.match(/(\d{1,2})\/(\d{1,2})/);return m?new Date(t0.getFullYear(),+m[1]-1,+m[2]):null})():null;
         const o={tab:String(t0.getFullYear()),r:0,id:tmp,intake:t0,mkey:ym(t0),mlabel:t0.getFullYear()+'/'+(t0.getMonth()+1),src,client,title:ti,amt:Number(set['報價'])||0,st:'',links:links?links.map(x=>({...x})):[],due:dueD,dueTxt:due,done:null,doneTxt:'',paid:null,paidTxt:'',file:'',memo:'',mynote:'',up:null,upTxt:'',schText:sch,kind:kindOf(ti)};o.sch=parseSched(sch,t0);ROWS.push(o);FX.flash=tmp;
-        const last=ix===lines.length-1;write('caseAdd',{intake:iso,set,links},last?(lines.length>1?`已新增 ${lines.length} 件，在待排等你排`:`已新增「${ti}」，在待排等你排`):null,null,tmp).then(()=>{if(last){syncNow(true);if(isNewSrc&&!keep)cliForm(null)}}).catch(()=>{ROWS=ROWS.filter(x=>x!==o);rerender()})});
+        const last=ix===lines.length-1;write('caseAdd',{intake:iso,set,links,id:'c'+Date.now().toString(36)+ix+Math.floor(Math.random()*1296).toString(36)},last?(lines.length>1?`已新增 ${lines.length} 件，在待排等你排`:`已新增「${ti}」，在待排等你排`):null,null,tmp).then(()=>{if(last){syncNow(true);if(isNewSrc&&!keep)cliForm(null)}}).catch(()=>{ROWS=ROWS.filter(x=>x!==o);rerender()})});
       if(keep){// 繼續下一筆：保留案源、客戶、交期；專案換成下一個編號的開頭
         const prev=lines[lines.length-1],fam=prev.match(/^(\D*?)(\d+)/),nt=fam?templates(src,client).find(t=>t.startsWith(fam[1])):null;NC={...NC,src,srcNew:'',client,title:nt||'',amt:'',link:'',sch:''};rerender();drawNC('title')}
       else{NC=null;drawNC();rerender()}};
@@ -1941,8 +1949,9 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261114021517';
-async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
+const VER=/*VER*/'20261114024224';
+async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
+  if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
 addEventListener('focus',()=>{if(!edit&&!D&&Date.now()-LASTSYNC>10000)syncNow(true)});
