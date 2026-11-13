@@ -1670,7 +1670,7 @@ var CS=(()=>{
   async function delCase(o){if(await choose(`刪除「${o.title}」？`,[['y','刪除（可以復原）']])!=='y')return;OPEN=null;drawer();SEL.delete(o.id);const tr=document.querySelector(`tr.r[data-id="${o.id}"]`);if(tr){tr.animate([{opacity:1},{opacity:0,transform:'translateX(-12px)'}],{duration:220,easing:'ease-in',fill:'forwards'});await new Promise(f=>setTimeout(f,230))}ROWS=ROWS.filter(r=>r!==o);rerender();
     write('caseDelete',{tab:o.tab,id:o.id},'已刪除',()=>write('caseRestore',{id:o.id},'已復原')).catch(()=>{})}
   const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  const openUrl=u=>IOS?String(u).replace(/^https:\/\//,'googlechromes://').replace(/^http:\/\//,'googlechrome://'):u;
+  const openUrl=u=>u;  // 手機維持用 Safari 打開
   const LBL=url=>/drive\.google\.com\/drive\/folders/.test(url)?'資料夾':/drive\.google\.com|docs\.google/.test(url)?'雲端檔案':/frame\.io/.test(url)?'Frame.io':/youtu/.test(url)?'YouTube':/dropbox/.test(url)?'Dropbox':'連結';
   // 新增／修改連結：名稱和網址在同一個視窗；貼上網址會自動建議名稱
   let LCLIP=null;
@@ -1881,7 +1881,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113133753';
+const VER=/*VER*/'20261113133847';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
