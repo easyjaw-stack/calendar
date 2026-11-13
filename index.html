@@ -449,6 +449,7 @@ tr.g td{background:#FAFAF8;font-weight:600;font-size:12.5px;color:#6b6a66;cursor
 .s-done{background:#F2F1EE;color:#9B9993}.s-unpaid{background:#FBEFD9;color:#8A5A12}.s-check{background:#DCE6EE;color:#2E4466}.s-rev{background:#F6DCD9;color:#791F1F}.s-cut{background:#3A3A38;color:#fff}.s-none{background:#fff;color:#9B9993;box-shadow:inset 0 0 0 1px #D3D1C7}.s-wait{background:#FBE9D9;color:#A2602E}.s-cancel{background:#fff;color:#C9C7C0;box-shadow:inset 0 0 0 1px #E6E4DF;text-decoration:line-through}
 .lk{color:#2E4466;font-size:12.5px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;border-radius:6px;padding:1px 4px;margin-left:-4px}.lk:hover{background:#EEF2F6}.lk svg{width:12px;height:12px}.lk b{font-weight:600;background:#DCE6EE;border-radius:99px;padding:0 6px;font-size:11px}.lk.add{color:#C9C7C0;opacity:0}tr.r:hover .lk.add{opacity:1}
 .nx{color:#45443F}.mu{color:#9B9993}
+.cspage td.fc{box-shadow:inset 0 0 0 1.5px #9DB7E8;border-radius:4px}
 .srh{font-size:12px;color:#9B9993;margin:12px 4px 6px}.csres{align-items:center;cursor:pointer}.csres .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.csres small{color:#9B9993}.csres mark{background:#FFF0B8;color:inherit;border-radius:3px}
 .cssave{font-size:12.5px;color:#9B9993;margin-right:4px;cursor:default}.cssave.warn{color:#B5584E;font-weight:600;cursor:pointer}
 tr.og td{background:#FAFAF8;padding-top:10px;padding-bottom:8px}tr.og .late{color:#B5584E;font-weight:600}
@@ -1352,6 +1353,7 @@ function deskDelete(){const t=DHOV||DSEL;if(!t)return;const o=parseK(t.k),it=day
   else{const el=$(`#desk .k[data-k="${t.k}"][data-i="${t.i}"]`);DSEL=null;DHOV=null;deskVanish(el).then(()=>{cur=o;removeAt(t.i)});return}DSEL=null;DHOV=null}
 document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelector('.sheet,.yr,#ovl .ov')||/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))return;
   // ⌘C 複製滑鼠指著（或選取）的卡片；⌘V 貼到滑鼠指著的那天（沒指著就貼到選取卡片那天）
+  if((ev.metaKey||ev.ctrlKey)&&CS.copyPaste(ev))return;
   if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='c'){const t=DHOV||DSEL;if(!t)return;const it=dayItems(parseK(t.k))[t.i];if(!it||it.span)return;ev.preventDefault();
     const n=parseNote(it.note);n.per='';DCLIP={text:it.text,done:false,bg:it.bg||'',fc:it.fc||'',bold:!!it.bold,note:it.virtual?'':makeNote(n)};try{navigator.clipboard.writeText(it.text)}catch(e){}
     const el=$(`#desk .k[data-k="${t.k}"][data-i="${t.i}"]`);if(el)el.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:260,easing:'cubic-bezier(.3,1.5,.5,1)'});
@@ -1539,7 +1541,7 @@ var CS=(()=>{
   const CS_cols=c=>cols(c).concat([['open','']]);
   function rowH(r,cols){cols=cols||COLS;const n=nextMe(r);const cell={src:`<td><span class="src"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.src)}</span></td>`,client:`<td class="ed" data-f="客戶">${hl(r.client)}</td>`,title:`<td class="ed" data-f="專案" title="${esc(r.title)}">${hl(r.title)}</td>`,amt:`<td class="ed" data-f="報價">${r.amt?fmt(r.amt):''}</td>`,
     st:`<td><span class="st ${ST[r.st]||'s-none'}" data-stp="${r.id}">${esc(r.st||'未開始')}</span></td>`,next:`<td class="nx">${n?esc(shortStep(n.t)):''}</td>`,due:`<td class="ed" data-f="交期">${esc(dueOf(r)||'')}</td>`,up:`<td class="ed" data-f="上片日">${esc(upOf(r))}</td>`,done:`<td class="ed" data-f="完成日">${esc(r.doneTxt)}</td>`,
-    link:`<td>${lkCell(r)}</td>`,memo:`<td class="ed" data-f="備註" title="${esc(r.memo)}">${esc(r.memo)}</td>`,mynote:`<td class="ed wrap" data-f="我的備註">${esc(r.mynote)}</td>`};
+    link:`<td data-col="連結">${lkCell(r)}</td>`,memo:`<td class="ed" data-f="備註" title="${esc(r.memo)}">${esc(r.memo)}</td>`,mynote:`<td class="ed wrap" data-f="我的備註">${esc(r.mynote)}</td>`};
     cell.fold=`<td class="foldc"></td>`;cell.open=`<td class="opn"><span data-open="${r.id}">詳細 ›</span></td>`;return `<tr class="r ${SEL.has(r.id)?'sel':''} ${OPEN===r.id?'op':''} ${closed(r)?'done':''} ${r.st==='取消'?'cx':''}" data-id="${r.id}">${CS_cols(cols).map(c=>cell[c[0]]).join('')}</tr>`}
   const months=l=>{const g={};l.forEach(r=>{(g[r.mkey]=g[r.mkey]||[]).push(r)});return Object.keys(g).sort((a,b)=>b-a).map(k=>[+k,g[k]])};
   const mName=k=>{const y=Math.floor(k/100),m=k%100;return (y!==new Date().getFullYear()?y+' 年 ':'')+m+' 月'};
@@ -1693,6 +1695,20 @@ var CS=(()=>{
     inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}if(ev.key==='Escape'){ev.preventDefault();fin(false)}
       if(ev.key==='Tab'&&td.tagName==='TD'){ev.preventDefault();const fs=[...td.closest('tr').querySelectorAll('td.ed')].map(x=>x.dataset.f),nf=fs[fs.indexOf(f)+(ev.shiftKey?-1:1)];fin(true);if(nf)setTimeout(()=>{const c=document.querySelector(`tr.r[data-id="${o.id}"] td.ed[data-f="${nf}"]`);if(c)inlineEdit(c,o,nf)},0)}};
     inp.onblur=()=>fin(true);inp.onmousedown=ev=>ev.stopPropagation()}
+  // ---------- 格子複製貼上（像試算表）：點一格 → ⌘C → 點別的案子 → ⌘V；Shift 多選可以一次貼好幾件 ----------
+  let FCOL=null,CCLIP=null;const COPYABLE=['客戶','專案','報價','交期','上片日','完成日','備註','我的備註','連結'];
+  function setFocusCell(td){document.querySelectorAll('#desk td.fc').forEach(x=>x.classList.remove('fc'));const c=td&&(td.dataset.f||td.dataset.col);if(c&&COPYABLE.includes(c)){FCOL=c;td.classList.add('fc')}else if(td)FCOL=null}
+  function cellVal(o,c){return c==='連結'?o.links.map(x=>({...x})):{'客戶':o.client,'專案':o.title,'報價':o.amt?String(o.amt):'','交期':dueOf(o),'上片日':upOf(o),'完成日':o.doneTxt,'備註':o.memo,'我的備註':o.mynote}[c]||''}
+  function copyPaste(ev){const k=ev.key.toLowerCase();if(k!=='c'&&k!=='v')return false;if(!SEL.size||!FCOL)return false;ev.preventDefault();const sel=[...SEL].map(byId).filter(Boolean);
+    if(k==='c'){const o=sel[0],v=cellVal(o,FCOL);CCLIP={col:FCOL,v};const txt=FCOL==='連結'?v.map(x=>x.url).join('\n'):v;try{navigator.clipboard.writeText(txt)}catch(e){}
+      document.querySelectorAll('#desk td.fc').forEach(td=>td.animate([{boxShadow:'inset 0 0 0 2px #5B8DEF'},{boxShadow:'inset 0 0 0 2px transparent'}],{duration:700}));
+      toast(FCOL==='連結'?(v.length?`已複製 ${v.length} 個連結，點別的案子的「連結」欄按 ⌘V 貼上`:'這一格沒有連結'):`已複製「${txt||'（空白）'}」`);return true}
+    if(!CCLIP){toast('先點一格按 ⌘C 複製');return true}
+    if(CCLIP.col!==FCOL&&(CCLIP.col==='連結'||FCOL==='連結')){toast(`剛才複製的是「${CCLIP.col}」，請點同一欄再貼`);return true}
+    let n=0;sel.forEach((o,i)=>{const last=i===sel.length-1;
+      if(FCOL==='連結'){const add=CCLIP.v.filter(x=>!o.links.some(y=>y.url===x.url));if(!add.length)return;n++;upd(o,{},null,o.links.concat(add.map(x=>({...x}))),true)}
+      else{if(String(cellVal(o,FCOL))===String(CCLIP.v))return;n++;upd(o,{[FCOL]:CCLIP.v},null,null,true)}});
+    toast(n?`已貼到 ${n} 個案子的「${FCOL}」`:'這幾件本來就一樣，不用貼');return true}
   // ---------- 新增案子 ----------
   const lastNum=re=>{let mx=0;ROWS.forEach(r=>{const m=r.title.match(re);if(m)mx=Math.max(mx,+m[1])});return mx};
   function templates(src,client){const T=[];
@@ -1739,15 +1755,15 @@ var CS=(()=>{
     const fi=ov.querySelector(`[data-k="${focus||'title'}"]`);if(fi){fi.focus();fi.setSelectionRange(fi.value.length,fi.value.length)}}
   // ---------- 頁面 ----------
   const help=()=>`<div class="cshelp"><h5>選取</h5><div class="kr">點一下<span>選取</span></div><div class="kr"><kbd>Enter</kbd>／右鍵／列尾「詳細 ›」<span>打開／關掉案子詳細</span></div><div class="kr"><kbd>Shift</kbd>＋點<span>一筆一筆加選／取消</span></div><div class="kr"><kbd>Shift</kbd>＋按住往下拖<span>一次選一段（看金額合計）</span></div>
-    <h5>編輯</h5><div class="kr">快速點兩下某一格<span>直接改那格</span></div><div class="kr">點進度膠囊<span>換進度</span></div><div class="kr">點連結<span>打開／新增連結</span></div><div class="kr">右鍵<span>打開、刪除</span></div>
+    <h5>編輯</h5><div class="kr">快速點兩下某一格<span>直接改那格</span></div><div class="kr">點進度膠囊<span>換進度</span></div><div class="kr">點連結<span>打開／新增連結</span></div><div class="kr">右鍵<span>打開、刪除</span></div><div class="kr">點一格 <kbd>⌘C</kbd> → 點別的案子 <kbd>⌘V</kbd><span>複製貼上（連結也可以；Shift 多選一次貼好幾件）</span></div>
     <h5>鍵盤</h5><div class="kr"><kbd>↑</kbd> <kbd>↓</kbd><span>換選取的案子（詳細打開時直接換）</span></div><div class="kr">改格子時 <kbd>Tab</kbd><span>跳到下一格</span></div><div class="kr"><kbd>N</kbd><span>新增案子</span></div><div class="kr"><kbd>/</kbd><span>搜尋</span></div><div class="kr"><kbd>⌘Z</kbd><span>復原</span></div><div class="kr"><kbd>Esc</kbd><span>取消選取／關掉詳細</span></div></div>`;
   function tools(){return `<div class="ptools"><span class="cssave" id="csSave"></span><input class="psrch" id="csQ" placeholder="搜尋客戶、專案、備註…" value="${esc(Q)}"><span class="pq ${HELP?'on':''}" id="csHelp">?${HELP?help():''}</span><button class="dk-add" id="csNew"><i class="ti ti-plus"></i>新增案子</button></div>`}
   function page(p){return p==='case'?casePage():p==='cli'?cliPage():p==='set'?settlePage():p==='fx'?fxPage():''}
   const SPLIT_COLS=[['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['due','交期']];
   function splitPanel(){return `<div class="cs-split">${filterRow()}${casePage(SPLIT_COLS,true)}</div>`}
   function sumBar(){let s=$('#csSum');if(!s){s=document.createElement('div');s.id='csSum';s.className='cssum hide';document.body.appendChild(s)}const l=[...SEL].map(byId).filter(Boolean),t=l.reduce((a,b)=>a+b.amt,0);
-    s.className='cssum'+(l.length>1&&MULTI&&PAGE!=='cal'?'':' hide');s.innerHTML=`<span>已選 <b>${l.length}</b> 件</span><span><small>合計</small> <b>${fmt(t)}</b></span><span><small>已完成</small> ${fmt(l.filter(r=>/^完成/.test(r.st)).reduce((a,b)=>a+b.amt,0))}</span><button data-c>複製金額</button><button data-lk2>加同一個連結</button><button data-x>✕</button>`;
-    s.querySelector('[data-c]').onclick=()=>{try{navigator.clipboard.writeText(String(t))}catch(e){}toast('已複製 '+t)};s.querySelector('[data-x]').onclick=()=>{SEL.clear();MULTI=false;rerender()};s.querySelector('[data-lk2]').onclick=()=>{const l=[...SEL].map(byId).filter(Boolean);if(l.length)linkForm(l[0],null,l)}}
+    s.className='cssum'+(l.length>1&&MULTI&&PAGE!=='cal'?'':' hide');s.innerHTML=`<span>已選 <b>${l.length}</b> 件</span><span><small>合計</small> <b>${fmt(t)}</b></span><span><small>已完成</small> ${fmt(l.filter(r=>/^完成/.test(r.st)).reduce((a,b)=>a+b.amt,0))}</span><button data-c>複製金額</button><button data-x>✕</button>`;
+    s.querySelector('[data-c]').onclick=()=>{try{navigator.clipboard.writeText(String(t))}catch(e){}toast('已複製 '+t)};s.querySelector('[data-x]').onclick=()=>{SEL.clear();MULTI=false;rerender()}}
   // 月曆並排：點案子 → 月曆上同一個案子的卡片標藍
   function highlight(){document.querySelectorAll('#desk .k.cshl').forEach(k=>k.classList.remove('cshl'));if(PAGE!=='split')return;const sel=[...SEL].map(byId).filter(Boolean);if(!sel.length)return;
     document.querySelectorAll('#desk .dk-main .k[data-i]').forEach(k=>{const it=dayItems(parseK(k.dataset.k))[+k.dataset.i];if(!it)return;const c=caseOf(it.text);if(c&&sel.some(o=>o.title.trim()===String(c.title).trim()))k.classList.add('cshl')})}
@@ -1776,19 +1792,20 @@ var CS=(()=>{
     root.querySelectorAll('[data-fxamt]').forEach(e=>e.ondblclick=ev=>{ev.stopPropagation();const s=subs().find(x=>String(x.last.r)===e.dataset.fxamt);const v=prompt(`${s.p} 每月金額`,s.amt);if(v!=null&&v.trim())write('fxSet',{r:s.last.r,expect:s.p,amt:v},'已更新金額')});
     root.querySelectorAll('[data-open]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();const id=e.dataset.open;OPEN=OPEN===id?null:id;SEL=new Set([id]);MULTI=false;drawer();document.querySelectorAll('#desk tr.r[data-id]').forEach(x=>{x.classList.toggle('op',x.dataset.id===OPEN);x.classList.toggle('sel',x.dataset.id===id)})}});
     root.querySelectorAll('[data-stp]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();stMenu(e,byId(e.dataset.stp))}});
-    root.querySelectorAll('[data-lk]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();lkMenu(e,byId(e.dataset.lk))}});
+    root.querySelectorAll('[data-lk]').forEach(e=>{e.onclick=ev=>{ev.stopPropagation();lkMenu(e,byId(e.dataset.lk))}});
     const q=root.querySelector('#csQ');if(q){q.oninput=()=>{Q=q.value;const p=q.selectionStart;rerender();const n=$('#csQ');if(n){n.focus();n.setSelectionRange(p,p)}};q.onkeydown=e=>{e.stopPropagation();if(e.key==='Escape'){Q='';rerender()}}}
     const hb=root.querySelector('#csHelp');if(hb)hb.onclick=ev=>{if(ev.target.closest('.cshelp'))return;HELP=!HELP;rerender()};
     const nb=root.querySelector('#csNew');if(nb)nb.onclick=newCase;
     const order=[...root.querySelectorAll('tr.r[data-id]')].map(e=>e.dataset.id);
     root.querySelectorAll('tr.r[data-id]').forEach(e=>{const id=e.dataset.id;
       e.onmousedown=ev=>{if(ev.button!==0||ev.detail>1)return;
-        if(ev.shiftKey){ev.preventDefault();if(!MULTI&&!(SEL.size===1&&!SEL.has(id)))SEL=new Set();if(SEL.has(id))SEL.delete(id);else SEL.add(id);LAST=id;DRAG=SEL.has(id);MULTI=true;rerender();return}
-        SEL=new Set([id]);LAST=id;MULTI=false;document.querySelectorAll('tr.r.sel').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');sumBar();highlight()};
+        if(ev.shiftKey){ev.preventDefault();setFocusCell(ev.target.closest('td'));if(!MULTI&&!(SEL.size===1&&!SEL.has(id)))SEL=new Set();if(SEL.has(id))SEL.delete(id);else SEL.add(id);LAST=id;DRAG=SEL.has(id);MULTI=true;rerender();return}
+        SEL=new Set([id]);LAST=id;MULTI=false;document.querySelectorAll('tr.r.sel').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');setFocusCell(ev.target.closest('td'));sumBar();highlight()};
       e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk],[data-open]'))return;const td=ev.target.closest('td.ed');if(td){inlineEdit(td,byId(id),td.dataset.f);return}return;document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};
       e.oncontextmenu=ev=>{ev.preventDefault();const o=byId(id);const m=pop(e,`<div class="it" data-a="open">打開詳細</div><div class="it" data-a="copy">複製專案名稱</div>${o.links.length?'<div class="it" data-a="link">打開連結</div>':''}<div class="it" data-a="del" style="color:#B5584E">刪除</div>`);m.style.left=Math.min(ev.clientX,innerWidth-m.offsetWidth-8)+'px';m.style.top=(ev.clientY+4)+'px';m.style.maxHeight='';m.style.overflowY='';fitMenu(m,{top:ev.clientY,bottom:ev.clientY});
         m.onclick=x=>{const a=(x.target.closest('[data-a]')||{}).dataset||{};m.remove();if(a.a==='open'){OPEN=id;drawer()}else if(a.a==='copy'){try{navigator.clipboard.writeText(o.title)}catch(e){}toast('已複製')}else if(a.a==='link')lkMenu(e,o);else if(a.a==='del')delCase(o)}};
       e.onmouseenter=ev=>{if(DRAG&&ev.buttons&&ev.shiftKey){SEL.add(id);rerender()}}});
+    if(FCOL)SEL.forEach(id=>{const td=root.querySelector(`tr.r[data-id="${id}"] td[data-f="${FCOL}"],tr.r[data-id="${id}"] td[data-col="${FCOL}"]`);if(td)td.classList.add('fc')});
     sumBar();drawer();highlight();fx(root)}
   function fx(root){const ease='cubic-bezier(.2,.8,.2,1)';
     if(FX.pop){root.querySelectorAll(`[data-stp="${FX.pop}"]`).forEach(p=>p.animate([{transform:'scale(.94)',opacity:.35,filter:'blur(1px)'},{transform:'scale(1)',opacity:1,filter:'blur(0)'}],{duration:420,easing:'cubic-bezier(.22,.8,.3,1)'}));FX.pop=null}
@@ -1814,7 +1831,7 @@ var CS=(()=>{
     el.innerHTML=l.length?'<div class="srh">案件</div>'+l.map(r=>`<div class="res csres" data-cid="${r.id}"><span class="dt">${esc(r.mlabel.replace(/^\d{4}\//,''))} 月</span><span class="t">${hl(r.title)}<small>　${esc(r.client)}</small></span><span class="st ${ST[r.st]||'s-none'}" style="cursor:pointer">${esc(r.st||'未開始')}</span></div>`).join(''):'';
     el.querySelectorAll('[data-cid]').forEach(x=>x.onclick=()=>{$('#ovl').innerHTML='';openCase(x.dataset.cid)})}
   function openCase(id){const o=byId(id);if(!o)return;PAGE='case';try{localStorage.setItem('deskPage','case')}catch(e){}FS='全部';Q='';if(closed(o)){COL['已結案']=false;MCOL[o.mkey]=false}SEL=new Set([id]);OPEN=id;FX.flash=id;renderDesk();drawer()}
-  return {searchInto,openCase,load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
+  return {copyPaste:ev=>PAGE!=='cal'&&copyPaste(ev),searchInto,openCase,load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
 })();
 
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
@@ -1826,7 +1843,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113111239';
+const VER=/*VER*/'20261113112045';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
