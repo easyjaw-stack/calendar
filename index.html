@@ -347,7 +347,7 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .card.k2{background:#fff;box-shadow:inset 0 0 0 1px #D3D1C7}
 .card.k3{background:#fff;box-shadow:inset 0 0 0 1px #D3D1C7;color:#5F7F89}
 .card.kr{background:#F6DCD9;color:#791F1F}.card.kr .ck{border-color:rgba(121,31,31,.3);background:rgba(255,255,255,.55)}.card.kr.x .ck{background:#791F1F;border-color:#791F1F}.card.kr.x .tx{color:rgba(121,31,31,.45)}
-.card.fire{box-shadow:inset 0 0 0 2px #F08A4B}
+
 .cw.press .card.k0{background:#4A4A48}.cw.press .card.k1{background:#D2DDE6}.cw.press .card.kr{background:#EFD0CC}
 .zl{border-top:1px solid #C9C7C0;margin:4px 6px 12px}
 .wc .zl{margin:4px 0 6px}
@@ -401,7 +401,7 @@ body.desk #desk{display:block;max-width:1480px;margin:0 auto;padding:22px 28px 4
 .k.k2,.k.k3{background:#fff;color:#262624;box-shadow:inset 0 0 0 1px #D3D1C7}.k.k3{color:#5F7F89}
 .k.kr{background:#F6DCD9;color:#791F1F}
 .k.x{opacity:.45}.k.x>span{text-decoration:line-through}
-.k.fire{box-shadow:inset 0 0 0 1.5px #F08A4B}
+
 .k.drag{opacity:.25}
 .k.insb{box-shadow:0 -2px 0 0 #262624}.k.insa{box-shadow:0 2px 0 0 #262624}
 .k.inp{background:#fff;box-shadow:inset 0 0 0 1.5px #262624;padding:0;cursor:text}
@@ -547,7 +547,7 @@ body.desk .sheet .pvw{max-width:420px;margin:0 auto 12px;width:100%}
 .k{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal}
 .k:hover{overflow:visible;width:max-content;min-width:100%;z-index:6;box-shadow:0 6px 18px rgba(38,38,36,.2);filter:none}
 .k.k2:hover,.k.k3:hover{box-shadow:inset 0 0 0 1px #D3D1C7,0 6px 18px rgba(38,38,36,.2)}
-.k.fire:hover{box-shadow:inset 0 0 0 1.5px #F08A4B,0 6px 18px rgba(38,38,36,.2)}
+
 .k:active{transform:scale(.98)}
 .dd .k:hover{width:auto}
 s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
@@ -1096,7 +1096,7 @@ function openPicker(mode){if(edit)syncEdit();PK={mode,y:cur.y,m:cur.m,sel:[]};dr
 // 整月總覽的一格：日期、前 3 件（卡片顏色／冒火淡橘／完成刪除線）、多的寫 +n、全部完成加 ✦
 function cellHTML(mm,o){const l=(mm&&mm.days[o.d]?mm.days[o.d]:[]).filter(x=>!x.virtual&&String(x.text).trim()!=='運動'),real=l.filter(x=>!x.span),all=real.length&&real.every(x=>x.done);
   const short=t=>{const p=String(t).split('｜');return (p.length>1?p[p.length-1]:p[0]).replace(/[【】]/g,'').replace(/\s*-\s*/g,'-').trim()};
-  const chip=it=>{const n=parseNote(it.note),fire=!it.done&&!n.nofire&&(n.fire||dueOf(it)===o.m+'/'+o.d);return `<i class="${kCls(it)} ${it.done?'x':''}" style="${fire?'box-shadow:inset 0 0 0 1px #F08A4B':''}">${esc(short(it.text))}</i>`};
+  const chip=it=>{const n=parseNote(it.note),fire=!it.done&&!n.nofire&&(n.fire||dueOf(it)===o.m+'/'+o.d);return `<i class="${kCls(it)} ${it.done?'x':''}" >${esc(short(it.text))}</i>`};
   return `<b>${o.d}${all?'<s>✦</s>':''}${perIcon(o)}</b>${l.slice(0,3).map(chip).join('')}${l.length>3?`<em>+${l.length-3}</em>`:''}`}
 function drawPicker(){if(!PK){$('#ovl').innerHTML='';return}const {y,m}=PK,first=new Date(y,m-1,1),n=new Date(y,m,0).getDate(),off=(first.getDay()+6)%7,mm=M[ym(y,m)];
   $('#ovl').innerHTML=`<div class="ov"><div class="h"><button id="pkPv"><i class="ti ti-chevron-left"></i></button><b>${y} 年 ${m} 月</b><button id="pkNx"><i class="ti ti-chevron-right"></i></button></div><div class="wk">${'一二三四五六日'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="mg">${'<div></div>'.repeat(off)}${[...Array(n)].map((_,i)=>{const d=i+1,o={y,m,d},has=mm&&mm.days[d]&&mm.days[d].length;return `<div data-d="${d}" class="mc ${PK.mode==='jump'&&same(o,cur)?'on':''} ${isToday(o)?'td':''} ${mm&&mm.holidays[d]?'hol':''} ${PK.sel.some(s=>same(s,o))?'sel':''}">${cellHTML(mm,o)}</div>`}).join('')}</div><div class="note">${PK.mode==='jump'?'點一天就跳過去・左右滑換月份':PK.mode==='pend'?'點一天，把這件案子排過去':PK.mode==='until'?'點選結束的那一天':'點選要複製到的日子（可以選很多天）'}</div>${PK.mode==='copy'?`<button class="btn" id="pkOk">複製到 ${PK.sel.length} 天</button>`:''}<button class="btn" id="pkCl" style="background:none;color:var(--mu)">關閉</button></div>`;
@@ -1764,7 +1764,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113043807';
+const VER=/*VER*/'20261113103839';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
