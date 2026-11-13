@@ -1574,8 +1574,8 @@ var CS=(()=>{
   const srcList=()=>[...new Set(ROWS.map(r=>r.src).filter(Boolean))].sort((a,b)=>ROWS.filter(r=>r.src===b).length-ROWS.filter(r=>r.src===a).length);
   const filterRow=()=>`<div class="pflt">${['全部',...srcList()].map(s=>`<span class="${FS===s?'on':''}" data-fs="${esc(s)}">${s!=='全部'?`<i class="dot" style="background:${srcColor(s)}"></i>`:''}${esc(s)}</span>`).join('')}</div>`;
   function casePage(cols,compact){if(!D)return '<div class="cpanel emp">讀取剪輯表中…</div>';const L=flt(ROWS),cl=L.filter(closed);
-    return (compact?'':filterRow())+(compact?'':cloudBlock())+block('進行中',L.filter(active),'依交期排',true,cols)+block('完成未付款',L.filter(unpaid),'',false,cols)+
-      `<div class="cpanel"><div class="sec" data-sec="已結案"><span class="ar">${COL['已結案']?'▶':'▼'}</span>已結案<span class="m">${cl.length} 件・${fmt(cl.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0))}</span></div>${COL['已結案']?'':`<div class="tw"><table>${head(cols)}<tbody>${months(cl).map(([k,g])=>{const c=MCOL[k]!==false;return `<tr class="g" data-m="${k}"><td colspan="12">${c?'▸':'▾'} ${mName(k)}<span>${g.length} 件・${fmt(g.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0))}</span></td></tr>`+(c?'':g.map(r=>rowH(r,cols)).join(''))}).join('')}</tbody></table></div>`}</div>`}
+    return (compact?'':filterRow())+block('進行中',L.filter(active),'依交期排',true,cols)+block('完成未付款',L.filter(unpaid),'',false,cols)+
+      `<div class="cpanel"><div class="sec" data-sec="已結案"><span class="ar">${COL['已結案']?'▶':'▼'}</span>已結案<span class="m">${cl.length} 件・${fmt(cl.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0))}</span></div>${COL['已結案']?'':`<div class="tw"><table>${head(cols)}<tbody>${months(cl).map(([k,g])=>{const c=MCOL[k]!==false;return `<tr class="g" data-m="${k}"><td colspan="12">${c?'▸':'▾'} ${mName(k)}<span>${g.length} 件・${fmt(g.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0))}</span></td></tr>`+(c?'':g.map(r=>rowH(r,cols)).join(''))}).join('')}</tbody></table></div>`}</div>`+(compact?'':cloudBlock())}
   // ---------- 客戶 ----------
   const rules=()=>{const o={};(D&&D.rules||[]).forEach(r=>o[r.src]=r);return o};
   const ruleTxt=r=>!r?'':r.k==='次月'?`次月 ${r.n} 號`:r.k==='月底加天數'?`月底＋${r.n} 天`:r.k;
@@ -1870,7 +1870,7 @@ var CS=(()=>{
   function phoneDraw(){const el=$('#pcs');if(!el)return;const q=PQ.trim().toLowerCase(),f=l=>l.filter(r=>!q||(r.title+r.client+r.src+r.memo+r.mynote).toLowerCase().includes(q));
     const act=byDue(f(ROWS.filter(active))),un=f(ROWS.filter(unpaid));
     el.innerHTML=`<div class="pch"><button data-pclose><i class="ti ti-chevron-left"></i>月曆</button><b>案件</b><span></span></div><div class="pcb"><div class="pcs-s"><i class="ti ti-search"></i><input id="pcQ" placeholder="搜尋客戶、專案" value="${esc(PQ)}"></div>
-      ${!D?'<div class="emp">讀取中…</div>':`${(()=>{const cl=ROWS.filter(cloudPending);return cl.length?`<div class="pcloud"><div><b>雲端待清 ${cl.length} 支</b><span>Medicathon 打包檔、成片</span></div><button class="btn2" data-pcpt>複製片名</button></div>`:''})()}<div class="pcsec"><b>進行中</b><span>${act.length} 件・依交期</span></div>${act.map(phoneCard).join('')||'<div class="emp">沒有</div>'}<div class="pcsec"><b>完成未付款</b><span>${un.length} 件・${fmt(un.reduce((a,b)=>a+b.amt,0))}</span></div>${un.map(phoneCard).join('')||'<div class="emp">全部都收到了</div>'}`}</div>`;
+      ${!D?'<div class="emp">讀取中…</div>':`<div class="pcsec"><b>進行中</b><span>${act.length} 件・依交期</span></div>${act.map(phoneCard).join('')||'<div class="emp">沒有</div>'}<div class="pcsec"><b>完成未付款</b><span>${un.length} 件・${fmt(un.reduce((a,b)=>a+b.amt,0))}</span></div>${un.map(phoneCard).join('')||'<div class="emp">全部都收到了</div>'}${(()=>{const cl=ROWS.filter(cloudPending);return cl.length?`<div class="pcloud" style="margin-top:20px"><div><b>雲端待清 ${cl.length} 支</b><span>Medicathon 打包檔、成片</span></div><button class="btn2" data-pcpt>複製片名</button></div>`:''})()}`}</div>`;
     el.querySelector('[data-pclose]').onclick=phoneClose;const qi=el.querySelector('#pcQ');qi.oninput=()=>{PQ=qi.value;const p=qi.selectionStart;phoneDraw();const n=$('#pcQ');n.focus();n.setSelectionRange(p,p)};
     el.querySelectorAll('[data-pid]').forEach(c=>c.onclick=()=>phoneDetail(c.dataset.pid));const pc=el.querySelector('[data-pcpt]');if(pc)pc.onclick=copyTitles}
   function phoneDetail(id){const o=byId(id);if(!o)return;document.querySelectorAll('.pcsd').forEach(x=>x.remove());const n=nextMe(o);const ov=document.createElement('div');ov.className='csov pcsd';
@@ -1897,7 +1897,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113183909';
+const VER=/*VER*/'20261113184049';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
