@@ -449,6 +449,8 @@ tr.g td{background:#FAFAF8;font-weight:600;font-size:12.5px;color:#6b6a66;cursor
 .s-done{background:#F2F1EE;color:#9B9993}.s-unpaid{background:#FBEFD9;color:#8A5A12}.s-check{background:#DCE6EE;color:#2E4466}.s-rev{background:#F6DCD9;color:#791F1F}.s-cut{background:#3A3A38;color:#fff}.s-none{background:#fff;color:#9B9993;box-shadow:inset 0 0 0 1px #D3D1C7}.s-wait{background:#FBE9D9;color:#A2602E}.s-cancel{background:#fff;color:#C9C7C0;box-shadow:inset 0 0 0 1px #E6E4DF;text-decoration:line-through}
 .lk{color:#2E4466;font-size:12.5px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;border-radius:6px;padding:1px 4px;margin-left:-4px}.lk:hover{background:#EEF2F6}.lk svg{width:12px;height:12px}.lk b{font-weight:600;background:#DCE6EE;border-radius:99px;padding:0 6px;font-size:11px}.lk.add{color:#C9C7C0;opacity:0}tr.r:hover .lk.add{opacity:1}
 .nx{color:#45443F}.mu{color:#9B9993}
+.srh{font-size:12px;color:#9B9993;margin:12px 4px 6px}.csres{align-items:center;cursor:pointer}.csres .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.csres small{color:#9B9993}.csres mark{background:#FFF0B8;color:inherit;border-radius:3px}
+.cssave{font-size:12.5px;color:#9B9993;margin-right:4px;cursor:default}.cssave.warn{color:#B5584E;font-weight:600;cursor:pointer}
 tr.og td{background:#FAFAF8;padding-top:10px;padding-bottom:8px}tr.og .late{color:#B5584E;font-weight:600}
 td.paid{width:90px;text-align:right}td.paid span{font-size:12px;color:#3F6E43;background:#EEF5EC;border-radius:99px;padding:3px 10px;cursor:pointer;opacity:0;transition:opacity .15s}tr.r:hover td.paid span{opacity:1}td.paid span:hover{background:#3F6E43;color:#fff}
 .oweclick{cursor:pointer;border-radius:10px;margin:-6px;padding:6px;transition:background .15s}.oweclick:hover{background:#FBF4E6}
@@ -503,6 +505,10 @@ tr.off td{color:#C9C7C0}tr.hist td{color:#6b6a66;background:#FCFCFB}
 .csdlg input,.csdlg textarea,.csdlg select{font:inherit;border:0;background:#F7F6F3;border-radius:9px;padding:8px 10px;outline:0;user-select:text;-webkit-user-select:text}
 .csdlg textarea{width:100%;height:56px;resize:none;font-size:13px}
 .frm label{display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;margin-bottom:10px;color:#9B9993;font-size:13px}.frm label input,.frm label select{color:#262624}
+.lclip{background:#EEF2F6;color:#2E4466;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px;cursor:pointer;display:flex;gap:8px;align-items:center;overflow:hidden;white-space:nowrap}.lclip span{overflow:hidden;text-overflow:ellipsis;font-size:12px}.lclip:hover{background:#DCE6EE}
+.lkl .lcp{font-size:11.5px;color:#9B9993;cursor:pointer;padding:1px 6px;border-radius:5px;opacity:0;transition:opacity .15s}.lkl .row:hover .lcp{opacity:1}.lkl .lcp:hover{background:#F2F1EE;color:#262624}
+.csdlg textarea.ttl{height:auto;min-height:38px;resize:none;font-size:14px;line-height:1.5}.nchint{font-size:11.5px;margin-top:5px}
+.lf label{grid-template-columns:44px 1fr}.lf input{width:100%}.lsug{display:flex;flex-wrap:wrap;margin:-2px 0 4px 52px}.lsug .ncc{font-size:12.5px;padding:4px 10px}
 .ncr{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid #F4F3F0}.ncr>span{color:#9B9993;padding-top:6px;font-size:13.5px}
 .ncc{display:inline-flex;align-items:center;gap:5px;font-size:13px;padding:5px 11px;border-radius:99px;background:#F2F1EE;cursor:pointer;margin:0 6px 6px 0}.ncc.on{background:#262624;color:#fff}.ncc.tp{background:#EEF2F6;color:#2E4466}
 .dk-body.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:12px}.dk-body.split .dk-main{min-width:0}
@@ -516,7 +522,7 @@ body:not(.desk) .ncr{grid-template-columns:1fr;gap:6px;padding:11px 0}body:not(.
 body:not(.desk) .ncr>div{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:center}body:not(.desk) .ncr>div::-webkit-scrollbar{display:none}
 body:not(.desk) .ncr>div>div{display:flex;flex-wrap:nowrap}body:not(.desk) .ncc{flex-shrink:0;padding:8px 13px;font-size:14px;margin:0 6px 0 0}
 body:not(.desk) .ncr input,body:not(.desk) .ncr textarea{font-size:16px;flex-shrink:0;min-width:160px}
-body:not(.desk) .ncr:nth-child(3)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(3)>div>div{width:100%;overflow-x:auto;margin-bottom:6px!important}body:not(.desk) .ncr:nth-child(3) input{width:100%!important}
+body:not(.desk) .ncr:nth-child(3)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(3) textarea{width:100%!important}body:not(.desk) .nchint{width:100%}body:not(.desk) .ncr:nth-child(3)>div>div{width:100%;overflow-x:auto;margin-bottom:6px!important}body:not(.desk) .ncr:nth-child(3) input{width:100%!important}
 body:not(.desk) .ncr:nth-child(4)>div,body:not(.desk) .ncr:nth-child(6)>div,body:not(.desk) .ncr:nth-child(7)>div{flex-wrap:wrap}body:not(.desk) .ncr:nth-child(6) input,body:not(.desk) .ncr:nth-child(7) textarea{width:100%!important}
 body:not(.desk) .csdlg .df .btn2.dk{padding:10px 22px;font-size:15px}
 body:not(.desk) .csov{overscroll-behavior:contain;touch-action:pan-x pan-y}body:not(.desk) .csdlg{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -1220,9 +1226,9 @@ async function openYear(y){const box=document.createElement('div');box.className
 function autoReceipt(){if(T.getDate()!==1)return;const p=new Date(T.getFullYear(),T.getMonth()-1,1),k='rv-'+p.getFullYear()+'-'+(p.getMonth()+1);try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){return}setTimeout(()=>openReceipt(p.getFullYear(),p.getMonth()+1),800)}
 
 // ---- 搜尋 ----
-function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜尋</b><button id="srCl"><i class="ti ti-x"></i></button></div><div class="sr"><i class="ti ti-search"></i><input id="srIn"></div><div id="srRes"></div></div>`;
+function openSearch(){$('#ovl').innerHTML=`<div class="ov"><div class="h"><b>搜尋</b><button id="srCl"><i class="ti ti-x"></i></button></div><div class="sr"><i class="ti ti-search"></i><input id="srIn" placeholder="${DESK?'搜尋月曆和案件（客戶、專案、備註…）':''}"></div><div id="srCase"></div><div id="srRes"></div></div>`;
   $('#srCl').onclick=()=>{$('#ovl').innerHTML=''};const inp=$('#srIn');inp.focus();let t;
-  inp.oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{const q=inp.value.trim();if(!q){$('#srRes').innerHTML='';return}$('#srRes').innerHTML='<div class="empty">搜尋中…</div>';try{const r=await call('search',{q});if(inp.value.trim()!==q)return;$('#srRes').innerHTML=r.results.length?r.results.map((x,i)=>`<div class="res ${x.done?'x':''}" data-i="${i}"><span class="dt">${x.y!==T.getFullYear()?x.y+'/':''}${x.m}/${x.d}</span><span class="t">${esc(x.text)}</span></div>`).join(''):'<div class="empty">找不到</div>';document.querySelectorAll('.res').forEach(el=>el.onclick=()=>{const x=r.results[+el.dataset.i];$('#ovl').innerHTML='';go({y:x.y,m:x.m,d:x.d})})}catch(e){$('#srRes').innerHTML='<div class="empty">搜尋失敗</div>'}},350)}}
+  inp.oninput=()=>{clearTimeout(t);if(DESK&&typeof CS!=='undefined')CS.searchInto($('#srCase'),inp.value.trim());t=setTimeout(async()=>{const q=inp.value.trim();if(!q){$('#srRes').innerHTML='';return}$('#srRes').innerHTML='<div class="empty">搜尋中…</div>';try{const r=await call('search',{q});if(inp.value.trim()!==q)return;$('#srRes').innerHTML=(DESK&&r.results.length?'<div class="srh">月曆</div>':'')+(r.results.length?r.results.map((x,i)=>`<div class="res ${x.done?'x':''}" data-i="${i}"><span class="dt">${x.y!==T.getFullYear()?x.y+'/':''}${x.m}/${x.d}</span><span class="t">${esc(x.text)}</span></div>`).join(''):'<div class="empty">'+(DESK?'月曆裡找不到':'找不到')+'</div>');document.querySelectorAll('#srRes .res').forEach(el=>el.onclick=()=>{const x=r.results[+el.dataset.i];$('#ovl').innerHTML='';if(DESK&&PAGE!=='cal'){PAGE='cal';try{localStorage.setItem('deskPage','cal')}catch(e){}}go({y:x.y,m:x.m,d:x.d})})}catch(e){$('#srRes').innerHTML='<div class="empty">搜尋失敗</div>'}},350)}}
 
 let LASTUNDO=null;
 function toast(msg,undo){clearTimeout(undoTimer);if(undo)LASTUNDO=undo;$('#toast').innerHTML=`<div class="toast"><span>${esc(msg)}</span>${undo?'<button id="tUndo">復原</button>':''}</div>`;const u=$('#tUndo');if(u)u.onclick=()=>{$('#toast').innerHTML='';undo()};undoTimer=setTimeout(()=>$('#toast').innerHTML='',undo?6000:2500)}
@@ -1351,6 +1357,7 @@ document.addEventListener('keydown',ev=>{if(!DESK||edit||PK||document.querySelec
     const el=$(`#desk .k[data-k="${t.k}"][data-i="${t.i}"]`);if(el)el.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:260,easing:'cubic-bezier(.3,1.5,.5,1)'});
     toast(`已複製「${shortName(it.text)}」，滑鼠移到要貼的那天按 ⌘V`);return}
   if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='v'){if(!DCLIP)return;const k=DHDAY||(DSEL&&DSEL.k);if(!k){toast('把滑鼠移到要貼上的那一天，再按 ⌘V');return}ev.preventDefault();deskPaste(parseK(k));return}
+  if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='k'){ev.preventDefault();openSearch();return}
   if(!(ev.metaKey||ev.ctrlKey)&&CS.key(ev))return;
   if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='z'){ev.preventDefault();if(LASTUNDO){const u=LASTUNDO;LASTUNDO=null;$('#toast').innerHTML='';u()}return}
   // 只有空白鍵會劃線（滑鼠指著或選取的卡片）；Delete／⌘＋Delete＝刪除（可復原）
@@ -1460,17 +1467,44 @@ var CS=(()=>{
       links:r.links&&r.links.length?r.links:[],due:isoD(r.iso['交期']),dueTxt:g('交期'),done:isoD(r.iso['完成日']),doneTxt:g('完成日'),paid:isoD(r.iso['收款日']),paidTxt:g('收款日'),file:g('檔案'),memo:g('備註'),mynote:g('我的備註'),up:isoD(r.iso['上片日']),upTxt:g('上片日'),schText:g('時程'),kind:g('類型')||kindOf(g('專案'))};
     o.sch=parseSched(o.schText,intake||today0());ROWS.push(o)})})}
   build();
-  function load(quiet){if(LOADING)return LOADING;LOADING=call('cases',{}).then(r=>{D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build();if(!busy())rerender();autoReminders()}).catch(e=>{if(!quiet)toast('案件讀取失敗：'+(e.message||e))}).finally(()=>{LOADING=null});return LOADING}
+  function load(quiet){if(CQ.length){runCQ();return Promise.resolve()}if(LOADING)return LOADING;LOADING=call('cases',{}).then(r=>{D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build();if(!busy())rerender();autoReminders()}).catch(e=>{if(!quiet)toast('案件讀取失敗：'+(e.message||e))}).finally(()=>{LOADING=null});return LOADING}
   function absorb(r){if(r&&r.tabs){D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build()}}
   const rerender=()=>{if(DESK&&PAGE!=='cal')renderDesk()};
-  async function write(action,payload,okMsg,undo){try{const r=await call(action,payload);absorb(r);rerender();if(okMsg)toast(okMsg,undo);return r}catch(e){toast('沒存成功：'+(e.message||e));load(true);throw e}}
+  // 存檔佇列：畫面先改好；改動一件一件依序送出（不會互相蓋掉）；全部送完才用伺服器的最新資料更新畫面
+  // 網路斷了或逾時 → 先存在這台電腦，連上後自動補送
+  let CQ=[];try{CQ=JSON.parse(localStorage.getItem('caseq')||'[]')||[]}catch(e){CQ=[]}
+  let CQRUN=null,CQT=null,CQWAIT=8000,CQWARN=false,CQERR=false;const WAIT={},IDMAP={};
+  const cqPut=()=>{try{localStorage.setItem('caseq',JSON.stringify(CQ))}catch(e){}};
+  function write(action,payload,okMsg,undo,tmp){const op={id:'q'+Date.now()+Math.random().toString(36).slice(2,6),action,payload:JSON.parse(JSON.stringify(payload||{})),tmp:tmp||null};
+    if(okMsg)toast(okMsg,undo);const pr=new Promise((res,rej)=>{WAIT[op.id]={res,rej}});CQ.push(op);cqPut();cqPill();runCQ();return pr}
+  function runCQ(){if(CQRUN||!CQ.length)return;clearTimeout(CQT);CQRUN=(async()=>{let last=null;
+    while(CQ.length){const op=CQ[0],p=op.payload;if(p.id&&IDMAP[p.id])p.id=IDMAP[p.id];
+      try{const r=await call(op.action,p);last=r;
+        if(op.action==='caseAdd'&&op.tmp&&r&&r.id){IDMAP[op.tmp]=r.id;CQ.forEach(x=>{if(x.payload.id===op.tmp)x.payload.id=r.id});const o=ROWS.find(x=>x.id===op.tmp);if(o){o.id=r.id;o.tab=r.tab}if(OPEN===op.tmp)OPEN=r.id;if(SEL.has(op.tmp)){SEL.delete(op.tmp);SEL.add(r.id)}}
+        CQ.shift();cqPut();const w=WAIT[op.id];if(w){w.res(r);delete WAIT[op.id]}CQWAIT=8000;if(CQWARN){CQWARN=false;toast('連上了，剛才的改動都存好了 ✓')}}
+      catch(e){if(/Failed to fetch|逾時|忙碌|network|load failed/i.test((e&&e.message)||'')){if(!CQWARN){CQWARN=true;toast('網路不穩，改動先存在這台電腦，連上後會自動補送')}CQT=setTimeout(runCQ,CQWAIT);CQWAIT=Math.min(CQWAIT*2,60000);break}
+        CQ.shift();cqPut();const w=WAIT[op.id];if(w){w.rej(e);delete WAIT[op.id]}toast('沒存成功：'+((e&&e.message)||e));CQERR=true}
+      cqPill()}
+    if(!CQ.length){if(CQERR){CQERR=false;CQRUN=null;await load(true)}else if(last&&last.tabs){absorb(last);if(!busy())rerender()}}})().finally(()=>{CQRUN=null;cqPill()});}
+  function cqPill(){const el=$('#csSave');if(!el)return;el.textContent=CQ.length?(CQWARN?`未同步 ${CQ.length} 筆・點我重送`:'儲存中…'):'';el.classList.toggle('warn',CQWARN&&CQ.length>0);el.onclick=()=>{CQWAIT=8000;clearTimeout(CQT);runCQ()}}
+  addEventListener('online',()=>{CQWAIT=8000;runCQ()});setTimeout(runCQ,1500);
   const OLDF={'類型':o=>o.kind,'專案':o=>o.title,'客戶':o=>o.client,'案源':o=>o.src,'備註':o=>o.memo,'我的備註':o=>o.mynote,'檔案':o=>o.file,'進度':o=>o.st,'時程':o=>o.schText,'報價':o=>o.amt?String(o.amt):'','交期':o=>o.dueTxt,'上片日':o=>o.upTxt,'完成日':o=>o.doneTxt,'收款日':o=>o.paidTxt};
   function upd(o,set,msg,links,noUndo){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;// 先改畫面，再存（可以復原）
     const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
     const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
+    if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
     Object.keys(set).forEach(k=>{const f={'類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期')o.dueTxt=set[k];if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
     return write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo)}
+  // 案子完成／取消：月曆上這個案子還沒劃線的卡片，問要一起劃掉還是刪掉
+  const nz=t=>String(t).toUpperCase().replace(/[\s｜|.．・·\-–—:：()（）【】]/g,'');
+  function calMatch(text,title){const a=nz(String(text).replace(STAGE_TAIL,'')),b=nz(String(title).replace(/^業配｜/,''));if(a.length<3||b.length<3)return false;
+    const code=(String(title).match(/[A-Za-z]{1,5}\s?\.?\s?\d{1,4}/)||[])[0];if(code&&!nz(text).includes(nz(code)))return false;return a.includes(b)||b.includes(a)}
+  async function tidyCal(o){const hits=[];Object.keys(M).forEach(k=>{const mm=M[k];if(!mm||!mm.days)return;const [y,m]=k.split('-').map(Number);Object.keys(mm.days).forEach(d=>{mm.days[d].forEach((it,i)=>{if(!it.done&&!it.span&&!it.virtual&&calMatch(it.text,o.title))hits.push({o:{y,m,d:+d},i,text:it.text})})})});
+    if(!hits.length)return;const k=await choose(`「${o.title}」月曆上還有 ${hits.length} 張沒劃線的卡片（${hits.map(h=>h.o.m+'/'+h.o.d).join('、')}）`,[['done','全部劃線（當作做完）'],['del','全部刪掉'],['keep','不用，留著']]);
+    if(k!=='done'&&k!=='del')return;const g={};hits.forEach(h=>{const kk=keyOf(h.o);(g[kk]=g[kk]||{o:h.o,ids:[]}).ids.push(h.i)});
+    const list=Object.values(g).map(x=>{let items=clone(dayItems(x.o));if(k==='done')x.ids.forEach(i=>{if(items[i])items[i].done=true});else items=items.filter((_,i)=>!x.ids.includes(i));return {o:x.o,items}});
+    save(list);toast(k==='done'?`已把 ${hits.length} 張卡片劃線`:`已刪掉 ${hits.length} 張卡片`)}
   // ---------- 時程 ----------
   function parseSched(text,ref){const out={sub:'',steps:[],notes:[]};if(!String(text||'').trim())return null;const y=(ref||today0()).getFullYear();
     String(text).split('\n').forEach(l0=>{let l=l0.trim();if(!l)return;const ok=/\s?✓$/.test(l);l=l.replace(/\s?✓$/,'');const m=l.match(/(\d{1,2})\/(\d{1,2})/);
@@ -1601,7 +1635,7 @@ var CS=(()=>{
     const f=(lab,k,v)=>`<span>${lab}</span><div class="ed" data-df="${k}">${esc(v)||'<span class="mu">—</span>'}</div>`;
     d.innerHTML=`<div class="dhd"><h3 class="ed" data-df="專案">${esc(o.title)}</h3><span class="x" data-x>✕</span></div><div class="sub"><i class="dot" style="background:${srcColor(o.src)}"></i> ${esc(o.src)}・${esc(o.client)}・${esc(o.mlabel)} 進來</div>
      <div class="fl">${f('案源','案源',o.src)}${f('客戶','客戶',o.client)}<span>類型</span><div><span class="tagx" data-kind style="cursor:pointer">${esc(o.kind)} ▾</span></div>${f('報價','報價',o.amt?fmt(o.amt):'')}<span>進度</span><div><span class="st ${ST[o.st]||'s-none'}" data-stp="${o.id}">${esc(o.st||'未開始')}</span></div>${f('交期','交期',dueOf(o))}${f('上片日','上片日',upOf(o))}${f('完成日','完成日',o.doneTxt)}${f('收款日','收款日',o.paidTxt)}${f('檔案','檔案',o.file)}${f('備註','備註',o.memo)}${f('我的備註','我的備註',o.mynote)}</div>
-     <div class="h4">連結</div><div class="lkl">${o.links.map((x,i)=>`<div class="row"><span class="tag ed" data-ll="${i}">${esc(x.l)}</span><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,''))}</a><span class="x" data-ld="${i}" title="移除">✕</span></div>`).join('')}<div class="add" data-ladd>＋ 貼上連結</div></div>
+     <div class="h4">連結</div><div class="lkl">${o.links.map((x,i)=>`<div class="row"><span class="tag ed" data-ll="${i}">${esc(x.l)}</span><a class="u" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,''))}</a><span class="lcp" data-lcp="${i}" title="複製這個連結，貼到別的案子">複製</span><span class="x" data-ld="${i}" title="移除">✕</span></div>`).join('')}<div class="add" data-ladd>＋ 新增連結</div></div>
      <div class="h4" style="margin-top:14px">時程${o.sch?'<span class="mu" style="font-weight:400;font-size:12px">　點一下＝這步完成</span>':''}</div>${o.sch&&o.sch.sub?`<div class="mu" style="font-size:12px">${esc(o.sch.sub)}</div>`:''}
      ${o.sch?`<div class="tl">${o.sch.steps.map((s,j)=>`<div class="stg ${s.kind==='me'?'me':''} ${s.ok?'ok':''} ${n&&s===n?'now':''}" data-s="${j}"><span class="d">${md(s.d)}</span><span class="t">${esc(s.t)}</span>${s.kind==='me'?'<span class="tg me">你要交</span>':s.kind==='up'?'<span class="tg up">上片</span>':''}</div>`).join('')}</div>`:''}
      ${o.sch&&o.sch.notes.length?`<div class="flag">⚑ ${esc(o.sch.notes.join('・'))}</div>`:''}<textarea class="paste" data-sch placeholder="📋 貼上客戶給的排程（整段），自動拆成時程${o.sch?'；會取代現在的':''}"></textarea>
@@ -1612,14 +1646,32 @@ var CS=(()=>{
     d.querySelectorAll('[data-df]').forEach(e=>e.ondblclick=()=>inlineEdit(e,o,e.dataset.df));
     d.querySelectorAll('[data-kind]').forEach(e=>e.onclick=()=>{const K=['Podcast 完整版','Podcast 精選','短影音','業配','長片','其他'];const m=pop(e,K.map(k=>`<div class="it" data-k="${k}">${k}${k===o.kind?'<em>✓</em>':''}</div>`).join(''));m.onclick=ev=>{const x=ev.target.closest('[data-k]');if(!x)return;m.remove();if(x.dataset.k!==o.kind){o.kind=x.dataset.k;upd(o,{'類型':x.dataset.k},'類型改成「'+x.dataset.k+'」（對帳單會照這個分）')}}});
     d.querySelectorAll('[data-ld]').forEach(e=>e.onclick=()=>{const l=o.links.slice();l.splice(+e.dataset.ld,1);upd(o,{},'已移除連結',l)});
-    d.querySelectorAll('[data-ll]').forEach(e=>e.ondblclick=()=>{const v=prompt('連結名稱',o.links[+e.dataset.ll].l);if(v&&v.trim()){const l=o.links.map(x=>({...x}));l[+e.dataset.ll].l=v.trim();upd(o,{},'已改名',l)}});
+    d.querySelectorAll('[data-ll]').forEach(e=>e.onclick=()=>linkForm(o,+e.dataset.ll));
+    d.querySelectorAll('[data-lcp]').forEach(e=>e.onclick=()=>{LCLIP={...o.links[+e.dataset.lcp]};try{navigator.clipboard.writeText(LCLIP.url)}catch(x){}toast(`已複製「${LCLIP.l}」，到別的案子按「新增連結」就能一鍵貼上`)});
     d.querySelector('[data-ladd]').onclick=()=>addLink(o);
     const ta=d.querySelector('[data-sch]');ta.onpaste=()=>setTimeout(()=>{const v=ta.value.trim();if(!v)return;const p=parseSched(v,o.intake);if(!p||!p.steps.length){toast('看不出日期，請確認排程裡有 11/23 這種日期');return}const set={'時程':v};const nx=p.steps.find(s=>s.kind==='me');if(nx)set['交期']=md(nx.d);upd(o,set,`已拆成 ${p.steps.length} 步${nx?'，交期改成 '+md(nx.d):''}`)},0);
     d.querySelector('[data-del]').onclick=()=>delCase(o)}
   async function delCase(o){if(await choose(`刪除「${o.title}」？`,[['y','刪除（可以復原）']])!=='y')return;OPEN=null;drawer();SEL.delete(o.id);const tr=document.querySelector(`tr.r[data-id="${o.id}"]`);if(tr){tr.animate([{opacity:1},{opacity:0,transform:'translateX(-12px)'}],{duration:220,easing:'ease-in',fill:'forwards'});await new Promise(f=>setTimeout(f,230))}ROWS=ROWS.filter(r=>r!==o);rerender();
     write('caseDelete',{tab:o.tab,id:o.id},'已刪除',()=>write('caseRestore',{id:o.id},'已復原')).catch(()=>{})}
   const LBL=url=>/drive\.google\.com\/drive\/folders/.test(url)?'資料夾':/drive\.google\.com|docs\.google/.test(url)?'雲端檔案':/frame\.io/.test(url)?'Frame.io':/youtu/.test(url)?'YouTube':/dropbox/.test(url)?'Dropbox':'連結';
-  function addLink(o){const url=prompt('貼上網址');if(!url||!/^https?:\/\//.test(url.trim()))return;const l=prompt('名稱（例：素材、腳本、Acopy）',o.links.length?LBL(url):'素材');if(!l)return;upd(o,{},'已加連結',o.links.concat([{l:l.trim(),url:url.trim()}]))}
+  // 新增／修改連結：名稱和網址在同一個視窗；貼上網址會自動建議名稱
+  let LCLIP=null;
+  function linkForm(o,idx,multi){const ed=idx!=null?o.links[idx]:null;const ov=document.createElement('div');ov.className='csov';
+    const sug=['素材','腳本','Acopy','Bcopy','成片','字卡','品牌回饋','逐字稿'];
+    ov.innerHTML=`<div class="csdlg" style="width:460px"><div class="dh">${ed?'修改連結':'新增連結'}<span class="sp"></span><span data-x class="x">✕</span></div>
+      ${LCLIP&&!ed?`<div class="lclip" data-clip>貼上剛複製的：<b>${esc(LCLIP.l)}</b><span class="mu">${esc(LCLIP.url.replace(/^https?:\/\//,'').slice(0,40))}</span></div>`:''}${multi?`<div class="mu" style="font-size:12.5px;margin-bottom:8px">會加到選取的 ${multi.length} 個案子</div>`:''}
+      <div class="frm lf"><label>網址<input data-k="url" value="${esc(ed?ed.url:'')}" placeholder="貼上雲端／Frame.io／YouTube 網址"></label>
+      <label>名稱<input data-k="l" value="${esc(ed?ed.l:'')}" placeholder="例：素材、腳本、Acopy"></label>
+      <div class="lsug">${sug.map(x=>`<span class="ncc" data-s="${x}">${x}</span>`).join('')}</div></div>
+      <div class="df">${ed?'<button class="btn2" data-del style="color:#B5584E">移除這個連結</button>':''}<span class="sp"></span><button class="btn2 dk" data-ok>${ed?'儲存':'加上'}</button></div></div>`;
+    document.body.appendChild(ov);const u=ov.querySelector('[data-k="url"]'),l=ov.querySelector('[data-k="l"]');(ed?l:u).focus();
+    const auto=()=>{if(!l.value.trim()&&/^https?:\/\//.test(u.value.trim()))l.value=o.links.length||ed?LBL(u.value.trim()):'素材'};u.oninput=auto;u.onpaste=()=>setTimeout(()=>{auto();l.focus();l.select()},0);
+    ov.querySelectorAll('[data-s]').forEach(c=>c.onclick=()=>{l.value=c.dataset.s;l.focus()});const cb=ov.querySelector('[data-clip]');if(cb)cb.onclick=()=>{u.value=LCLIP.url;l.value=LCLIP.l;l.focus();l.select()};
+    const close=()=>ov.remove();ov.querySelector('[data-x]').onclick=close;ov.onclick=e=>{if(e.target===ov)close()};
+    const ok=()=>{const url=u.value.trim(),nm=l.value.trim()||LBL(url);if(!/^https?:\/\//.test(url)){toast('網址要是 http 開頭的連結');u.focus();return}if(multi){close();multi.forEach((r,i)=>{if(r.links.some(x=>x.url===url))return;upd(r,{},i===multi.length-1?`已把「${nm}」加到 ${multi.length} 個案子`:null,r.links.concat([{l:nm,url}]),true)});return}const ls=o.links.map(x=>({...x}));if(ed)ls[idx]={l:nm,url};else ls.push({l:nm,url});close();upd(o,{},ed?'已更新連結':'已加連結',ls)};
+    ov.querySelector('[data-ok]').onclick=ok;[u,l].forEach(i=>i.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'&&!e.isComposing){e.preventDefault();ok()}if(e.key==='Escape')close()});
+    const dl=ov.querySelector('[data-del]');if(dl)dl.onclick=()=>{const ls=o.links.slice();ls.splice(idx,1);close();upd(o,{},'已移除連結',ls)}}
+  function addLink(o){linkForm(o,null)}
   // ---------- 小選單、直接編輯 ----------
   const closeMenus=()=>document.querySelectorAll('.cspm').forEach(x=>x.remove());
   // 選單放不下：往上開；上下都放不下就限制高度、可以捲
@@ -1659,42 +1711,47 @@ var CS=(()=>{
     const ov=document.createElement('div');ov.className='csov csnc';ov.innerHTML=`<div class="csdlg" style="width:580px"><div class="dh">新增案子<span class="mu" style="font-weight:400;font-size:12.5px;margin-left:8px">${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()} 進來</span><span class="sp"></span><span data-x class="x">✕</span></div><div class="ncb">
      ${row('案源',srcList().map(k=>chip(NC.src===k,`data-src="${esc(k)}"`,k,srcColor(k))).join('')+inp('srcNew','或輸入新案源','150px'))}
      ${row('客戶',cls(NC.src).slice(0,8).map(c=>chip(NC.client===c,`data-cl="${esc(c)}"`,c)).join('')+inp('client','或輸入新客戶','170px'))}
-     ${row('專案',(tp.length?`<div style="margin-bottom:6px">${tp.map(x=>`<span class="ncc tp" data-tp="${esc(x)}">${esc(x)}…</span>`).join('')}</div>`:'')+inp('title','專案名稱（點上面的快速開頭會自動接著編號）'))}
+     ${row('專案',(tp.length?`<div style="margin-bottom:6px">${tp.map(x=>`<span class="ncc tp" data-tp="${esc(x)}">${esc(x)}…</span>`).join('')}</div>`:'')+`<textarea data-k="title" class="ttl" rows="${Math.min(6,Math.max(1,NC.title.split('\n').length))}" placeholder="專案名稱（點上面的快速開頭會自動接著編號）">${esc(NC.title)}</textarea>`+`<div class="mu nchint">${NC.title.split('\n').filter(x=>x.trim()).length>1?`會一次新增 <b>${NC.title.split('\n').filter(x=>x.trim()).length}</b> 件（每一行一件，其他欄位都一樣）`:'Enter＝新增並繼續下一筆　Shift＋Enter＝換行（一次貼好幾行＝新增好幾件）'}</div>`)}
      ${row('報價',inp('amt',sug?'建議 '+sug:'金額','140px')+(sug&&!NC.amt?`<span class="mu" style="font-size:12.5px;margin-left:8px">同類型最常見 ${fmt(sug)}，${DESK?'按 Tab 帶入':'點一下帶入'}</span>`:''))}
      ${row('交期',dd.map(([x,n])=>{const v=md(new Date(+t+n*864e5));return chip(NC.due===v,`data-due="${v}"`,`${x} ${v}`)}).join('')+inp('due','或輸入 11/28','110px'))}
      ${row('連結',inp('link','貼上雲端／Frame.io 網址（可之後再加）'))}
      ${row('時程',`<textarea data-k="sch" placeholder="選填：把客戶給的排程整段貼進來，自動拆成時程、交期跟著走">${esc(NC.sch??'')}</textarea>`)}
-     </div><div class="df"><span class="mu" style="font-size:12px">新增後會出現在${DESK?'月曆右邊的':''}「待排」</span><span class="sp"></span><span class="mu kbdh" style="font-size:12px">⌘Enter</span><button class="btn2 dk" data-ok ${NC.title.trim()?'':'disabled'}>新增</button></div></div>`;
+     </div><div class="df"><span class="mu" style="font-size:12px">新增後會出現在${DESK?'月曆右邊的':''}「待排」</span><span class="sp"></span><button class="btn2" data-okc ${NC.title.trim()?'':'disabled'}>新增並繼續</button><button class="btn2 dk" data-ok ${NC.title.trim()?'':'disabled'}>${NC.title.split('\n').filter(x=>x.trim()).length>1?'新增 '+NC.title.split('\n').filter(x=>x.trim()).length+' 件':'新增'}</button></div></div>`;
     document.body.appendChild(ov);
     ov.onclick=e=>{if(e.target===ov){NC=null;drawNC()}};ov.querySelector('[data-x]').onclick=()=>{NC=null;drawNC()};
     ov.querySelectorAll('[data-src]').forEach(b=>b.onclick=()=>{NC.src=b.dataset.src;NC.srcNew='';const c=cls(NC.src);NC.client=c.length===1?c[0]:'';NC.title='';drawNC('title')});
     ov.querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{NC.client=b.dataset.cl;drawNC('title')});
     ov.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{NC.title=b.dataset.tp;drawNC('title')});
     ov.querySelectorAll('[data-due]').forEach(b=>b.onclick=()=>{NC.due=b.dataset.due;drawNC()});
-    const add=()=>{if(!NC.title.trim())return;const src=(NC.srcNew||'').trim()||NC.src,sch=NC.sch.trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
-      const set={'案源':src,'客戶':NC.client.trim()||src,'專案':NC.title.trim(),'報價':String(NC.amt||PRICE(NC.title)||''),'交期':NC.due||(nx?md(nx.d):''),'時程':sch};
-      const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null;const ti=NC.title.trim(),isNewSrc=!srcList().includes(src);NC=null;drawNC();
-      FX.newTitle=null;write('caseAdd',{intake:(()=>{const t=today0();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')})(),set,links},`已新增「${ti}」，在待排等你排`).then(r=>{if(r&&r.id){FX.flash=r.id;rerender()}syncNow(true);if(isNewSrc)cliForm(null)}).catch(()=>{})};
-    ov.querySelector('[data-ok]').onclick=add;
-    ov.querySelectorAll('[data-k]').forEach(i=>{i.oninput=()=>{NC[i.dataset.k]=i.value;const ok=ov.querySelector('[data-ok]');ok.disabled=!NC.title.trim()};i.onblur=()=>{if(i.dataset.k==='title'&&document.querySelector('.csnc'))setTimeout(()=>{if(NC&&!ov.contains(document.activeElement))drawNC()},120)};
+    const add=keep=>{const lines=NC.title.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)return;const src=(NC.srcNew||'').trim()||NC.src,sch=NC.sch.trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
+      const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcList().includes(src),client=NC.client.trim()||src,due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
+      lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
+        const dueD=due?(()=>{const m=due.match(/(\d{1,2})\/(\d{1,2})/);return m?new Date(t0.getFullYear(),+m[1]-1,+m[2]):null})():null;
+        const o={tab:String(t0.getFullYear()),r:0,id:tmp,intake:t0,mkey:ym(t0),mlabel:t0.getFullYear()+'/'+(t0.getMonth()+1),src,client,title:ti,amt:Number(set['報價'])||0,st:'',links:links?links.map(x=>({...x})):[],due:dueD,dueTxt:due,done:null,doneTxt:'',paid:null,paidTxt:'',file:'',memo:'',mynote:'',up:null,upTxt:'',schText:sch,kind:kindOf(ti)};o.sch=parseSched(sch,t0);ROWS.push(o);FX.flash=tmp;
+        const last=ix===lines.length-1;write('caseAdd',{intake:iso,set,links},last?(lines.length>1?`已新增 ${lines.length} 件，在待排等你排`:`已新增「${ti}」，在待排等你排`):null,null,tmp).then(()=>{if(last){syncNow(true);if(isNewSrc&&!keep)cliForm(null)}}).catch(()=>{ROWS=ROWS.filter(x=>x!==o);rerender()})});
+      if(keep){// 繼續下一筆：保留案源、客戶、交期；專案換成下一個編號的開頭
+        const prev=lines[lines.length-1],fam=prev.match(/^(\D*?)(\d+)/),nt=fam?templates(src,client).find(t=>t.startsWith(fam[1])):null;NC={...NC,src,srcNew:'',client,title:nt||'',amt:'',link:'',sch:''};rerender();drawNC('title')}
+      else{NC=null;drawNC();rerender()}};
+    ov.querySelector('[data-ok]').onclick=()=>add(false);ov.querySelector('[data-okc]').onclick=()=>add(true);
+    ov.querySelectorAll('[data-k]').forEach(i=>{i.oninput=()=>{NC[i.dataset.k]=i.value;const ok=ov.querySelector('[data-ok]'),okc=ov.querySelector('[data-okc]');ok.disabled=okc.disabled=!NC.title.trim();if(i.dataset.k==='title'){const n=NC.title.split('\n').filter(x=>x.trim()).length;i.rows=Math.min(6,Math.max(1,NC.title.split('\n').length));ok.textContent=n>1?'新增 '+n+' 件':'新增';const h=ov.querySelector('.nchint');if(h)h.innerHTML=n>1?`會一次新增 <b>${n}</b> 件（每一行一件，其他欄位都一樣）`:'Enter＝新增並繼續下一筆　Shift＋Enter＝換行（一次貼好幾行＝新增好幾件）'}};i.onblur=()=>{if(i.dataset.k==='title'&&document.querySelector('.csnc'))setTimeout(()=>{if(NC&&!ov.contains(document.activeElement))drawNC()},120)};
       if(i.dataset.k==='amt'&&!DESK)i.onfocus=()=>{if(!i.value&&sug){NC.amt=String(sug);i.value=NC.amt}};
-      i.onkeydown=e=>{e.stopPropagation();if(e.key==='Tab'&&i.dataset.k==='amt'&&!i.value&&sug){e.preventDefault();NC.amt=String(sug);drawNC()}if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))add();if(e.key==='Escape'){NC=null;drawNC()}}});
+      i.onkeydown=e=>{e.stopPropagation();if(e.key==='Tab'&&i.dataset.k==='amt'&&!i.value&&sug){e.preventDefault();NC.amt=String(sug);drawNC()}if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();add(false)}else if(e.key==='Enter'&&i.dataset.k==='title'&&!e.shiftKey&&!e.isComposing&&DESK){e.preventDefault();if(NC.title.trim())add(true)}if(e.key==='Escape'){NC=null;drawNC()}}});
     const fi=ov.querySelector(`[data-k="${focus||'title'}"]`);if(fi){fi.focus();fi.setSelectionRange(fi.value.length,fi.value.length)}}
   // ---------- 頁面 ----------
   const help=()=>`<div class="cshelp"><h5>選取</h5><div class="kr">點一下<span>選取</span></div><div class="kr"><kbd>Enter</kbd>／右鍵／列尾「詳細 ›」<span>打開／關掉案子詳細</span></div><div class="kr"><kbd>Shift</kbd>＋點<span>一筆一筆加選／取消</span></div><div class="kr"><kbd>Shift</kbd>＋按住往下拖<span>一次選一段（看金額合計）</span></div>
     <h5>編輯</h5><div class="kr">快速點兩下某一格<span>直接改那格</span></div><div class="kr">點進度膠囊<span>換進度</span></div><div class="kr">點連結<span>打開／新增連結</span></div><div class="kr">右鍵<span>打開、刪除</span></div>
     <h5>鍵盤</h5><div class="kr"><kbd>↑</kbd> <kbd>↓</kbd><span>換選取的案子（詳細打開時直接換）</span></div><div class="kr">改格子時 <kbd>Tab</kbd><span>跳到下一格</span></div><div class="kr"><kbd>N</kbd><span>新增案子</span></div><div class="kr"><kbd>/</kbd><span>搜尋</span></div><div class="kr"><kbd>⌘Z</kbd><span>復原</span></div><div class="kr"><kbd>Esc</kbd><span>取消選取／關掉詳細</span></div></div>`;
-  function tools(){return `<div class="ptools"><input class="psrch" id="csQ" placeholder="搜尋客戶、專案、備註…" value="${esc(Q)}"><span class="pq ${HELP?'on':''}" id="csHelp">?${HELP?help():''}</span><button class="dk-add" id="csNew"><i class="ti ti-plus"></i>新增案子</button></div>`}
+  function tools(){return `<div class="ptools"><span class="cssave" id="csSave"></span><input class="psrch" id="csQ" placeholder="搜尋客戶、專案、備註…" value="${esc(Q)}"><span class="pq ${HELP?'on':''}" id="csHelp">?${HELP?help():''}</span><button class="dk-add" id="csNew"><i class="ti ti-plus"></i>新增案子</button></div>`}
   function page(p){return p==='case'?casePage():p==='cli'?cliPage():p==='set'?settlePage():p==='fx'?fxPage():''}
   const SPLIT_COLS=[['client','客戶'],['title','專案'],['amt','報價'],['st','進度'],['due','交期']];
   function splitPanel(){return `<div class="cs-split">${filterRow()}${casePage(SPLIT_COLS,true)}</div>`}
   function sumBar(){let s=$('#csSum');if(!s){s=document.createElement('div');s.id='csSum';s.className='cssum hide';document.body.appendChild(s)}const l=[...SEL].map(byId).filter(Boolean),t=l.reduce((a,b)=>a+b.amt,0);
-    s.className='cssum'+(l.length>1&&MULTI&&PAGE!=='cal'?'':' hide');s.innerHTML=`<span>已選 <b>${l.length}</b> 件</span><span><small>合計</small> <b>${fmt(t)}</b></span><span><small>已完成</small> ${fmt(l.filter(r=>/^完成/.test(r.st)).reduce((a,b)=>a+b.amt,0))}</span><button data-c>複製金額</button><button data-x>✕</button>`;
-    s.querySelector('[data-c]').onclick=()=>{try{navigator.clipboard.writeText(String(t))}catch(e){}toast('已複製 '+t)};s.querySelector('[data-x]').onclick=()=>{SEL.clear();MULTI=false;rerender()}}
+    s.className='cssum'+(l.length>1&&MULTI&&PAGE!=='cal'?'':' hide');s.innerHTML=`<span>已選 <b>${l.length}</b> 件</span><span><small>合計</small> <b>${fmt(t)}</b></span><span><small>已完成</small> ${fmt(l.filter(r=>/^完成/.test(r.st)).reduce((a,b)=>a+b.amt,0))}</span><button data-c>複製金額</button><button data-lk2>加同一個連結</button><button data-x>✕</button>`;
+    s.querySelector('[data-c]').onclick=()=>{try{navigator.clipboard.writeText(String(t))}catch(e){}toast('已複製 '+t)};s.querySelector('[data-x]').onclick=()=>{SEL.clear();MULTI=false;rerender()};s.querySelector('[data-lk2]').onclick=()=>{const l=[...SEL].map(byId).filter(Boolean);if(l.length)linkForm(l[0],null,l)}}
   // 月曆並排：點案子 → 月曆上同一個案子的卡片標藍
   function highlight(){document.querySelectorAll('#desk .k.cshl').forEach(k=>k.classList.remove('cshl'));if(PAGE!=='split')return;const sel=[...SEL].map(byId).filter(Boolean);if(!sel.length)return;
     document.querySelectorAll('#desk .dk-main .k[data-i]').forEach(k=>{const it=dayItems(parseK(k.dataset.k))[+k.dataset.i];if(!it)return;const c=caseOf(it.text);if(c&&sel.some(o=>o.title.trim()===String(c.title).trim()))k.classList.add('cshl')})}
-  function bind(root){
+  function bind(root){cqPill();
     root.querySelectorAll('[data-fs]').forEach(c=>c.onclick=()=>{FS=c.dataset.fs;rerender()});
     root.querySelectorAll('[data-hidecol]').forEach(c=>c.oncontextmenu=ev=>{ev.preventDefault();const m=pop(c,'<div class="it" data-h>隱藏「上片日、完成日」</div>');m.style.left=Math.min(ev.clientX,innerWidth-m.offsetWidth-8)+'px';m.style.top=(ev.clientY+4)+'px';m.style.maxHeight='';m.style.overflowY='';fitMenu(m,{top:ev.clientY,bottom:ev.clientY});m.querySelector('[data-h]').onclick=()=>{m.remove();FOLD=true;try{localStorage.setItem('csFold','1')}catch(e){}rerender()}});
     root.querySelectorAll('[data-fold]').forEach(c=>c.onclick=ev=>{ev.stopPropagation();FOLD=!FOLD;try{localStorage.setItem('csFold',FOLD?'1':'0')}catch(e){}rerender();if(!FOLD)document.querySelectorAll('#desk th.foldable,#desk td[data-f="上片日"],#desk td[data-f="完成日"]').forEach(x=>x.animate([{opacity:0},{opacity:1}],{duration:260}))});
@@ -1752,7 +1809,12 @@ var CS=(()=>{
     if((k==='Delete'||k==='Backspace')&&PAGE!=='cal'&&PAGE!=='split'){const o=SEL.size===1?byId([...SEL][0]):null;if(o){ev.preventDefault();delCase(o)}return true}
     return PAGE!=='cal'&&PAGE!=='split'}
   const busy=()=>!!NC||!!document.querySelector('.csov,td.ing,.csdrw .ing')||DRAG;
-  return {load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
+  function searchInto(el,q){if(!el)return;const Q0=Q;Q=q||'';setTimeout(()=>{Q=Q0},0);if(!q||!D){el.innerHTML='';return}const ql=q.toLowerCase();
+    const l=ROWS.filter(r=>(r.title+' '+r.client+' '+r.src+' '+r.memo+' '+r.mynote).toLowerCase().includes(ql)).sort((a,b)=>(closed(a)-closed(b))||((b.intake||0)-(a.intake||0))).slice(0,8);
+    el.innerHTML=l.length?'<div class="srh">案件</div>'+l.map(r=>`<div class="res csres" data-cid="${r.id}"><span class="dt">${esc(r.mlabel.replace(/^\d{4}\//,''))} 月</span><span class="t">${hl(r.title)}<small>　${esc(r.client)}</small></span><span class="st ${ST[r.st]||'s-none'}" style="cursor:pointer">${esc(r.st||'未開始')}</span></div>`).join(''):'';
+    el.querySelectorAll('[data-cid]').forEach(x=>x.onclick=()=>{$('#ovl').innerHTML='';openCase(x.dataset.cid)})}
+  function openCase(id){const o=byId(id);if(!o)return;PAGE='case';try{localStorage.setItem('deskPage','case')}catch(e){}FS='全部';Q='';if(closed(o)){COL['已結案']=false;MCOL[o.mkey]=false}SEL=new Set([id]);OPEN=id;FX.flash=id;renderDesk();drawer()}
+  return {searchInto,openCase,load,page,tools,bind,splitPanel,key,busy,newCase,drawer,rows:()=>ROWS,has:()=>!!D,highlight,cardsFx:()=>{FX.cards=true}};
 })();
 
 $('#fab').onclick=()=>{haptic();openEdit(-1)};
@@ -1764,7 +1826,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261113103839';
+const VER=/*VER*/'20261113111239';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
 // 電腦視窗常常一直開著：點回 App 視窗時同步，開著時每 1 分鐘也悄悄同步一次（手機改的會自己跑過來）
