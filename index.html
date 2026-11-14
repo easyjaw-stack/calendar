@@ -476,7 +476,7 @@ td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;fo
 .cssum.hide{opacity:0;transform:translate(-50%,12px);pointer-events:none}.cssum b{font-size:18px;font-variant-numeric:tabular-nums}.cssum small{color:#C9C7C0}.cssum button{font:inherit;font-size:12px;background:#3A3A38;color:#fff;border:0;border-radius:8px;padding:5px 10px;cursor:pointer}
 .csdrw{position:fixed;top:0;right:0;bottom:0;width:440px;background:#fff;box-shadow:-10px 0 40px rgba(0,0,0,.12);padding:22px 24px 40px;overflow:auto;transform:translateX(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:60;font-size:13.5px}
 .csdrw.on{transform:none}.csdrw .dhd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.csdrw h3{margin:0 0 4px;font-size:17px}.csdrw .sub{color:#9B9993;font-size:12.5px;margin-bottom:16px}.csdrw .x,.csdlg .x{cursor:pointer;color:#9B9993;font-size:15px}
-.csdrw .fl,.det .fl{display:grid;grid-template-columns:72px 1fr;gap:10px 12px;margin-bottom:18px}.csdrw .fl>span,.det .fl>span{color:#9B9993}.csdrw .ed{cursor:text;border-radius:6px;min-height:20px}.csdrw .ed:hover{background:#FAFAF8}
+.csdrw .fl,.det .fl{display:grid;grid-template-columns:72px 1fr;gap:10px 12px;margin-bottom:18px}.csdrw .fl>span,.det .fl>span{color:#9B9993}.csdrw .ed{cursor:text;border-radius:6px;min-height:20px;margin:-2px -6px;padding:2px 6px;transition:background .12s}.csdrw .ed:hover{background:#FAFAF8}
 .csdrw .h4{font-weight:600;font-size:14px;margin:4px 0 6px}
 .lkl .row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F4F3F0;font-size:13px}.lkl .tag{font-size:11.5px;background:#EEF2F6;color:#2E4466;border-radius:6px;padding:1px 7px;cursor:text}.lkl .u{color:#6b6a66;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-decoration:none}.lkl .u:hover{color:#2E4466}.lkl .add{color:#6b6a66;font-size:13px;padding:8px 0;cursor:pointer}
 .tl{position:relative;margin:8px 0 12px 6px;padding-left:20px;border-left:2px solid #ECEAE5}
@@ -1508,9 +1508,12 @@ var CS=(()=>{
     o.sch=parseSched(o.schText,intake||today0());ROWS.push(o)})})}
   build();
   let WGEN=0;  // 每次改動 +1：讀取途中有新的改動，就不要用那份舊資料蓋掉畫面
-  function load(quiet){if(CQ.length){runCQ();return Promise.resolve()}if(LOADING)return LOADING;const g0=WGEN;LOADING=call('cases',{}).then(r=>{if(g0!==WGEN||CQ.length)return;D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build();if(!busy())rerender();autoReminders()}).catch(e=>{if(!quiet)toast('案件讀取失敗：'+(e.message||e))}).finally(()=>{LOADING=null});return LOADING}
+  function load(quiet){if(CQ.length){runCQ();return Promise.resolve()}if(LOADING)return LOADING;const g0=WGEN;LOADING=call('cases',{}).then(r=>{if(g0!==WGEN||CQ.length)return;D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build();softRender();autoReminders()}).catch(e=>{if(!quiet)toast('案件讀取失敗：'+(e.message||e))}).finally(()=>{LOADING=null});return LOADING}
   function absorb(r){if(r&&r.tabs){D=r;try{localStorage.setItem('casecache',JSON.stringify(r))}catch(e){}build()}}
   const rerender=()=>{if(DESK&&PAGE!=='cal')renderDesk()};
+  // 背景讀回來的資料：你正在點（剛按下滑鼠 1.2 秒內、或滑鼠還按著）就晚一點再重畫，免得點兩下時畫面被換掉、點不到
+  let LASTPTR=0,PTRDOWN=false,SRT=null;document.addEventListener('mousedown',()=>{LASTPTR=Date.now();PTRDOWN=true},true);document.addEventListener('mouseup',()=>{PTRDOWN=false},true);
+  const softRender=()=>{clearTimeout(SRT);if(busy()||PTRDOWN||Date.now()-LASTPTR<1200){SRT=setTimeout(softRender,600);return}rerender()};
   // 存檔佇列：畫面先改好；改動一件一件依序送出（不會互相蓋掉）；全部送完才用伺服器的最新資料更新畫面
   // 網路斷了或逾時 → 先存在這台電腦，連上後自動補送
   let CQ=[];try{CQ=JSON.parse(localStorage.getItem('caseq')||'[]')||[]}catch(e){CQ=[]}
@@ -1527,7 +1530,7 @@ var CS=(()=>{
       catch(e){if(/Failed to fetch|逾時|忙碌|network|load failed/i.test((e&&e.message)||'')){if(!CQWARN){CQWARN=true;toast('網路不穩，改動先存在這台電腦，連上後會自動補送')}CQT=setTimeout(runCQ,CQWAIT);CQWAIT=Math.min(CQWAIT*2,60000);break}
         CQ.shift();cqPut();const w=WAIT[op.id];if(w){w.rej(e);delete WAIT[op.id]}toast('沒存成功：'+((e&&e.message)||e));CQERR=true}
       cqPill()}
-    if(!CQ.length){if(CQERR){CQERR=false;CQRUN=null;await load(true)}else if(last&&last.tabs){absorb(last);if(!busy())rerender()}else if(lite){CQRUN=null;await load(true)}}})().finally(()=>{CQRUN=null;cqPill()});}
+    if(!CQ.length){if(CQERR){CQERR=false;CQRUN=null;await load(true)}else if(last&&last.tabs){absorb(last);softRender()}else if(lite){CQRUN=null;await load(true)}}})().finally(()=>{CQRUN=null;cqPill()});}
   function cqPill(){const el=$('#csSave');if(!el)return;el.textContent=CQ.length?(CQWARN?`未同步 ${CQ.length} 筆・點我重送`:'儲存中…'):'';el.classList.toggle('warn',CQWARN&&CQ.length>0);el.onclick=()=>{CQWAIT=8000;clearTimeout(CQT);runCQ()}}
   addEventListener('online',()=>{CQWAIT=8000;runCQ()});setTimeout(runCQ,1500);
   // ---------- 雲端檔案（只有 Medicathon 的打包檔、成片放在我的雲端）----------
@@ -1726,7 +1729,7 @@ var CS=(()=>{
     d.querySelectorAll('[data-s]').forEach(e=>e.onclick=()=>toggleStep(o,+e.dataset.s));
     const sed=d.querySelector('[data-sedit]');if(sed)sed.onclick=()=>schEdit(o,d);
     d.querySelectorAll('[data-stp]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();stMenu(e,o)});
-    d.querySelectorAll('[data-df]').forEach(e=>e.ondblclick=()=>inlineEdit(e,o,e.dataset.df));
+    d.querySelectorAll('[data-df]').forEach(e=>e.onclick=()=>inlineEdit(e,o,e.dataset.df));  // 面板裡點一下就能改
     d.querySelectorAll('[data-fpick]').forEach(e=>e.onclick=()=>{const m=pop(e,['',...FILE_ST].map(k=>`<div class="it" data-k="${k}"><span class="st ${FILE_CLS[k]||'s-none'}">${k||'未設定'}</span>${k===o.file?'<em>✓</em>':''}</div>`).join(''));m.onclick=ev=>{const x=ev.target.closest('[data-k]');if(!x)return;m.remove();if(x.dataset.k!==o.file)upd(o,{'檔案':x.dataset.k},'檔案改成「'+(x.dataset.k||'未設定')+'」')}});
     d.querySelectorAll('[data-kind]').forEach(e=>e.onclick=()=>{const K=['Podcast 完整版','Podcast 精選','短影音','業配','長片','其他'];const m=pop(e,K.map(k=>`<div class="it" data-k="${k}">${k}${k===o.kind?'<em>✓</em>':''}</div>`).join(''));m.onclick=ev=>{const x=ev.target.closest('[data-k]');if(!x)return;m.remove();if(x.dataset.k!==o.kind){o.kind=x.dataset.k;upd(o,{'類型':x.dataset.k},'類型改成「'+x.dataset.k+'」（對帳單會照這個分）')}}});
     d.querySelectorAll('[data-ld]').forEach(e=>e.onclick=()=>{const l=o.links.slice();l.splice(+e.dataset.ld,1);upd(o,{},'已移除連結',l)});
@@ -1911,7 +1914,7 @@ var CS=(()=>{
       e.onmousedown=ev=>{if(ev.button!==0||ev.detail>1)return;
         if(ev.shiftKey){ev.preventDefault();setFocusCell(ev.target.closest('td'));if(!MULTI&&!(SEL.size===1&&!SEL.has(id)))SEL=new Set();if(SEL.has(id))SEL.delete(id);else SEL.add(id);LAST=id;DRAG=SEL.has(id);MULTI=true;rerender();return}
         SEL=new Set([id]);LAST=id;MULTI=false;document.querySelectorAll('tr.r.sel').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');setFocusCell(ev.target.closest('td'));sumBar();highlight()};
-      e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk],[data-open]'))return;const td=ev.target.closest('td.ed');if(td){inlineEdit(td,byId(id),td.dataset.f);return}return;document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};
+      e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk],[data-open]'))return;const td=ev.target.closest('td.ed');if(td){inlineEdit(td,byId(id),td.dataset.f);return}OPEN=id;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};  // 點兩下不能改的格子＝打開詳細
       e.oncontextmenu=ev=>{ev.preventDefault();const o=byId(id);const m=pop(e,`<div class="it" data-a="open">打開詳細</div><div class="it" data-a="copy">複製專案名稱</div>${o.links.length?'<div class="it" data-a="link">打開連結</div>':''}<div class="it" data-a="del" style="color:#B5584E">刪除</div>`);m.style.left=Math.min(ev.clientX,innerWidth-m.offsetWidth-8)+'px';m.style.top=(ev.clientY+4)+'px';m.style.maxHeight='';m.style.overflowY='';fitMenu(m,{top:ev.clientY,bottom:ev.clientY});
         m.onclick=x=>{const a=(x.target.closest('[data-a]')||{}).dataset||{};m.remove();if(a.a==='open'){OPEN=id;drawer()}else if(a.a==='copy'){try{navigator.clipboard.writeText(o.title)}catch(e){}toast('已複製')}else if(a.a==='link')lkMenu(e,o);else if(a.a==='del')delCase(o)}};
       e.onmouseenter=ev=>{if(DRAG&&ev.buttons&&ev.shiftKey){SEL.add(id);rerender()}}});
@@ -1927,12 +1930,15 @@ var CS=(()=>{
   document.addEventListener('mousedown',ev=>{if(!OPEN)return;const t=ev.target;if(t.closest('.csdrw,tr.r,.cspm,.csov,.sheet,#toast,.cssum'))return;OPEN=null;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'))});
   function key(ev){const k=ev.key;if(NC&&!document.querySelector('.csnc'))NC=null;if(NC||document.querySelector('.csov')){if(k==='Escape'){NC=null;drawNC();document.querySelectorAll('.csov').forEach(x=>x.remove())}return true}
     if(k==='Escape'){if(OPEN){OPEN=null;drawer();rerender()}else if(SEL.size){SEL.clear();MULTI=false;rerender()}else if(HELP){HELP=false;rerender()}closeMenus();return true}
-    if((k==='n'||k==='N')&&!ev.metaKey&&!ev.ctrlKey&&PAGE!=='cal'){ev.preventDefault();newCase();return true}
+    if((k==='n'||k==='N')&&!ev.metaKey&&!ev.ctrlKey&&PAGE!=='cal'&&!(SEL.size===1&&document.querySelector('#desk td.fc.ed'))){ev.preventDefault();newCase();return true}
     if((k==='ArrowDown'||k==='ArrowUp')&&(PAGE==='case'||(PAGE==='split'&&SEL.size))){const tr=[...document.querySelectorAll('#desk tr.r[data-id]')],ids=tr.map(x=>x.dataset.id);if(!ids.length)return true;ev.preventDefault();
       const cur=OPEN||(SEL.size===1?[...SEL][0]:null);let i=cur?ids.indexOf(cur):-1;i=Math.max(0,Math.min(ids.length-1,i<0?0:i+(k==='ArrowDown'?1:-1)));const id=ids[i];SEL=new Set([id]);MULTI=false;LAST=id;if(OPEN)OPEN=id;
       tr.forEach(x=>x.classList.toggle('sel',x.dataset.id===id));tr.forEach(x=>x.classList.toggle('op',x.dataset.id===OPEN));tr[i].scrollIntoView({block:'nearest',behavior:'smooth'});if(OPEN)drawer();sumBar();highlight();return true}
     if(k==='Enter'&&SEL.size===1&&PAGE!=='cal'){ev.preventDefault();OPEN=OPEN===[...SEL][0]?null:[...SEL][0];drawer();document.querySelectorAll('#desk tr.r[data-id]').forEach(x=>x.classList.toggle('op',x.dataset.id===OPEN));return true}
     if(k==='/'&&PAGE!=='cal'){ev.preventDefault();const q=$('#csQ');if(q)q.focus();return true}
+    // 選到一格後直接打字或按 F2 ＝ 開始改那一格（像 Google 試算表）
+    // 中文輸入法打第一個字時 key 是 Process：先打開輸入框（清空），讓輸入法直接打進去
+    if(SEL.size===1&&PAGE!=='cal'&&!ev.metaKey&&!ev.ctrlKey&&!ev.altKey&&(k==='F2'||k==='Process'||(k.length===1&&k!==' '))){const id=[...SEL][0],td=document.querySelector(`#desk tr.r[data-id="${id}"] td.fc.ed`);if(td){if(k!=='Process')ev.preventDefault();inlineEdit(td,byId(id),td.dataset.f);const i=td.querySelector('input');if(i&&k==='Process')i.value='';else if(i&&k!=='F2'){i.value=k;i.dispatchEvent(new Event('input'))}return true}}
     if((k==='Delete'||k==='Backspace')&&PAGE!=='cal'&&PAGE!=='split'){const o=SEL.size===1?byId([...SEL][0]):null;if(o){ev.preventDefault();delCase(o)}return true}
     return PAGE!=='cal'&&PAGE!=='split'}
   const busy=()=>!!NC||!!document.querySelector('.csov,td.ing,.csdrw .ing')||DRAG;
@@ -1976,7 +1982,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261115005119';
+const VER=/*VER*/'20261115005738';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
