@@ -1540,8 +1540,8 @@ var CS=(()=>{
   function setFile(list,v){list.forEach((o,i)=>{if(o.file!==v)upd(o,{'檔案':v},i===list.length-1?(list.length>1?`${list.length} 件改成「${v}」`:`「${o.title}」改成「${v}」`):null,null,list.length>1)})}
   function copyTitles(){const l=ROWS.filter(cloudPending);const t=l.map(r=>r.title).join('\n');try{navigator.clipboard.writeText(t)}catch(e){}const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();toast(`已複製 ${l.length} 支片名`)}
   function cloudBlock(){const l=ROWS.filter(cloudPending).sort((a,b)=>(a.done||0)-(b.done||0));if(!l.length)return '';const t=today0(),c=COL['雲端待清'];
-    return `<div class="cpanel cloud"><div class="sec" data-sec="雲端待清"><span class="ar">${c?'▶':'▼'}</span>雲端待清<span class="m">Medicathon 的打包檔、成片還在你的雲端・${l.length} 支</span><span class="sp"></span><span class="btn3" data-cpt>複製片名</span><span class="btn3" data-fall="已詢問">全部問過了</span><span class="btn3" data-fall="已處理">全部刪掉了</span></div>
-      ${c?'':`<div class="tw"><table><thead><tr><th>完成日</th><th>客戶</th><th>專案</th><th>狀態</th><th></th></tr></thead><tbody>${l.map(o=>{const dd=o.done?Math.round((t-o.done)/864e5):null;return `<tr class="r" data-id="${o.id}"><td class="mu">${esc(o.doneTxt||'')}${dd!=null?`<span class="mu">　${dd} 天前</span>`:''}</td><td>${esc(o.client)}</td><td title="${esc(o.title)}">${esc(o.title)}</td><td><span class="st ${FILE_CLS[o.file]}" style="cursor:default">${esc(o.file)}</span></td><td class="fxact">${o.file==='雲端中'?`<span class="btn3" data-fset="已詢問" data-fid="${o.id}">問過了</span>`:''}<span class="btn3 dk" data-fset="已處理" data-fid="${o.id}">刪掉了</span><span class="btn3" data-fset="留存" data-fid="${o.id}">客戶要留</span></td></tr>`}).join('')}</tbody></table></div>`}</div>`}
+    return `<div class="cpanel cloud"><div class="sec" data-sec="雲端待清"><span class="ar">${c?'▶':'▼'}</span>雲端待清<span class="m">Medicathon 的打包檔、成片還在你的雲端・${l.length} 支</span><span class="sp"></span><span class="btn3" data-cpt>複製片名</span></div>
+      ${c?'':`<div class="tw"><table><thead><tr><th>完成日</th><th>客戶</th><th>專案</th><th>狀態</th><th></th></tr></thead><tbody>${l.map(o=>{const dd=o.done?Math.round((t-o.done)/864e5):null;return `<tr class="r" data-id="${o.id}"><td class="mu">${esc(o.doneTxt||'')}${dd!=null?`<span class="mu">　${dd} 天前</span>`:''}</td><td>${esc(o.client)}</td><td title="${esc(o.title)}">${esc(o.title)}</td><td><span class="st ${FILE_CLS[o.file]}" style="cursor:default">${esc(o.file)}</span></td><td class="fxact"><span class="btn3 dk" data-fset="已處理" data-fid="${o.id}">已刪除</span></td></tr>`}).join('')}</tbody></table></div>`}</div>`}
   const OLDF={'檔案':o=>o.file,'類型':o=>o.kind,'專案':o=>o.title,'客戶':o=>o.client,'案源':o=>o.src,'備註':o=>o.memo,'我的備註':o=>o.mynote,'檔案':o=>o.file,'進度':o=>o.st,'時程':o=>o.schText,'報價':o=>o.amt?String(o.amt):'','交期':o=>o.dueTxt,'上片日':o=>o.upTxt,'完成日':o=>o.doneTxt,'收款日':o=>o.paidTxt};
   function upd(o,set,msg,links,noUndo){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;if(set['進度']!=null&&/^完成/.test(set['進度'])&&cloudOn(o)&&!o.file&&set['檔案']==null)set={...set,'檔案':'雲端中'};if(set['進度']!=null&&!/^完成/.test(set['進度'])&&cloudOn(o)&&o.file==='雲端中'&&set['檔案']==null)set={...set,'檔案':''};  // 改回沒完成：檔案應該還沒上傳，拿掉雲端中// 先改畫面，再存（可以復原）
     const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
@@ -1897,8 +1897,9 @@ var CS=(()=>{
     root.querySelectorAll('[data-owek]').forEach(e=>e.onclick=()=>{const k=+e.dataset.owek,S=settle();S.pop();const l=S.filter(x=>x.key===k&&x.r.st==='完成未付款').map(x=>x.r);
       const m=pop(e,`<div style="padding:6px 10px 4px;font-size:12px;color:#9B9993">還沒收到 ${l.length} 件</div>`+l.map(r=>`<div class="it"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}　<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">${esc(r.title)}</span><em>${fmt(r.amt)}</em></div>`).join(''));m.style.minWidth='360px'});
     root.querySelectorAll('[data-paid2]').forEach(e=>e.onclick=async ev=>{ev.stopPropagation();const s=subs().find(x=>x.p===e.dataset.paid2);const date=s.next||today0();
-      if(await choose(`${s.p}　${md(date)}　${fmt(s.amt)}`,[['y','記為已繳（下次往後一個月）']])!=='y')return;
+      
       const iso=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+      (D.fx=D.fx||[]).push({r:-1,p:s.p,d:iso,amt:s.amt,memo:''});rerender();  // 畫面先往後推一個月，不用等伺服器
       write('fxRenew',{p:s.p,date:iso},`已記下 ${s.p} ${md(date)} 繳了，下次 ${md(new Date(date.getFullYear(),date.getMonth()+1,date.getDate()))}`,()=>{const n=(D.fx||[]).filter(x=>x.p===s.p&&x.d===iso).pop();if(n)write('fxDel',{r:n.r,p:s.p,d:iso},'已復原')})});
     root.querySelectorAll('[data-fxoff]').forEach(e=>e.onclick=async ev=>{ev.stopPropagation();const p=e.dataset.fxoff;if(await choose(`${p} 不續訂了？`,[['y','停用（之後可以恢復）']])!=='y')return;write('fxStop',{p,stop:true},`${p} 已停用`,()=>write('fxStop',{p,stop:false},'已恢復'))});
     root.querySelectorAll('[data-fxon]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.fxon;write('fxStop',{p,stop:false},`${p} 恢復使用`,()=>write('fxStop',{p,stop:true},'已改回停用'))});
@@ -1982,7 +1983,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261115005738';
+const VER=/*VER*/'20261115010842';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
