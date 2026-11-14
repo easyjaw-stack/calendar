@@ -464,6 +464,13 @@ td.paid{width:90px;text-align:right}td.paid span{font-size:12px;color:#3F6E43;ba
 .cspage mark,.cs-split mark{background:#FFF0B8;color:inherit;border-radius:3px;padding:0 1px}
 .st{transition:background-color .35s,color .35s,box-shadow .35s}
 td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;font:inherit;border:0;outline:0;box-shadow:inset 0 0 0 1.5px #262624;border-radius:7px;padding:5px 6px;background:#fff;user-select:text;-webkit-user-select:text}
+.dpk{position:fixed;z-index:90;background:#fff;border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.04);padding:12px 12px 8px;width:268px;font-size:13px;user-select:none;-webkit-user-select:none;animation:dpIn .14s ease-out}
+@keyframes dpIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.dpk .dh{display:flex;align-items:center;padding:0 2px 8px}.dpk .dh b{font-size:14.5px;font-weight:600;flex:1}.dpk .dh span{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;cursor:pointer;color:#6b6a66;font-size:16px}.dpk .dh span:hover{background:#F2F1EE;color:#262624}
+.dpk .wk,.dpk .gd{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}.dpk .wk span{font-size:11.5px;color:#9B9993;padding:4px 0}
+.dpk .gd span{height:34px;display:grid;place-items:center;cursor:pointer;border-radius:50%;margin:1px 2px;font-variant-numeric:tabular-nums;transition:background .1s}
+.dpk .gd span:hover{background:#F2F1EE}.dpk .gd span.o{color:#C9C7C0}.dpk .gd span.td{font-weight:700;box-shadow:inset 0 0 0 1.5px #D3D1C7}.dpk .gd span.on{background:#262624;color:#fff;font-weight:600;box-shadow:none}
+.dpk .ft{display:flex;justify-content:space-between;border-top:1px solid #F0EEEA;margin-top:6px;padding-top:6px}.dpk .ft span{font-size:12.5px;color:#6b6a66;padding:4px 8px;border-radius:7px;cursor:pointer}.dpk .ft span:hover{background:#F2F1EE;color:#262624}
 .cspm{position:fixed;background:#fff;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.18);padding:6px;z-index:80;min-width:170px;font-size:13px}.cspm .it{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none}.cspm .it:hover{background:#F2F1EE}.cspm .it em{font-style:normal;color:#9B9993;font-size:11.5px;margin-left:auto}.cspm .add{color:#6b6a66;border-top:1px solid #F0EFEB;margin-top:4px;padding-top:10px}
 .cssum{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#262624;color:#fff;border-radius:14px;padding:10px 16px;display:flex;gap:16px;align-items:center;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .2s,transform .2s;z-index:70}
 .cssum.hide{opacity:0;transform:translate(-50%,12px);pointer-events:none}.cssum b{font-size:18px;font-variant-numeric:tabular-nums}.cssum small{color:#C9C7C0}.cssum button{font:inherit;font-size:12px;background:#3A3A38;color:#fff;border:0;border-radius:8px;padding:5px 10px;cursor:pointer}
@@ -1765,16 +1772,35 @@ var CS=(()=>{
     m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();if(s===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};let t='進度改成「'+(s||'未開始')+'」';if(/^完成/.test(s)&&!o.doneTxt){o.doneTxt=md(today0());t+='，完成日自動填 '+o.doneTxt}if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t)}}
   function lkMenu(el,o){if(!o.links.length){addLink(o);return}const m=pop(el,o.links.map((x,i)=>`<a class="it" href="${esc(x.url)}" target="_blank" rel="noopener"><span style="color:#2E4466">↗</span>${esc(x.l)}<em>${LBL(x.url)}</em></a>`).join('')+'<div class="it add" data-add>＋ 貼上新連結</div>');
     m.querySelector('[data-add]').onclick=()=>{m.remove();addLink(o)}}
+  // 選日期的小月曆（像 Google 試算表）：點一天就填好；也可以直接打字；↑↓←→ 換日子、Enter 確定、Esc 取消
+  function datePick(anchor,inp,onPick){document.querySelectorAll('.dpk').forEach(x=>x.remove());const t=today0();
+    const parse=v=>{const m=String(v||'').match(/(\d{1,2})\/(\d{1,2})/);if(!m)return null;let d=new Date(t.getFullYear(),+m[1]-1,+m[2]);if(d-t>183*864e5)d=new Date(t.getFullYear()-1,+m[1]-1,+m[2]);else if(t-d>183*864e5)d=new Date(t.getFullYear()+1,+m[1]-1,+m[2]);return d};
+    let sel=parse(inp.value),view=new Date((sel||t).getFullYear(),(sel||t).getMonth(),1);
+    const el=document.createElement('div');el.className='dpk';document.body.appendChild(el);
+    const same=(a,b)=>a&&b&&+a===+b;
+    const draw=()=>{const y=view.getFullYear(),m=view.getMonth(),st=new Date(y,m,1-new Date(y,m,1).getDay());
+      el.innerHTML=`<div class="dh"><b>${y}年${m+1}月</b><span data-mv="-1">‹</span><span data-mv="1">›</span></div><div class="wk">${'日一二三四五六'.split('').map(w=>`<span>${w}</span>`).join('')}</div><div class="gd">${[...Array(42)].map((_,i)=>{const d=new Date(st.getFullYear(),st.getMonth(),st.getDate()+i);return `<span data-t="${+d}" class="${d.getMonth()!==m?'o':''} ${same(d,t)?'td':''} ${same(d,sel)?'on':''}">${d.getDate()}</span>`}).join('')}</div><div class="ft"><span data-q="clr">清除</span><span data-q="today">今天</span></div>`};
+    const pick=d=>{close();onPick(d?md(d):'')};
+    el.onmousedown=e=>e.preventDefault();  // 點小月曆時，輸入框不要失去焦點
+    el.onclick=e=>{const mv=e.target.closest('[data-mv]'),dt=e.target.closest('[data-t]'),q=e.target.closest('[data-q]');
+      if(mv){view=new Date(view.getFullYear(),view.getMonth()+ +mv.dataset.mv,1);draw()}else if(dt)pick(new Date(+dt.dataset.t));else if(q)pick(q.dataset.q==='today'?t:null)};
+    const place=()=>{const b=anchor.getBoundingClientRect();el.style.left=Math.max(8,Math.min(b.left,innerWidth-280))+'px';el.style.top=(b.bottom+6)+'px';const h=el.offsetHeight;if(b.bottom+6+h>innerHeight-8&&b.top-6-h>8)el.style.top=(b.top-6-h)+'px'};
+    const onIn=()=>{const d=parse(inp.value);if(d){sel=d;view=new Date(d.getFullYear(),d.getMonth(),1);draw()}};
+    const onKey=e=>{const k={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key];if(k==null||e.isComposing)return;e.preventDefault();e.stopImmediatePropagation();const b=sel||t;sel=new Date(b.getFullYear(),b.getMonth(),b.getDate()+k);view=new Date(sel.getFullYear(),sel.getMonth(),1);inp.value=md(sel);draw()};
+    inp.addEventListener('input',onIn);inp.addEventListener('keydown',onKey,true);
+    const close=()=>{el.remove();inp.removeEventListener('input',onIn);inp.removeEventListener('keydown',onKey,true)};
+    draw();place();return close}
   function inlineEdit(td,o,f){if(td.querySelector('input'))return;const val={'案源':o.src,'報價':o.amt||'','交期':dueOf(o),'上片日':upOf(o),'完成日':o.doneTxt,'收款日':o.paidTxt,'專案':o.title,'客戶':o.client,'備註':o.memo,'我的備註':o.mynote,'檔案':o.file}[f]||'';
-    td.classList.add('ing');td.innerHTML=`<input value="${esc(val)}">`;const inp=td.querySelector('input');inp.focus();inp.select();let done=false;
+    td.classList.add('ing');td.innerHTML=`<input value="${esc(val)}">`;const inp=td.querySelector('input');inp.focus();inp.select();let done=false,closeDP=null;
     const fin=ok=>{if(done)return;const x=inp.value.trim();
       if(ok&&x&&['交期','上片日','完成日','收款日'].includes(f)&&!/^\d{1,2}\/\d{1,2}$/.test(x)){toast('日期請寫成 11/28 這樣');inp.focus();inp.select();return}
       if(ok&&x&&f==='報價'&&!/^(NT\$)?[\d,]+$/i.test(x)){toast('報價請只打數字，例如 3500');inp.focus();inp.select();return}
-      done=true;if(ok&&x!==String(val)){if(f==='收款日'){o.paidTxt=x}
+      done=true;if(closeDP)closeDP();if(ok&&x!==String(val)){if(f==='收款日'){o.paidTxt=x}
         upd(o,{[f]:x},'已存到剪輯表')}else{td.classList.remove('ing');rerender();drawer()}};
     inp.onkeydown=ev=>{ev.stopPropagation();if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();fin(true)}if(ev.key==='Escape'){ev.preventDefault();fin(false)}
       if(ev.key==='Tab'&&td.tagName==='TD'){ev.preventDefault();const fs=[...td.closest('tr').querySelectorAll('td.ed')].map(x=>x.dataset.f),nf=fs[fs.indexOf(f)+(ev.shiftKey?-1:1)];fin(true);if(nf)setTimeout(()=>{const c=document.querySelector(`tr.r[data-id="${o.id}"] td.ed[data-f="${nf}"]`);if(c)inlineEdit(c,o,nf)},0)}};
-    inp.onblur=()=>fin(true);inp.onmousedown=ev=>ev.stopPropagation()}
+    inp.onblur=()=>fin(true);inp.onmousedown=ev=>ev.stopPropagation();
+    if(['交期','上片日','完成日','收款日'].includes(f))closeDP=datePick(td,inp,v=>{inp.value=v;fin(true)})}
   // ---------- 格子複製貼上（像試算表）：點一格 → ⌘C → 點別的案子 → ⌘V；Shift 多選可以一次貼好幾件 ----------
   let FCOL=null,CCLIP=null;const COPYABLE=['客戶','專案','報價','交期','上片日','完成日','備註','我的備註','連結'];
   function setFocusCell(td){document.querySelectorAll('#desk td.fc').forEach(x=>x.classList.remove('fc'));const c=td&&(td.dataset.f||td.dataset.col);if(c&&COPYABLE.includes(c)){FCOL=c;td.classList.add('fc')}else if(td)FCOL=null}
@@ -1819,6 +1845,7 @@ var CS=(()=>{
     ov.querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{NC.client=b.dataset.cl;drawNC('title')});
     ov.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{NC.title=b.dataset.tp;drawNC('title')});
     ov.querySelectorAll('[data-due]').forEach(b=>b.onclick=()=>{NC.due=b.dataset.due;drawNC()});
+    {const dI=ov.querySelector('input[data-k="due"]');if(dI)dI.addEventListener('focus',()=>{if(document.querySelector('.dpk'))return;const c=datePick(dI,dI,v=>{NC.due=v;drawNC()});dI.addEventListener('blur',()=>setTimeout(c,0),{once:true})})}
     const add=keep=>{const lines=NC.title.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)return;const src=(NC.srcNew||'').trim()||NC.src,sch=normSch(NC.sch).trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
       const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcList().includes(src),client=NC.client.trim()||src,due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
       lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
@@ -1949,7 +1976,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261114024224';
+const VER=/*VER*/'20261115005119';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
