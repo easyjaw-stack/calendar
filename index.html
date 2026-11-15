@@ -36,11 +36,12 @@ input{font:inherit;color:var(--tx);background:transparent;border:none;outline:no
 @keyframes bdWob{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-9deg)}95%{transform:rotate(8deg)}}
 @keyframes bdHop{0%{transform:none}40%{transform:translateY(-5px) scale(1.15,.9)}100%{transform:none}}
 @keyframes bdFl{from{transform:scale(1,1) rotate(-4deg)}to{transform:scale(.82,1.15) rotate(4deg)}}
-.dc.bday,.hd.bday,.wc.bday{background:linear-gradient(170deg,#FFE6DF 0%,#FFF3E8 45%,#FFFBF6 100%)!important}.dc.bday .dn,.hd.bday .dn{background:transparent!important}
-.dc.bday .bdk,.hd.bday .bdk{width:21px;height:21px;vertical-align:-5px}
-.dc.bday .dn b,.hd.bday b,.strip .s.bday b,.wc.bday .h b{color:#D9776A}
-.strip .s.bday .bdk{width:14px;height:14px;margin:0;display:block;margin:1px auto 0}
-.tag.bd{background:#FDEDE8;color:#D9776A;cursor:pointer}
+.dc.fest,.hd.fest,.wc.fest{background:linear-gradient(170deg,var(--fbg) 0%,#FFFBF6 100%)!important}.dc.fest .dn,.hd.fest .dn{background:transparent!important}
+.dc.fest .bdk,.hd.fest .bdk{width:21px;height:21px;vertical-align:-5px}
+.bdk .btw{animation:bdTw 1.6s ease-in-out infinite}@keyframes bdTw{0%,100%{opacity:1}50%{opacity:.3}}
+.dc.fest .dn b,.hd.fest b,.strip .s.fest:not(.on) b,.wc.fest .h b{color:var(--fc)}
+.strip .s.fest .bdk{width:14px;height:14px;margin:0;display:block;margin:1px auto 0}
+.tag.bd{background:var(--fbg);color:var(--fc);cursor:pointer}
 .bdcf{position:fixed;pointer-events:none;z-index:999;left:0;top:0}
 .strip .s.td{box-shadow:inset 0 0 0 1px var(--ac)}
 .strip .s.on{background:var(--ink)}.strip .s.on,.strip .s.on b{color:var(--bg)}
@@ -827,20 +828,42 @@ function perCalc(){const today=new Date(T.getFullYear(),T.getMonth(),T.getDate()
   PERC={act,pred}}
 function menOf(o){if(!PERC)perCalc();const t=+new Date(o.y,o.m-1,o.d);for(const r of PERC.act)if(t>=+r[0]&&t<=+r[1])return {k:'a',n:Math.round((t-r[0])/DAY)+1};for(const r of PERC.pred)if(t>=+r[0]&&t<=+r[1])return {k:'p',n:Math.round((t-r[0])/DAY)+1};return null}
 const DROPI=(k,t)=>`<svg class="pdrop ${k==='p'?'pr':''}" viewBox="0 0 10 12" aria-label="${t}"><title>${t}</title><path d="M5 .6S1 5.2 1 7.7a4 4 0 0 0 8 0C9 5.2 5 .6 5 .6z"/></svg>`;
-// 生日彩蛋：每年 11/23，那天的格子暖暖的、角落有個會晃的小蛋糕，點它會噴紙片
-const isBday=o=>o.m===11&&o.d===23;
-const BDCAKE='<svg class="bdk" data-bd viewBox="0 0 24 24" fill="none" stroke="#D9776A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><title>生日快樂</title><path d="M4 21h16M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7"/><path d="M5 16c1.6 1.3 3.4 1.3 5 0s3.4-1.3 5 0 3.4 1.3 4 .5"/><path d="M12 12V9"/><path class="bf" d="M12 7.3c1-.8 1-1.9 0-3.3-1 1.4-1 2.5 0 3.3z" fill="#E3AE5B" stroke="none"/></svg>';
-const bdIcon=o=>isBday(o)?BDCAKE:'';
-const BDCOL=['#D9776A','#E3AE5B','#8FAF7E','#7C9CBF','#B68FB8','#F2A7B0'];
-const BDSH=[c=>`<svg width="9" height="9"><circle cx="4.5" cy="4.5" r="4" fill="${c}"/></svg>`,c=>`<svg width="8" height="8"><rect width="8" height="8" rx="1.5" fill="${c}"/></svg>`,c=>`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 .5l1.6 3.5 3.9.4-2.9 2.6.8 3.8L6 8.9 2.6 10.8l.8-3.8L.5 4.4l3.9-.4z" fill="${c}"/></svg>`,c=>`<svg width="11" height="10" viewBox="0 0 11 10"><path d="M5.5 9.5S.5 6.4.5 3.2A2.6 2.6 0 0 1 5.5 2a2.6 2.6 0 0 1 5 1.2c0 3.2-5 6.3-5 6.3z" fill="${c}"/></svg>`];
-function bdBurst(el,n){const b=el.getBoundingClientRect(),x=b.left+b.width/2,y=b.top+b.height/2,pow=n>30?120:80;el.animate([{transform:'scale(1)'},{transform:'scale(1.45) translateY(-3px)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'});haptic();
-  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='bdcf';d.innerHTML=BDSH[i%4](BDCOL[(i*7)%BDCOL.length]);document.body.appendChild(d);
+// 節日彩蛋：生日 11/23、元旦、除夕、春節、端午、中秋、萬聖節、聖誕節、跨年
+// 那天的格子淡淡節日色、日期旁有個會晃的線條小圖示，點它噴節日紙片；農曆節日照月曆的國定假日名稱自動對上
+const FI=(body,st)=>`<svg class="bdk" data-bd="@" viewBox="0 0 24 24" fill="none" stroke="${st}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+const FEST={
+ bday:{n:'生日快樂',msg:'生日快樂！今天的剪輯可以慢慢來',bg:'#FFE6DF',c:'#D9776A',cols:['#D9776A','#E3AE5B','#8FAF7E','#7C9CBF','#B68FB8','#F2A7B0'],sh:[0,1,2,3],
+  i:FI('<path d="M4 21h16M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7"/><path d="M5 16c1.6 1.3 3.4 1.3 5 0s3.4-1.3 5 0 3.4 1.3 4 .5"/><path d="M12 12V9"/><path class="bf" d="M12 7.3c1-.8 1-1.9 0-3.3-1 1.4-1 2.5 0 3.3z" fill="#E3AE5B" stroke="none"/>','#D9776A')},
+ ny:{n:'新年快樂',msg:'新年快樂！新的一年也順順的',bg:'#FFF2DC',c:'#D99A3E',cols:['#E3AE5B','#F5D27A','#D9776A','#F2A7B0'],sh:[2,0],
+  i:FI('<path d="M3 17h18"/><path d="M6.5 17a5.5 5.5 0 0 1 11 0"/><path d="M12 6.5V4M5.6 9.1 4 7.5M18.4 9.1 20 7.5M3 13h1.5M19.5 13H21"/><path d="M7 20h10"/>','#D99A3E')},
+ eve:{n:'除夕快樂',msg:'除夕快樂！今天好好吃一頓',bg:'#FFE8E2',c:'#C9473A',cols:['#C9473A','#E3AE5B','#F5D27A','#D9776A'],sh:[0,1],
+  i:FI('<rect x="6" y="3.5" width="12" height="17" rx="2" fill="#FBE0DA"/><path d="M6 8.5c2 2 4 3 6 3s4-1 6-3"/><circle cx="12" cy="11.5" r="1.6" fill="#E3AE5B" stroke="#E3AE5B"/>','#C9473A')},
+ cny:{n:'新春快樂',msg:'新春快樂！過年也記得休息',bg:'#FFEDE0',c:'#C9473A',cols:['#C9473A','#E3AE5B','#F5D27A'],sh:[0,2],
+  i:FI('<path d="M12 2.5v2"/><path d="M8.5 4.5h7"/><ellipse cx="12" cy="11.5" rx="6" ry="7" fill="#FBE0DA"/><path d="M12 4.5v14M8.2 6.3c-1.5 3-1.5 7.4 0 10.4M15.8 6.3c1.5 3 1.5 7.4 0 10.4"/><path d="M9.5 18.5h5M12 18.5v3"/>','#C9473A')},
+ duan:{n:'端午節快樂',msg:'端午節快樂！',bg:'#E9F2E4',c:'#5E8A55',cols:['#8FAF7E','#5E8A55','#E3AE5B','#B9D1A9'],sh:[0,1],
+  i:FI('<path d="M12 4 4 19h16L12 4z" fill="#E1EDD9"/><path d="M8 11.5 16 11.5M6.3 15 17.7 15"/><path d="M12 4c1.5-1 3-1 4 0"/>','#5E8A55')},
+ moon:{n:'中秋節快樂',msg:'中秋節快樂！記得抬頭看月亮',bg:'#F0EEF8',c:'#B98A3E',cols:['#E3AE5B','#F5D27A','#B6B2D9','#FFF1C9'],sh:[2,0],
+  i:FI('<path d="M15.5 4.5A8 8 0 1 0 19.5 15 6.5 6.5 0 0 1 15.5 4.5z" fill="#FFF1C9" stroke="#D9A35E"/><path class="btw" d="M19 4l.6 1.4L21 6l-1.4.6L19 8l-.6-1.4L17 6l1.4-.6z" fill="#D9A35E" stroke="none"/>','#D9A35E')},
+ hw:{n:'萬聖節快樂',msg:'萬聖節快樂！不給糖就搗蛋',bg:'#FFEEDF',c:'#D9792E',cols:['#D9792E','#8E6BA8','#E3AE5B','#262624'],sh:[0,2],
+  i:FI('<path d="M12 7c-5 0-7.5 3-7.5 6.5S7 20 12 20s7.5-3 7.5-6.5S17 7 12 7z" fill="#FDE3CC"/><path d="M12 7V4.5c1 0 2-.5 2.5-1.5"/><path d="M8.5 12.5l1.5 1 1-1M13 12.5l1 1 1.5-1M9 16.5c2 1.2 4 1.2 6 0"/>','#D9792E')},
+ xmas:{n:'聖誕快樂',msg:'聖誕快樂！',bg:'#E8F2EA',c:'#3F7A4F',cols:['#C9473A','#3F7A4F','#E3AE5B','#8FAF7E','#BFD3E4'],sh:[2,0,4],
+  i:FI('<path class="btw" d="M12 1.8l.8 1.7 1.8.2-1.4 1.2.4 1.8-1.6-.9-1.6.9.4-1.8L9.4 3.7l1.8-.2z" fill="#E3AE5B" stroke="none"/><path d="M12 7 7 13h2.5L6 17.5h12L14.5 13H17L12 7z" fill="#DCEBDD"/><path d="M12 17.5V21M9.5 21h5"/><circle cx="10.5" cy="14.5" r=".9" fill="#C9473A" stroke="none"/><circle cx="13.5" cy="12" r=".9" fill="#E3AE5B" stroke="none"/>','#3F7A4F')},
+ nye:{n:'跨年快樂',msg:'跨年快樂！今年辛苦了',bg:'#EFEBF8',c:'#7C6BB0',cols:['#B68FB8','#7C9CBF','#E3AE5B','#F2A7B0','#8FAF7E'],sh:[2,0],
+  i:FI('<path d="M12 12V21"/><path d="M12 12l-4-4M12 12l4-4M12 12l-5.5 1M12 12l5.5 1M12 12V5.5"/><circle class="btw" cx="7" cy="7" r="1" fill="#E3AE5B" stroke="none"/><circle class="btw" cx="17.5" cy="6.5" r="1" fill="#F2A7B0" stroke="none"/><circle cx="12" cy="4.5" r="1" fill="#7C9CBF" stroke="none"/>','#7C6BB0')}};
+function festOf(o){const md=o.m*100+o.d;if(md===1123)return 'bday';if(md===101)return 'ny';if(md===1031)return 'hw';if(md===1225)return 'xmas';if(md===1231)return 'nye';
+  const h=holiday(o)||'';if(/除夕/.test(h))return 'eve';if(/端午/.test(h))return 'duan';if(/中秋/.test(h))return 'moon';if(h==='春節'&&/除夕/.test(holiday(addDays(o,-1))||''))return 'cny';return ''}
+const festIcon=(o,plain)=>{const k=festOf(o);if(!k)return '';const ic=FEST[k].i.replace('data-bd="@"',plain?'':`data-bd="${k}"`);return ic};
+const festCls=o=>{const k=festOf(o);return k?`fest" style="--fbg:${FEST[k].bg};--fc:${FEST[k].c}`:''};
+const BDSH=[c=>`<svg width="9" height="9"><circle cx="4.5" cy="4.5" r="4" fill="${c}"/></svg>`,c=>`<svg width="8" height="8"><rect width="8" height="8" rx="1.5" fill="${c}"/></svg>`,c=>`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 .5l1.6 3.5 3.9.4-2.9 2.6.8 3.8L6 8.9 2.6 10.8l.8-3.8L.5 4.4l3.9-.4z" fill="${c}"/></svg>`,c=>`<svg width="11" height="10" viewBox="0 0 11 10"><path d="M5.5 9.5S.5 6.4.5 3.2A2.6 2.6 0 0 1 5.5 2a2.6 2.6 0 0 1 5 1.2c0 3.2-5 6.3-5 6.3z" fill="${c}"/></svg>`,c=>`<svg width="12" height="12" viewBox="0 0 12 12" stroke="${c}" stroke-width="1.3" stroke-linecap="round"><path d="M6 1v10M1.7 3.5l8.6 5M10.3 3.5l-8.6 5"/></svg>`];
+function bdBurst(el,n,k){const F=FEST[k]||FEST.bday,b=el.getBoundingClientRect(),x=b.left+b.width/2,y=b.top+b.height/2,pow=n>30?120:80;el.animate([{transform:'scale(1)'},{transform:'scale(1.45) translateY(-3px)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'});haptic();
+  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='bdcf';d.innerHTML=BDSH[F.sh[i%F.sh.length]](F.cols[(i*7)%F.cols.length]);document.body.appendChild(d);
     const a=-Math.PI/2+(Math.random()-.5)*Math.PI*1.3,v=pow*(.45+Math.random()*.75),dx=Math.cos(a)*v,dy=Math.sin(a)*v;
     d.animate([{transform:`translate(${x}px,${y}px) scale(.4)`,opacity:1},{transform:`translate(${x+dx}px,${y+dy}px) scale(1) rotate(${Math.random()*360}deg)`,opacity:1,offset:.45},{transform:`translate(${x+dx*1.25}px,${y+dy+pow*1.3}px) scale(.9) rotate(${Math.random()*720}deg)`,opacity:0}],{duration:1300+Math.random()*700,easing:'cubic-bezier(.15,.7,.35,1)'}).onfinish=()=>d.remove()}}
-document.addEventListener('click',e=>{const k=e.target.closest('[data-bd]');if(!k)return;e.stopPropagation();e.preventDefault();bdBurst(k.tagName==='svg'?k:(k.querySelector('.bdk')||k),24)},true);
-// 生日當天第一次打開：小蛋糕自己蹦一下、噴一點紙片（一年一次，不擋畫面）
-function bdAuto(){const t=new Date();if(!(t.getMonth()===10&&t.getDate()===23))return;const key='bdPop-'+t.getFullYear();try{if(localStorage.getItem(key))return}catch(e){}
-  setTimeout(()=>{const k=[...document.querySelectorAll('.bdk')].find(x=>{const b=x.getBoundingClientRect();return b.width&&b.top>0&&b.top<innerHeight});if(!k)return;try{localStorage.setItem(key,'1')}catch(e){}bdBurst(k,40);toast('生日快樂！今天的剪輯可以慢慢來')},1200)}
+document.addEventListener('click',e=>{const k=e.target.closest('[data-bd]');if(!k)return;e.stopPropagation();e.preventDefault();bdBurst(k.tagName==='svg'?k:(k.querySelector('.bdk')||k),24,k.dataset.bd)},true);
+// 節日當天第一次打開：小圖示自己蹦一下、噴一點紙片（每個節日一年一次，不擋畫面）
+function bdAuto(){const t=new Date(),o={y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()};
+  setTimeout(()=>{const k=festOf(o);if(!k)return;const key='festPop-'+k+'-'+o.y;try{if(localStorage.getItem(key))return}catch(e){}
+    const el=[...document.querySelectorAll(`.bdk[data-bd="${k}"]`)].find(x=>{const b=x.getBoundingClientRect();return b.width&&b.top>0&&b.top<innerHeight});if(!el)return;try{localStorage.setItem(key,'1')}catch(e){}bdBurst(el,40,k);toast(FEST[k].msg)},1500)}
 const perIcon=o=>{const p=menOf(o);return p?DROPI(p.k,p.k==='a'?`經期第 ${p.n} 天`:'預測經期'):''};
 function perSet(op,o){call('periodSet',{op,date:pKey(o)}).then(r=>{PER=r.periods||[];try{localStorage.setItem('percache',JSON.stringify(PER))}catch(e){}PERC=null;render();toast(op==='start'?`已記錄 ${o.m}/${o.d} 經期開始`:op==='end'?`已記錄 ${o.m}/${o.d} 經期結束`:'已刪除這次記錄')}).catch(e=>toast('沒存成功：'+(e.message||e)))}
 async function perMenu(o){const p=menOf(o),t=+new Date(o.y,o.m-1,o.d);if(!PERC)perCalc();
@@ -869,10 +892,10 @@ function render(){
   learnScan();PERC=null;
   $('#moTxt').textContent=cur.y+' 年 '+cur.m+' 月';
   const wk=weekOf(cur);
-  $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''} ${isBday(o)?'bday':''}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b>${perIcon(o)}${isBday(o)&&!same(o,cur)?BDCAKE.replace(' data-bd',''):''}</div>`).join('');
+  $('#strip').innerHTML=wk.map((o,i)=>`<div class="s ${same(o,cur)?'on':''} ${isToday(o)?'td':''} ${holiday(o)?'hol':''} ${festCls(o)}" data-i="${i}">${WD[new Date(o.y,o.m-1,o.d).getDay()]}<b>${o.d}</b>${perIcon(o)}${!same(o,cur)?festIcon(o,true):''}</div>`).join('');
   $('#strip').querySelectorAll('.s').forEach(s=>s.onclick=()=>{haptic();slideGo(wk[+s.dataset.i])});
   const items=dayItems(cur),h=holiday(cur),undone=items.filter(i=>!i.done&&!i.span).length,real=items.filter(i=>!i.span).length;
-  const pc=menOf(cur);$('#dh').innerHTML=`<b id="dhDate">${cur.m}/${cur.d}</b>${pc?`<span class="tag pdt ${pc.k==='p'?'pr':''}">${DROPI(pc.k,'')}${pc.k==='a'?`經期第 ${pc.n} 天`:'預測經期'}</span>`:''}<span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${isBday(cur)?`<span class="tag bd" data-bd>${BDCAKE.replace(' data-bd','')}生日快樂</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${isToday(cur)&&exStreak()>0?`<span class="tag ex"><i class="ti ti-run"></i>運動連續 ${exStreak()} 天</span>`:''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
+  const pc=menOf(cur);$('#dh').innerHTML=`<b id="dhDate">${cur.m}/${cur.d}</b>${pc?`<span class="tag pdt ${pc.k==='p'?'pr':''}">${DROPI(pc.k,'')}${pc.k==='a'?`經期第 ${pc.n} 天`:'預測經期'}</span>`:''}<span class="w">週${WD[new Date(cur.y,cur.m-1,cur.d).getDay()]}</span>${h?`<span class="tag h">${esc(h)}</span>`:''}${festOf(cur)?`<span class="tag bd" data-bd="${festOf(cur)}" style="--fbg:${FEST[festOf(cur)].bg};--fc:${FEST[festOf(cur)].c}">${festIcon(cur,true)}${FEST[festOf(cur)].n}</span>`:''}${isToday(cur)?'<span class="tag">今天</span>':''}${real&&!undone?'<span class="tag fin">✦ 全部完成</span>':''}${isToday(cur)&&exStreak()>0?`<span class="tag ex"><i class="ti ti-run"></i>運動連續 ${exStreak()} 天</span>`:''}${undone&&!edit?`<button class="mv" id="mvBtn"><i class="ti ti-arrow-forward"></i>未完成移到明天</button>`:''}`;
   const mv=$('#mvBtn');if(mv)mv.onclick=moveUnfinished;
   const dd=$('#dhDate');if(dd)dd.onclick=()=>perMenu({...cur});
   let html=items.map((it,i)=>(i>0&&catOf(it)>=2&&catOf(items[i-1])<2?'<div class="zl"></div>':'')+cardHTML(it,i)).join('');
@@ -891,7 +914,7 @@ function cardHTML(it,i){const n=parseNote(it.note);const dd=dueOf(it),fire=!it.d
   const det=op?`<div class="det">${n.tm?`<div><i class="ti ti-clock"></i>${esc(n.tm)}</div>`:''}${n.pl?`<div><i class="ti ti-map-pin"></i>${esc(n.pl)}</div>`:''}${n.nt?`<div><i class="ti ti-notes"></i>${esc(n.nt)}</div>`:''}${n.per?`<div><i class="ti ti-arrows-right"></i>期間 ${esc(n.per)}</div>`:''}${!n.tm&&!n.pl&&!n.nt&&!n.per?'<div class="none">沒有時間、地點或備註</div>':''}${it.virtual?'':'<button class="eb"><i class="ti ti-pencil"></i>編輯</button>'}</div>`:'';
   return `<div class="cw ${it.span?'spn':''}" data-i="${i}"><div class="sa l" data-done="${i}"><i class="ti ti-check"></i></div><div class="sa r" data-del="${i}"><i class="ti ti-trash"></i></div><div class="card ${kCls(it)} ${it.done?'x':''} ${POP===i?'pop':''} ${fire?'fire':''}"><div class="row1"><span class="ckw" data-ck="${i}"><span class="ck">${it.done?'<i class="ti ti-check"></i>':''}</span></span><span class="tx"><span>${esc(shortName(it.text))}</span></span>${it.span||n.per?'<span class="tag sp">多天</span>':''}${dd&&!fire&&!it.done?`<span class="due ${late?'late':''}">交 ${dd}</span>`:''}${fire?FLAME:''}<span class="mt">${n.tm?esc(n.tm):''}${n.pl?`<i class="ti ti-map-pin"></i><span class="pl">${esc(n.pl)}</span>`:''}${n.nt?'<i class="ti ti-notes"></i>':''}</span></div>${det}</div></div>`}
 function renderWeek(wk){
-  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''} ${isBday(o)?'bday':''}"><div class="h"><b>${o.m}/${o.d}</b>${perIcon(o)}${bdIcon(o)}<span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map((it,i,l)=>(i>0&&catOf(it)>=2&&catOf(l[i-1])<2?'<div class="zl"></div>':'')+`<div class="p ${kCls(it)} ${it.done?'x':''}">${esc(shortName(it.text))}</div>`).join('')}</div>`}).join('');
+  $('#week').innerHTML=wk.map(o=>{const h=holiday(o);return `<div class="wc ${isToday(o)?'td':''} ${h?'hol':''} ${festCls(o)}"><div class="h"><b>${o.m}/${o.d}</b>${perIcon(o)}${festIcon(o)}<span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span></div>${h?`<div class="hn">${esc(h)}</div>`:''}${dayItems(o).map((it,i,l)=>(i>0&&catOf(it)>=2&&catOf(l[i-1])<2?'<div class="zl"></div>':'')+`<div class="p ${kCls(it)} ${it.done?'x':''}">${esc(shortName(it.text))}</div>`).join('')}</div>`}).join('');
 }
 
 // ---- 運動連續天數：從今天（今天還沒做就從昨天）往回數，每天的「運動」都有打勾才算 ----
@@ -1328,8 +1351,8 @@ const addHTML=o=>DADD&&same(DADD,o)?'<div class="k inp"><input id="dkInp" placeh
 const allDone=o=>{const l=dayItems(o).filter(x=>!x.span&&!x.virtual);return l.length>0&&l.every(x=>x.done)};
 const isWe=o=>{const w=new Date(o.y,o.m-1,o.d).getDay();return w===0||w===6||!!holiday(o)};
 function deskMonth(){return `<div class="dm">${'一二三四五六日'.split('').map(w=>`<div class="wh">週${w}</div>`).join('')}${deskDays().map(o=>{const z=zones(o),h=holiday(o);
-  return `<div class="dc ${DFIND&&freeDay(o)?'free':''} ${o.m!==DREF.m?'out':''} ${isToday(o)?'td':''} ${isWe(o)?'we':''} ${isBday(o)?'bday':''}" data-day="${keyOf(o)}"><div class="dn"><b>${o.d}</b>${perIcon(o)}${bdIcon(o)}${allDone(o)?'<s class="fin">✦</s>':''}${h?`<span class="hn">${esc(h)}</span>`:''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button></div>${z.a}${slotC(o)}${z.a&&z.b?'<div class="zl"></div>':''}${z.b}${addHTML(o)}</div>`}).join('')}</div>`}
-function deskWeek(){const days=deskDays();let h=`<div class="dw">${days.map(o=>{const hd=holiday(o);return `<div class="hd ${isToday(o)?'td':''} ${isWe(o)?'we':''} ${isBday(o)?'bday':''}" data-day="${keyOf(o)}"><b>${o.d}</b>${perIcon(o)}${bdIcon(o)}<span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span>${allDone(o)?'<s class="fin">✦</s>':''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button>${hd?`<span class="hn">${esc(hd)}</span>`:''}</div>`}).join('')}`;
+  return `<div class="dc ${DFIND&&freeDay(o)?'free':''} ${o.m!==DREF.m?'out':''} ${isToday(o)?'td':''} ${isWe(o)?'we':''} ${festCls(o)}" data-day="${keyOf(o)}"><div class="dn"><b>${o.d}</b>${perIcon(o)}${festIcon(o)}${allDone(o)?'<s class="fin">✦</s>':''}${h?`<span class="hn">${esc(h)}</span>`:''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button></div>${z.a}${slotC(o)}${z.a&&z.b?'<div class="zl"></div>':''}${z.b}${addHTML(o)}</div>`}).join('')}</div>`}
+function deskWeek(){const days=deskDays();let h=`<div class="dw">${days.map(o=>{const hd=holiday(o);return `<div class="hd ${isToday(o)?'td':''} ${isWe(o)?'we':''} ${festCls(o)}" data-day="${keyOf(o)}"><b>${o.d}</b>${perIcon(o)}${festIcon(o)}<span>週${WD[new Date(o.y,o.m-1,o.d).getDay()]}</span>${allDone(o)?'<s class="fin">✦</s>':''}<button class="ad" data-add="${keyOf(o)}" title="在這天新增"><i class="ti ti-plus"></i></button>${hd?`<span class="hn">${esc(hd)}</span>`:''}</div>`}).join('')}`;
   // 一天一欄，全部卡片放一起（同類型自動排在一起）
   h+='<div class="ln"></div>'+days.map(o=>{const z=zones(o);return `<div class="cl ${DFIND&&freeDay(o)?'free':''}" data-day="${keyOf(o)}">${z.a}${slotC(o)}${z.b}${addHTML(o)}</div>`}).join('');return h+'</div>'}
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
@@ -2012,7 +2035,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116013920';
+const VER=/*VER*/'20261116014540';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
