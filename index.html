@@ -1669,8 +1669,11 @@ var CS=(()=>{
     for(const x of B.blue)if(!bOld.has(key(x))){const D0=await day(x.d);if(!D0.items.some(it=>it.text===x.text)){D0.items.push({text:x.text,done:false,bg:'',fc:'',bold:false,note:'分類：標記'});D0.ch=true}}
     const ch=Object.values(days).filter(x=>x.ch).map(x=>({o:x.o,items:x.items}));if(ch.length)await save(ch);
     const kOld=new Set(A.black.map(x=>x.text)),kNew=new Map(B.black.map(x=>[x.text,x]));
-    for(const x of A.black)if(!kNew.has(x.text))await call('pendAdd',{remove:true,text:x.text});
-    for(const x of B.black){await call('pendAdd',{caseId:o.id,client:o.client,title:x.text,due:md(x.d),text:x.text})}
+    // 一張失敗不會讓後面的都沒放：每張各自重試 2 次，最後還是失敗才提醒
+    const tryCall=async(a,p)=>{for(let t=0;t<3;t++){try{return await call(a,p)}catch(e){if(t===2)throw e;await new Promise(f=>setTimeout(f,1500*(t+1)))}}};let bad=0;
+    for(const x of A.black)if(!kNew.has(x.text))try{await tryCall('pendAdd',{remove:true,text:x.text})}catch(e){bad++}
+    for(const x of B.black)try{await tryCall('pendAdd',{caseId:o.id,client:o.client,title:x.text,due:md(x.d),text:x.text})}catch(e){bad++}
+    if(bad)toast(`有 ${bad} 張待排卡沒放成功，請把時程再存一次`)
     const nb=B.blue.filter(x=>!bOld.has(key(x))).length,nk=B.black.filter(x=>!kOld.has(x.text)).length;if(nb||nk)toast(`月曆放了 ${nb} 張藍色標記卡${nk?`，待排多了 ${nk} 張剪輯卡`:''}`);syncNow(true)}catch(e){toast('時程卡片沒放成功：'+((e&&e.message)||e))}}
   // ---------- 篩選、區塊 ----------
   const active=r=>!/^完成|^取消/.test(r.st),unpaid=r=>r.st==='完成未付款',closed=r=>r.st==='完成'||r.st==='取消';
@@ -2068,7 +2071,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116214756';
+const VER=/*VER*/'20261116220622';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
