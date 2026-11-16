@@ -1623,7 +1623,8 @@ var CS=(()=>{
       let pre='';const pm=l.match(/^([^\d:：]+)[:：]\s*/);if(pm){pre=pm[1].trim();l=l.slice(pm[0].length)}
       let t=l.replace(/(\d{1,2}\/\d{1,2})(或\d{1,2}\/\d{1,2})?/,'').replace(/[（(][一二三四五六日][）)]/g,'').replace(/^[\s:：]+|[\s:：]+$/g,'');if(pre)t=t.startsWith(pre)?t:(pre+' '+t).trim();
       let d=new Date(y,+m[1]-1,+m[2]);if(ref&&d<new Date(ref.getFullYear(),ref.getMonth()-6,1))d=new Date(y+1,+m[1]-1,+m[2]);
-      const kind=/上線|發佈|上架/.test(t)?'up':/回覆|確認|拍攝|錄製|審稿/.test(t)&&!/提供|copy|final/i.test(t)?'wait':/copy|final|初稿|調整|提供|AC|BC|輸出/i.test(t)?'me':'wait';
+      // 誰要做：寫明「剪輯提交／交／提供」＝你要交；驗帶、回饋、給剪輯、確認、拍攝這類＝等對方；其他有 copy／final／提供＝你要交
+      const kind=/上線|發佈|上架/.test(t)?'up':/剪輯\s*(提交|交|提供|上傳|輸出)/.test(t)?'me':/給剪輯|驗帶|回饋|驗收|審核|審稿|回覆|確認|拍攝|錄影|錄製|看片/.test(t)?'wait':/copy|final|初稿|調整|提供|AC|BC|輸出|提交/i.test(t)?'me':'wait';
       out.steps.push({d,t:t||'（未命名）',kind,ok,raw:l0})});return out.steps.length||out.sub?out:null}
   const schLine=(o,j)=>{let n=-1,k=-1;o.schText.split('\n').forEach((l,i)=>{if(/(\d{1,2})\/(\d{1,2})/.test(l)){n++;if(n===j)k=i}});return k};
   const nextMe=o=>o.sch&&o.sch.steps.find(s=>!s.ok&&s.kind==='me');
@@ -2048,7 +2049,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116163325';
+const VER=/*VER*/'20261116213539';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
