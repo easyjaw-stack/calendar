@@ -1719,7 +1719,7 @@ var CS=(()=>{
     const sumK=(k,f)=>S.filter(x=>x.key===k&&f(x.r)).reduce((a,b)=>a+b.r.amt,0);
     const card=(k,title,sub,isCur)=>{const done=sumK(k,r=>/^完成/.test(r.st)),got=sumK(k,r=>r.st==='完成'),owe=sumK(k,r=>r.st==='完成未付款'),pct=done?Math.round(got/done*100):0;
       const carry=S.filter(x=>x.key===k&&x.carried);const plan=ROWS.filter(r=>r.st!=='取消'&&r.due&&ym(r.due)===k);
-      return `<div class="cpanel bigc"><div><b>${title}</b><span class="mu">　${sub}</span></div><div class="nums">${[['已完成',done,''],['已收到',got,'#3F6E43'],['還沒收到',owe,owe?'#8A5A12':'']].map(x=>`<div ${x[0]==='還沒收到'&&owe?`class="oweclick" data-owek="${k}" title="點一下看是哪幾件"`:''}><small>${x[0]}${x[0]==='還沒收到'&&owe?' ›':''}</small><b style="color:${x[2]||'inherit'}">${fmt(x[1])}</b></div>`).join('')}</div>
+      return `<div class="cpanel bigc"><div><b>${title}</b><span class="mu">　${sub}</span></div><div class="nums">${[['已完成',done,'','done'],['已收到',got,'#3F6E43','got'],['還沒收到',owe,owe?'#8A5A12':'','owe']].map(x=>`<div ${x[1]?`class="oweclick" data-owek="${k}" data-ow="${x[3]}" title="點一下看是哪幾件"`:''}><small>${x[0]}${x[1]?' ›':''}</small><b style="color:${x[2]||'inherit'}">${fmt(x[1])}</b></div>`).join('')}</div>
         <div class="pbar"><i style="width:${pct}%"></i></div><div class="pfoot"><span>收到 ${pct}%</span><span class="sp"></span>${isCur?`<span>這個月交期的案子共 ${fmt(plan.reduce((a,b)=>a+b.amt,0))}・${plan.length} 件</span>`:''}</div>${carry.length?`<div class="carry">⚠ 順延 ${carry.length} 件・${fmt(carry.reduce((a,b)=>a+b.r.amt,0))}：${carry.map(x=>esc(x.r.client)+' '+fmt(x.r.amt)).join('、')}</div>`:''}</div>`};
     const pm=kcur%100,cm=K2%100;
     const top=t.getDate()<=15?`<div class="g2">${card(kcur,pm+' 月',`${cm}/15 結算`,false)}${card(K2,cm+' 月','進行中',true)}</div>`:`<div class="g1">${card(kcur,cm+' 月',`${(cm%12)+1}/15 結算`,true)}</div>`;
@@ -1950,8 +1950,11 @@ var CS=(()=>{
     root.querySelectorAll('[data-fall]').forEach(e=>e.onclick=async ev=>{ev.stopPropagation();const v=e.dataset.fall,l=ROWS.filter(cloudPending).filter(o=>v!=='已詢問'||o.file==='雲端中');if(!l.length)return;if(await choose(`${l.length} 支全部改成「${v}」？`,[['y','確定']])!=='y')return;setFile(l,v)});
     root.querySelectorAll('[data-fset]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();const o=byId(e.dataset.fid);const tr=e.closest('tr');if(e.dataset.fset!=='已詢問'&&tr)tr.animate([{opacity:1},{opacity:0,transform:'translateX(12px)'}],{duration:220,fill:'forwards'});setTimeout(()=>setFile([o],e.dataset.fset),e.dataset.fset!=='已詢問'?230:0)}});
     root.querySelectorAll('[data-paid]').forEach(e=>{e.onmousedown=ev=>ev.stopPropagation();e.onclick=ev=>{ev.stopPropagation();const o=byId(e.dataset.paid);o._prev={d:o.doneTxt,p:o.paidTxt};if(!o.paidTxt)o.paidTxt=md(today0());const tr=e.closest('tr');const go=()=>upd(o,{'進度':'完成'},`「${o.title}」收到了 ${fmt(o.amt)}，收款日 ${o.paidTxt}`);if(tr)tr.animate([{opacity:1},{opacity:0,transform:'translateX(12px)'}],{duration:220,fill:'forwards'});setTimeout(go,tr?230:0)}});
-    root.querySelectorAll('[data-owek]').forEach(e=>e.onclick=()=>{const k=+e.dataset.owek,S=settle();S.pop();const l=S.filter(x=>x.key===k&&x.r.st==='完成未付款').map(x=>x.r);
-      const m=pop(e,`<div style="padding:6px 10px 4px;font-size:12px;color:#9B9993">還沒收到 ${l.length} 件</div>`+l.map(r=>`<div class="it"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}　<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">${esc(r.title)}</span><em>${fmt(r.amt)}</em></div>`).join(''));m.style.minWidth='360px'});
+    root.querySelectorAll('[data-owek]').forEach(e=>e.onclick=()=>{const k=+e.dataset.owek,S=settle();S.pop();const w=e.dataset.ow||'owe',F={done:r=>/^完成/.test(r.st),got:r=>r.st==='完成',owe:r=>r.st==='完成未付款'}[w],T={done:'已完成',got:'已收到',owe:'還沒收到'}[w];
+      const l=S.filter(x=>x.key===k&&F(x.r)).map(x=>x.r).sort((a,b)=>(a.paid||a.done||0)-(b.paid||b.done||0));
+      // 已收到：多顯示收款日；已完成：標出哪幾件還沒收到
+      const m=pop(e,`<div style="padding:6px 10px 4px;font-size:12px;color:#9B9993">${T} ${l.length} 件・${fmt(l.reduce((a,b)=>a+b.amt,0))}</div>`+l.map(r=>`<div class="it" data-open-case="${r.id}"><i class="dot" style="background:${srcColor(r.src)}"></i>${esc(r.client)}　<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px">${esc(r.title)}</span>${w==='got'&&r.paidTxt?`<span class="mu" style="font-size:11.5px">${esc(r.paidTxt)} 收</span>`:''}${w==='done'&&r.st==='完成未付款'?'<span style="font-size:11.5px;color:#8A5A12">未收</span>':''}<em>${fmt(r.amt)}</em></div>`).join(''));m.style.minWidth='380px';
+      m.querySelectorAll('[data-open-case]').forEach(x=>x.onclick=()=>{m.remove();OPEN=x.dataset.openCase;drawer()})});
     root.querySelectorAll('[data-paid2]').forEach(e=>e.onclick=async ev=>{ev.stopPropagation();const s=subs().find(x=>x.p===e.dataset.paid2);const date=s.next||today0();
       
       const iso=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
@@ -2045,7 +2048,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116143658';
+const VER=/*VER*/'20261116163325';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
