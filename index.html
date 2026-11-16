@@ -1596,12 +1596,13 @@ var CS=(()=>{
       ${c?'':`<div class="tw"><table><thead><tr><th>完成日</th><th>客戶</th><th>專案</th><th>狀態</th><th></th></tr></thead><tbody>${l.map(o=>{const dd=o.done?Math.round((t-o.done)/864e5):null;return `<tr class="r" data-id="${o.id}"><td class="mu">${esc(o.doneTxt||'')}${dd!=null?`<span class="mu">　${dd} 天前</span>`:''}</td><td>${esc(o.client)}</td><td title="${esc(o.title)}">${esc(o.title)}</td><td><span class="st ${FILE_CLS[o.file]}" style="cursor:default">${esc(o.file)}</span></td><td class="fxact"><span class="btn3 dk" data-fset="已處理" data-fid="${o.id}">已刪除</span></td></tr>`}).join('')}</tbody></table></div>`}</div>`}
   const OLDF={'檔案':o=>o.file,'類型':o=>o.kind,'專案':o=>o.title,'客戶':o=>o.client,'案源':o=>o.src,'備註':o=>o.memo,'我的備註':o=>o.mynote,'檔案':o=>o.file,'進度':o=>o.st,'時程':o=>o.schText,'報價':o=>o.amt?String(o.amt):'','交期':o=>o.dueTxt,'上片日':o=>o.upTxt,'完成日':o=>o.doneTxt,'收款日':o=>o.paidTxt};
   function upd(o,set,msg,links,noUndo){FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;if(set['進度']!=null&&/^完成/.test(set['進度'])&&cloudOn(o)&&!o.file&&set['檔案']==null)set={...set,'檔案':'雲端中'};if(set['進度']!=null&&!/^完成/.test(set['進度'])&&cloudOn(o)&&o.file==='雲端中'&&set['檔案']==null)set={...set,'檔案':''};  // 改回沒完成：檔案應該還沒上傳，拿掉雲端中// 先改畫面，再存（可以復原）
-    const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
+    const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});const schBefore=(o._schPrev!=null?o._schPrev:o.schText)||'';o._schPrev=null;if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
     const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
     if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
     Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期'){o.dueTxt=set[k];const m=String(set[k]).match(/(\d{1,2})\/(\d{1,2})/),b=o.due||o.intake||today0();o.due=m?new Date(b.getFullYear(),+m[1]-1,+m[2]):null}if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
     const pr=write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo);
+    if(set['時程']!=null&&String(set['時程']).trim()!==schBefore.trim())pr.then(()=>syncSchCards(o,schBefore,String(set['時程']))).catch(()=>{});
     // 改成修改中／等輸出中／封面製作 → 回到待排，存好後馬上更新待排
     if(set['進度']!=null&&/修改|輸出|封面/.test(set['進度']))pr.then(()=>{syncNow(true);if(msg)setTimeout(()=>toast('已放回待排，等你排「'+(set['進度'].match(/修改|輸出|封面/)[0])+'」'),1800)}).catch(()=>{});
     return pr}
@@ -1631,9 +1632,9 @@ var CS=(()=>{
   const upOf=o=>o.upTxt||(()=>{const s=o.sch&&o.sch.steps.find(s=>s.kind==='up');return s?md(s.d):''})();
   const shortStep=t=>t.replace(/（.*?）|\(.*?\)/g,'').replace(/提供|影片/g,'').trim().slice(0,12);
   function toggleStep(o,j){const s=o.sch.steps[j];const lines=o.schText.split('\n');let n=-1,k=-1;lines.forEach((l,i)=>{if(/(\d{1,2})\/(\d{1,2})/.test(l)){n++;if(n===j)k=i}});if(k<0)return;
-    lines[k]=s.ok?lines[k].replace(/\s?✓\s*$/,''):lines[k].replace(/\s+$/,'')+' ✓';const set={'時程':lines.join('\n')};let msg=`「${shortStep(s.t)}」${s.ok?'取消打勾':'打勾了'}`;
+    o._schPrev=o.schText;lines[k]=s.ok?lines[k].replace(/\s?✓\s*$/,''):lines[k].replace(/\s+$/,'')+' ✓';const set={'時程':lines.join('\n')};let msg=`「${shortStep(s.t)}」${s.ok?'取消打勾':'打勾了'}`;
     if(!s.ok&&s.kind==='me'){o.schText=set['時程'];o.sch=parseSched(o.schText,o.intake);const nx=nextMe(o);if(/a\s?copy|AC|初稿/i.test(s.t)&&(!o.st||/剪輯中|修改中|等輸出/.test(o.st)))set['進度']='客戶確認中';
-      if(nx){set['交期']=md(nx.d);msg=`交期改成 ${md(nx.d)}，下一步「${shortStep(nx.t)}」已加到待排`;call('pendAdd',{caseId:o.id,client:o.client,title:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`,due:md(nx.d),text:`${o.title.replace(/^業配｜/,'')} ${shortStep(nx.t)}`}).then(()=>syncNow(true)).catch(()=>{})}else msg='時程上你要交的都交完了 ✓'}
+      if(nx){set['交期']=md(nx.d);msg=`交期改成 ${md(nx.d)}，下一步是「${shortStep(nx.t)}」`}else msg='時程上你要交的都交完了 ✓'}
     else if(!s.ok)msg+='（不是你要交的，交期不變）';upd(o,set,msg)}
   // 時程：按「編輯」整個時程一起改（每一步一列：日期＋內容，✕ 刪掉，＋ 新增一步），儲存時照日期排好
   const normD=v=>{const m=String(v).trim().match(/^(\d{1,2})\s*[\/\-.月]\s*(\d{1,2})日?$/)||String(v).trim().match(/^(\d{1,2})(\d{2})$/);return m&&+m[1]>=1&&+m[1]<=12&&+m[2]>=1&&+m[2]<=31?(+m[1])+'/'+(+m[2]):''};
@@ -1653,6 +1654,24 @@ var CS=(()=>{
         out.push({k:+parseSched(dd+' x',ref).steps[0].d,l:dd+' '+(t||'（未命名）')+(r.dataset.done?' ✓':'')})});
       if(bad){toast('日期看不懂，請打 11/23 這種格式');bad.focus();return}
       out.sort((a,b)=>a.k-b.k);const txt=[...head,...out.map(x=>x.l),...notes].join('\n');if(txt.trim()===o.schText.trim()){drawer();return}schSave(o,txt,out.length?'時程已更新':'時程已清空')}}
+  // ---------- 貼時程 → 自動放卡片 ----------
+  // 月曆：時程上每一步（今天以後）放一張藍色標記卡（你要交＝「名稱 交片 Acopy」，等對方＝「名稱 企劃驗帶…」）
+  // 待排：每個還沒交的「你要交」各一張黑色剪輯卡（「名稱 Acopy 剪輯」），讓你自己拖去月曆預留時間
+  // 時程改了：舊的卡（還沒打勾的）拿掉、換成新的；打勾完成的步驟從待排拿掉
+  const stepLabel=(t,me)=>{let x=String(t).replace(/\d{1,2}[:：]\d{2}\s*(前|後)?/g,'').replace(/剪輯\s*(提交|交|提供)/,'').replace(/提供|影片/g,'').replace(/（.*?）|\(.*?\)/g,'').trim();if(me)x=x.split(/\s*[&＆、，,]\s*/)[0];return x.slice(0,16).trim()||'交片'};
+  const schName=o=>o.title.replace(/^業配｜/,'').trim();
+  function schPlan(o,text){const p=text?parseSched(text,o.intake||today0()):null,t=today0(),nm=schName(o),blue=[],black=[];if(!p)return {blue,black};
+    p.steps.forEach(s=>{if(s.d<t)return;const me=s.kind==='me',lb=stepLabel(s.t,me);blue.push({d:s.d,text:me?`${nm} 交片 ${lb}`:`${nm} ${lb}`});if(me&&!s.ok)black.push({d:s.d,text:`${nm} ${lb} 剪輯`})});return {blue,black}}
+  async function syncSchCards(o,oldText,newText){try{const A=schPlan(o,oldText),B=schPlan(o,newText),key=x=>+x.d+'|'+x.text;
+    const bOld=new Set(A.blue.map(key)),bNew=new Set(B.blue.map(key)),days={};
+    const day=async d=>{const k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(!days[k]){const od={y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate()};await ensureMonth(od.y,od.m);days[k]={o:od,items:clone(dayItems(od)),ch:false}}return days[k]};
+    for(const x of A.blue)if(!bNew.has(key(x))){const D0=await day(x.d),i=D0.items.findIndex(it=>it.text===x.text&&!it.done);if(i>=0){D0.items.splice(i,1);D0.ch=true}}
+    for(const x of B.blue)if(!bOld.has(key(x))){const D0=await day(x.d);if(!D0.items.some(it=>it.text===x.text)){D0.items.push({text:x.text,done:false,bg:'',fc:'',bold:false,note:'分類：標記'});D0.ch=true}}
+    const ch=Object.values(days).filter(x=>x.ch).map(x=>({o:x.o,items:x.items}));if(ch.length)await save(ch);
+    const kOld=new Set(A.black.map(x=>x.text)),kNew=new Map(B.black.map(x=>[x.text,x]));
+    for(const x of A.black)if(!kNew.has(x.text))await call('pendAdd',{remove:true,text:x.text});
+    for(const x of B.black){await call('pendAdd',{caseId:o.id,client:o.client,title:x.text,due:md(x.d),text:x.text})}
+    const nb=B.blue.filter(x=>!bOld.has(key(x))).length,nk=B.black.filter(x=>!kOld.has(x.text)).length;if(nb||nk)toast(`月曆放了 ${nb} 張藍色標記卡${nk?`，待排多了 ${nk} 張剪輯卡`:''}`);syncNow(true)}catch(e){toast('時程卡片沒放成功：'+((e&&e.message)||e))}}
   // ---------- 篩選、區塊 ----------
   const active=r=>!/^完成|^取消/.test(r.st),unpaid=r=>r.st==='完成未付款',closed=r=>r.st==='完成'||r.st==='取消';
   const flt=l=>l.filter(r=>(FS==='全部'||r.src===FS)&&(!Q||(r.client+r.title+r.src+r.memo+r.mynote).toLowerCase().includes(Q.toLowerCase())));
@@ -1911,7 +1930,7 @@ var CS=(()=>{
       lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
         const dueD=due?(()=>{const m=due.match(/(\d{1,2})\/(\d{1,2})/);return m?new Date(t0.getFullYear(),+m[1]-1,+m[2]):null})():null;
         const o={tab:String(t0.getFullYear()),r:0,id:tmp,intake:t0,mkey:ym(t0),mlabel:t0.getFullYear()+'/'+(t0.getMonth()+1),src,client,title:ti,amt:Number(set['報價'])||0,st:'',links:links?links.map(x=>({...x})):[],due:dueD,dueTxt:due,done:null,doneTxt:'',paid:null,paidTxt:'',file:'',memo:'',mynote:'',up:null,upTxt:'',schText:sch,kind:kindOf(ti)};o.sch=parseSched(sch,t0);ROWS.push(o);FX.flash=tmp;
-        const last=ix===lines.length-1;write('caseAdd',{intake:iso,set,links,id:'c'+Date.now().toString(36)+ix+Math.floor(Math.random()*1296).toString(36)},last?(lines.length>1?`已新增 ${lines.length} 件，在待排等你排`:`已新增「${ti}」，在待排等你排`):null,null,tmp).then(()=>{if(last){syncNow(true);if(isNewSrc&&!keep)cliForm(null)}}).catch(()=>{ROWS=ROWS.filter(x=>x!==o);rerender()})});
+        const last=ix===lines.length-1;write('caseAdd',{intake:iso,set,links,id:'c'+Date.now().toString(36)+ix+Math.floor(Math.random()*1296).toString(36)},last?(lines.length>1?`已新增 ${lines.length} 件，在待排等你排`:`已新增「${ti}」，在待排等你排`):null,null,tmp).then(()=>{if(sch)syncSchCards(o,'',sch);if(last){syncNow(true);if(isNewSrc&&!keep)cliForm(null)}}).catch(()=>{ROWS=ROWS.filter(x=>x!==o);rerender()})});
       if(keep){// 繼續下一筆：保留案源、客戶、交期；專案換成下一個編號的開頭
         const prev=lines[lines.length-1],fam=prev.match(/^(\D*?)(\d+)/),nt=fam?templates(src,client).find(t=>t.startsWith(fam[1])):null;NC={...NC,src,srcNew:'',client,title:nt||'',amt:'',link:'',sch:''};rerender();drawNC('title')}
       else{NC=null;drawNC();rerender()}};
@@ -2049,7 +2068,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116213539';
+const VER=/*VER*/'20261116214400';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
