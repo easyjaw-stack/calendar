@@ -485,6 +485,7 @@ td.ing,.ed.ing{padding:3px 5px!important}.ing input{width:100%;min-width:90px;fo
 .dpk .gd span{height:34px;display:grid;place-items:center;cursor:pointer;border-radius:50%;margin:1px 2px;font-variant-numeric:tabular-nums;transition:background .1s}
 .dpk .gd span:hover{background:#F2F1EE}.dpk .gd span.o{color:#C9C7C0}.dpk .gd span.td{font-weight:700;box-shadow:inset 0 0 0 1.5px #D3D1C7}.dpk .gd span.on{background:#262624;color:#fff;font-weight:600;box-shadow:none}
 .dpk .ft{display:flex;justify-content:space-between;border-top:1px solid #F0EEEA;margin-top:6px;padding-top:6px}.dpk .ft span{font-size:12.5px;color:#6b6a66;padding:4px 8px;border-radius:7px;cursor:pointer}.dpk .ft span:hover{background:#F2F1EE;color:#262624}
+.cspm .lkr{display:flex;align-items:center;gap:2px}.cspm .lkr .it{flex:1;min-width:0}.cspm .lka{font-size:12px;color:#9B9993;padding:5px 7px;border-radius:7px;cursor:pointer;flex-shrink:0}.cspm .lka:hover{background:#F2F1EE;color:#262624}.cspm .lka.del:hover{color:#B5584E}
 .cspm{position:fixed;background:#fff;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.18);padding:6px;z-index:80;min-width:170px;font-size:13px}.cspm .it{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none}.cspm .it:hover{background:#F2F1EE}.cspm .it em{font-style:normal;color:#9B9993;font-size:11.5px;margin-left:auto}.cspm .add{color:#6b6a66;border-top:1px solid #F0EFEB;margin-top:4px;padding-top:10px}
 .cssum{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#262624;color:#fff;border-radius:14px;padding:10px 16px;display:flex;gap:16px;align-items:center;font-size:13.5px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .2s,transform .2s;z-index:70}
 .cssum.hide{opacity:0;transform:translate(-50%,12px);pointer-events:none}.cssum b{font-size:18px;font-variant-numeric:tabular-nums}.cssum small{color:#C9C7C0}.cssum button{font:inherit;font-size:12px;background:#3A3A38;color:#fff;border:0;border-radius:8px;padding:5px 10px;cursor:pointer}
@@ -1824,8 +1825,12 @@ var CS=(()=>{
     setTimeout(()=>document.addEventListener('mousedown',function f(ev){if(!m.contains(ev.target)){m.remove();document.removeEventListener('mousedown',f)}}),0);return m}
   function stMenu(el,o){const m=pop(el,STS.map(s=>`<div class="it" data-s="${s}"><span class="st ${ST[s]||'s-none'}">${s||'未開始'}</span></div>`).join(''));
     m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();if(s===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};let t='進度改成「'+(s||'未開始')+'」';if(/^完成/.test(s)&&!o.doneTxt){o.doneTxt=md(today0());t+='，完成日自動填 '+o.doneTxt}if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t)}}
-  function lkMenu(el,o){if(!o.links.length){addLink(o);return}const m=pop(el,o.links.map((x,i)=>`<a class="it" href="${esc(x.url)}" target="_blank" rel="noopener"><span style="color:#2E4466">↗</span>${esc(x.l)}<em>${LBL(x.url)}</em></a>`).join('')+'<div class="it add" data-add>＋ 貼上新連結</div>');
-    m.querySelector('[data-add]').onclick=()=>{m.remove();addLink(o)}}
+  function lkMenu(el,o){if(!o.links.length){addLink(o);return}
+    // 每個連結：點名稱＝打開；右邊「改」＝修改名稱／網址，「✕」＝移除（可以復原）
+    const m=pop(el,o.links.map((x,i)=>`<div class="lkr"><a class="it" href="${esc(x.url)}" target="_blank" rel="noopener"><span style="color:#2E4466">↗</span>${esc(x.l)}<em>${LBL(x.url)}</em></a><span class="lka" data-led="${i}" title="修改">改</span><span class="lka del" data-ldel="${i}" title="移除這個連結">✕</span></div>`).join('')+'<div class="it add" data-add>＋ 貼上新連結</div>');
+    m.querySelector('[data-add]').onclick=()=>{m.remove();addLink(o)};
+    m.querySelectorAll('[data-led]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();m.remove();linkForm(o,+e.dataset.led)});
+    m.querySelectorAll('[data-ldel]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();m.remove();const l=o.links.slice(),gone=l.splice(+e.dataset.ldel,1)[0];upd(o,{},`已移除「${gone.l}」`,l)})}
   // 選日期的小月曆（像 Google 試算表）：點一天就填好；也可以直接打字；↑↓←→ 換日子、Enter 確定、Esc 取消
   function datePick(anchor,inp,onPick){document.querySelectorAll('.dpk').forEach(x=>x.remove());const t=today0();
     const parse=v=>{const m=String(v||'').match(/(\d{1,2})\/(\d{1,2})/);if(!m)return null;let d=new Date(t.getFullYear(),+m[1]-1,+m[2]);if(d-t>183*864e5)d=new Date(t.getFullYear()-1,+m[1]-1,+m[2]);else if(t-d>183*864e5)d=new Date(t.getFullYear()+1,+m[1]-1,+m[2]);return d};
@@ -1992,7 +1997,12 @@ var CS=(()=>{
     // 選到一格後直接打字或按 F2 ＝ 開始改那一格（像 Google 試算表）
     // 中文輸入法打第一個字時 key 是 Process：先打開輸入框（清空），讓輸入法直接打進去
     if(SEL.size===1&&PAGE!=='cal'&&!ev.metaKey&&!ev.ctrlKey&&!ev.altKey&&(k==='F2'||k==='Process'||(k.length===1&&k!==' '))){const id=[...SEL][0],td=document.querySelector(`#desk tr.r[data-id="${id}"] td.fc.ed`);if(td){if(k!=='Process')ev.preventDefault();inlineEdit(td,byId(id),td.dataset.f);const i=td.querySelector('input');if(i&&k==='Process')i.value='';else if(i&&k!=='F2'){i.value=k;i.dispatchEvent(new Event('input'))}return true}}
-    if((k==='Delete'||k==='Backspace')&&PAGE!=='cal'&&PAGE!=='split'){const o=SEL.size===1?byId([...SEL][0]):null;if(o){ev.preventDefault();delCase(o)}return true}
+    if((k==='Delete'||k==='Backspace')&&PAGE!=='cal'&&PAGE!=='split'){const o=SEL.size===1?byId([...SEL][0]):null;if(!o)return true;ev.preventDefault();
+      // 選到某一格：清空那一格（連結＝全部移除），可以按「復原」；沒選到可清的格子才是刪除整個案子
+      const td=document.querySelector(`#desk tr.r[data-id="${o.id}"] td.fc`),f=td&&(td.dataset.f||td.dataset.col);
+      if(f==='連結'){if(o.links.length)upd(o,{},'已移除這個案子的連結',[]);return true}
+      if(f&&f!=='專案'&&f!=='客戶'){if(cellVal(o,f))upd(o,{[f]:''},`已清空「${f}」`);return true}
+      delCase(o);return true}
     return PAGE!=='cal'&&PAGE!=='split'}
   const busy=()=>!!NC||!!document.querySelector('.csov,td.ing,.csdrw .ing')||DRAG;
   function searchInto(el,q){if(!el)return;const Q0=Q;Q=q||'';setTimeout(()=>{Q=Q0},0);if(!q||!D){el.innerHTML='';return}const ql=q.toLowerCase();
@@ -2035,7 +2045,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116014540';
+const VER=/*VER*/'20261116143658';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
