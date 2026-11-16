@@ -1661,7 +1661,8 @@ var CS=(()=>{
   const stepLabel=(t,me)=>{let x=String(t).replace(/\d{1,2}[:：]\d{2}\s*(前|後)?/g,'').replace(/剪輯\s*(提交|交|提供)/,'').replace(/提供|影片/g,'').replace(/（.*?）|\(.*?\)/g,'').trim();if(me)x=x.split(/\s*[&＆、，,]\s*/)[0];return x.slice(0,16).trim()||'交片'};
   const schName=o=>o.title.replace(/^業配｜/,'').trim();
   function schPlan(o,text){const p=text?parseSched(text,o.intake||today0()):null,t=today0(),nm=schName(o),blue=[],black=[];if(!p)return {blue,black};
-    p.steps.forEach(s=>{if(s.d<t)return;const me=s.kind==='me',lb=stepLabel(s.t,me);blue.push({d:s.d,text:me?`${nm} 交片 ${lb}`:`${nm} ${lb}`});if(me&&!s.ok)black.push({d:s.d,text:`${nm} ${lb} 剪輯`})});return {blue,black}}
+    p.steps.forEach(s=>{if(s.d<t)return;const me=s.kind==='me';let lb=stepLabel(s.t,me);const lb2=lb.split(/\s+/).filter(w=>!nm.toLowerCase().includes(w.toLowerCase())).join(' ').trim();if(lb2)lb=lb2;  // 案名已有的字（例如 shorts）不要重複
+      blue.push({d:s.d,text:me?`${nm} 交片 ${lb}`:`${nm} ${lb}`});if(me&&!s.ok)black.push({d:s.d,text:`${nm} ${lb} 剪輯`})});return {blue,black}}
   async function syncSchCards(o,oldText,newText){try{const A=schPlan(o,oldText),B=schPlan(o,newText),key=x=>+x.d+'|'+x.text;
     const bOld=new Set(A.blue.map(key)),bNew=new Set(B.blue.map(key)),days={};
     const day=async d=>{const k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(!days[k]){const od={y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate()};await ensureMonth(od.y,od.m);days[k]={o:od,items:clone(dayItems(od)),ch:false}}return days[k]};
@@ -2071,7 +2072,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116220622';
+const VER=/*VER*/'20261116222627';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
