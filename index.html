@@ -1824,7 +1824,7 @@ var CS=(()=>{
   // 新增／修改連結：名稱和網址在同一個視窗；貼上網址會自動建議名稱
   let LCLIP=null;
   function linkForm(o,idx,multi){const ed=idx!=null?o.links[idx]:null;const ov=document.createElement('div');ov.className='csov';
-    const sug=['素材','腳本','Acopy','Bcopy','成片','字卡','品牌回饋','逐字稿'];
+    const sug=['素材','母片','腳本','Acopy','Bcopy','成片','字卡','品牌回饋','逐字稿'];
     ov.innerHTML=`<div class="csdlg" style="width:460px"><div class="dh">${ed?'修改連結':'新增連結'}<span class="sp"></span><span data-x class="x">✕</span></div>
       ${LCLIP&&!ed?`<div class="lclip" data-clip>貼上剛複製的：<b>${esc(LCLIP.l)}</b><span class="mu">${esc(LCLIP.url.replace(/^https?:\/\//,'').slice(0,40))}</span></div>`:''}${multi?`<div class="mu" style="font-size:12.5px;margin-bottom:8px">會加到選取的 ${multi.length} 個案子</div>`:''}
       <div class="frm lf"><label>網址<input data-k="url" value="${esc(ed?ed.url:'')}" placeholder="貼上雲端／Frame.io／YouTube 網址"></label>
@@ -2072,7 +2072,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261116222627';
+const VER=/*VER*/'20261117214950';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
