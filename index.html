@@ -1699,6 +1699,9 @@ var CS=(()=>{
   const mName=k=>{const y=Math.floor(k/100),m=k%100;return (y!==new Date().getFullYear()?y+' 年 ':'')+m+' 月'};
   function block(name,l,hint,sort,cols){const c=COL[name];return `<div class="cpanel"><div class="sec" data-sec="${name}"><span class="ar">${c?'▶':'▼'}</span>${name}<span class="m">${l.length} 件・${fmt(l.reduce((a,b)=>a+b.amt,0))}${hint?'　'+hint:''}</span></div>${c?'':`<div class="tw"><table>${head(cols)}<tbody>${(sort?byDue(l):l).map(r=>rowH(r,cols)).join('')||`<tr><td colspan="12" class="emp">沒有</td></tr>`}</tbody></table></div>`}</div>`}
   const srcList=()=>[...new Set(ROWS.map(r=>r.src).filter(Boolean))].sort((a,b)=>ROWS.filter(r=>r.src===b).length-ROWS.filter(r=>r.src===a).length);
+  // 新增案子用：除了做過的案源，也列出「付款規則」裡已經設好、還沒接過案的（例如剛開始合作的 Dcard）
+  const srcAll=()=>{const l=srcList();(D&&D.rules||[]).forEach(r=>{if(r.src&&!l.includes(r.src))l.push(r.src)});return l};
+  const srcShort=k=>k.length>10?k.split(/\s+/)[0]:k;
   const filterRow=()=>`<div class="pflt">${['全部',...srcList()].map(s=>`<span class="${FS===s?'on':''}" data-fs="${esc(s)}">${s!=='全部'?`<i class="dot" style="background:${srcColor(s)}"></i>`:''}${esc(s)}</span>`).join('')}</div>`;
   function casePage(cols,compact){if(!D)return '<div class="cpanel emp">讀取剪輯表中…</div>';const L=flt(ROWS),cl=L.filter(closed);
     return (compact?'':filterRow())+block('進行中',L.filter(active),'依交期排',true,cols)+block('完成未付款',L.filter(unpaid),'',false,cols)+
@@ -1706,7 +1709,7 @@ var CS=(()=>{
   // ---------- 客戶 ----------
   const rules=()=>{const o={};(D&&D.rules||[]).forEach(r=>o[r.src]=r);return o};
   const ruleTxt=r=>!r?'':r.k==='次月'?`次月 ${r.n} 號`:r.k==='月底加天數'?`月底＋${r.n} 天`:r.k;
-  const clients=()=>(D&&D.clients||[]).map(c=>{const key=srcList().find(k=>c.name.includes(k))||c.name;return {...c,key,rule:rules()[key]}});
+  const clients=()=>(D&&D.clients||[]).map(c=>{const key=srcAll().find(k=>c.name.includes(k)||k.includes(c.name))||c.name;return {...c,key,rule:rules()[key]}});
   const stats=k=>{const l=ROWS.filter(r=>r.src===k),y=new Date().getFullYear();return {n:l.length,ny:l.filter(r=>r.intake&&r.intake.getFullYear()===y).length,got:l.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0),un:l.filter(unpaid).reduce((a,b)=>a+b.amt,0),act:l.filter(active).length}};
   function cliPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const C=clients();
     if(!CLI)return `<div class="cgrid">${C.map(c=>{const s=stats(c.key);return `<div class="ccard" data-c="${esc(c.key)}"><h4><i class="dot" style="background:${srcColor(c.key)}"></i>${esc(c.name)}</h4><div class="kv"><span>收款</span><div>${esc(c.pay||'—')}${c.rule?`<span class="mu">（${esc(ruleTxt(c.rule))}）</span>`:''}</div><span>備註</span><div>${c.tags.map(t=>`<span class="tagx">${esc(t)}</span>`).join('')||'—'}</div></div><div class="stat"><div><b>${s.n}</b>總件數</div><div><b>${s.ny}</b>今年件數</div><div><b>${fmt(s.got)}</b>總收款</div></div></div>`}).join('')}<div class="ccard addc" data-newcli>＋ 新增客戶</div></div>`;
@@ -1914,7 +1917,7 @@ var CS=(()=>{
     const row=(lab,html)=>`<div class="ncr"><span>${lab}</span><div>${html}</div></div>`;const chip=(on,attr,txt,dot)=>`<span class="ncc ${on?'on':''}" ${attr}>${dot?`<i class="dot" style="background:${dot}"></i>`:''}${esc(txt)}</span>`;
     const inp=(k,ph,w)=>`<input data-k="${k}" value="${esc(NC[k]??'')}" placeholder="${ph}" style="width:${w||'100%'}">`;
     const ov=document.createElement('div');ov.className='csov csnc';ov.innerHTML=`<div class="csdlg" style="width:580px"><div class="dh">新增案子<span class="mu" style="font-weight:400;font-size:12.5px;margin-left:8px">${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()} 進來</span><span class="sp"></span><span data-x class="x">✕</span></div><div class="ncb">
-     ${row('案源',srcList().map(k=>chip(NC.src===k,`data-src="${esc(k)}"`,k,srcColor(k))).join('')+inp('srcNew','或輸入新案源','150px'))}
+     ${row('案源',srcAll().map(k=>chip(NC.src===k,`data-src="${esc(k)}"`,srcShort(k),srcColor(k))).join('')+inp('srcNew','或輸入新案源','150px'))}
      ${row('客戶',cls(NC.src).slice(0,8).map(c=>chip(NC.client===c,`data-cl="${esc(c)}"`,c)).join('')+inp('client','或輸入新客戶','170px'))}
      ${row('專案',(tp.length?`<div style="margin-bottom:6px">${tp.map(x=>`<span class="ncc tp" data-tp="${esc(x)}">${esc(x)}…</span>`).join('')}</div>`:'')+`<textarea data-k="title" class="ttl" rows="${Math.min(6,Math.max(1,NC.title.split('\n').length))}" placeholder="專案名稱（點上面的快速開頭會自動接著編號）">${esc(NC.title)}</textarea>`+`<div class="mu nchint">${NC.title.split('\n').filter(x=>x.trim()).length>1?`會一次新增 <b>${NC.title.split('\n').filter(x=>x.trim()).length}</b> 件（每一行一件，其他欄位都一樣）`:'Enter＝新增並繼續下一筆　Shift＋Enter＝換行（一次貼好幾行＝新增好幾件）'}</div>`)}
      ${row('報價',inp('amt',sug?'建議 '+sug:'金額','140px')+(sug&&!NC.amt?`<span class="mu" style="font-size:12.5px;margin-left:8px">同類型最常見 ${fmt(sug)}，${DESK?'按 Tab 帶入':'點一下帶入'}</span>`:''))}
@@ -1930,7 +1933,7 @@ var CS=(()=>{
     ov.querySelectorAll('[data-due]').forEach(b=>b.onclick=()=>{NC.due=b.dataset.due;drawNC()});
     {const dI=ov.querySelector('input[data-k="due"]');if(dI)dI.addEventListener('focus',()=>{if(document.querySelector('.dpk'))return;const c=datePick(dI,dI,v=>{NC.due=v;drawNC()});dI.addEventListener('blur',()=>setTimeout(c,0),{once:true})})}
     const add=keep=>{const lines=NC.title.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)return;const src=(NC.srcNew||'').trim()||NC.src,sch=normSch(NC.sch).trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
-      const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcList().includes(src),client=NC.client.trim()||src,due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
+      const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcAll().includes(src),client=NC.client.trim()||srcShort(src),due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
       lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
         const dueD=due?(()=>{const m=due.match(/(\d{1,2})\/(\d{1,2})/);return m?new Date(t0.getFullYear(),+m[1]-1,+m[2]):null})():null;
         const o={tab:String(t0.getFullYear()),r:0,id:tmp,intake:t0,mkey:ym(t0),mlabel:t0.getFullYear()+'/'+(t0.getMonth()+1),src,client,title:ti,amt:Number(set['報價'])||0,st:'',links:links?links.map(x=>({...x})):[],due:dueD,dueTxt:due,done:null,doneTxt:'',paid:null,paidTxt:'',file:'',memo:'',mynote:'',up:null,upTxt:'',schText:sch,kind:kindOf(ti)};o.sch=parseSched(sch,t0);ROWS.push(o);FX.flash=tmp;
@@ -2072,7 +2075,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261117214950';
+const VER=/*VER*/'20261118222427';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
