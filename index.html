@@ -1540,7 +1540,7 @@ async function dEnd(P,cancel){try{getSelection().removeAllRanges()}catch(e){}P.o
 // =====================================================================
 var PAGE='cal';try{PAGE=localStorage.getItem('deskPage')||'cal'}catch(e){}
 var CS=(()=>{
-  let FX={},D=null,LOADING=null,ROWS=[],FS='全部',Q='',SEL=new Set(),LAST=null,MULTI=false,OPEN=null,EDT=null,COL={'已結案':true},MCOL={},HELP=false,CLI=null,SM='all',FOPEN={},NC=null,DRAG=false,SY=null;
+  let FX={},D=null,LOADING=null,ROWS=[],FS='全部',Q='',SEL=new Set(),LAST=null,MULTI=false,OPEN=null,EDT=null,COL={'已結案':true},MCOL={},HELP=false,CLI=null,SM='all',SP='全部',FOPEN={},NC=null,DRAG=false,SY=null;
   try{const c=JSON.parse(localStorage.getItem('casecache')||'null');if(c)D=c}catch(e){}
   const SRC_PAL=['#7C9CBF','#D9A35E','#8FAF7E','#B68FB8','#C98F8F','#7FB0AC','#C9A27E','#9AA7B0'];
   const SRC_FIX={'Medicathon':'#8FAF7E','嗨咖品妤':'#D9A35E','Dcard 狄卡科技股份有限公司':'#7C9CBF','蔡森數位':'#C98F8F','簡訊設計':'#B68FB8','自由接案':'#C9C7C0'};
@@ -1720,12 +1720,14 @@ var CS=(()=>{
     const c=C.find(x=>x.key===CLI);if(!c){CLI=null;return cliPage()}const s=stats(c.key);
     return `<button class="back" data-back>‹ 全部客戶</button><div class="cpanel det"><h3><i class="dot" style="background:${srcColor(c.key)}"></i>${esc(c.name)}<span class="sp"></span><button class="btn2" data-editcli>編輯客戶資料</button></h3>
       <div class="fl"><span>收款日</span><div>${esc(c.pay||'—')}${c.rule?`　<span class="mu">結算用：${esc(ruleTxt(c.rule))}</span>`:''}</div><span>備註</span><div>${c.tags.map(t=>`<span class="tagx">${esc(t)}</span>`).join('')||'—'}</div><span>總件數</span><div>${s.n} 件（今年 ${s.ny} 件）</div><span>總收款</span><div>${fmt(s.got)}${s.un?`　<span style="color:#8A5A12">還沒收 ${fmt(s.un)}</span>`:''}</div></div>${stmt(c.key)}</div>`}
-  function stmt(k){const all=ROWS.filter(r=>r.src===k&&r.st!=='取消');const ms=months(all).map(x=>x[0]);if(SM!=='all'&&!ms.includes(+SM))SM='all';const pick=SM==='all'?all:all.filter(r=>r.mkey===+SM),tot=pick.reduce((a,b)=>a+b.amt,0);
+  // 同一個案源有好幾個人發案（例如 High咖／品妤／兩人）：對帳單可以切人
+  const people=k=>{const c={};ROWS.filter(r=>r.src===k).forEach(r=>{if(r.client)c[r.client]=(c[r.client]||0)+1});return Object.keys(c).sort((a,b)=>c[b]-c[a])};
+  function stmt(k){const ppl=people(k);if(!ppl.includes(SP))SP='全部';const all=ROWS.filter(r=>r.src===k&&r.st!=='取消'&&(SP==='全部'||r.client===SP));const ms=months(all).map(x=>x[0]);if(SM!=='all'&&!ms.includes(+SM))SM='all';const pick=SM==='all'?all:all.filter(r=>r.mkey===+SM),tot=pick.reduce((a,b)=>a+b.amt,0);
     const line=r=>`<tr><td>${esc(r.kind)}</td><td title="${esc(r.title)}">${esc(r.title)}</td><td>${fmt(r.amt)}</td><td><span class="st ${/^完成/.test(r.st)?'s-done':'s-check'}" style="cursor:default">${/^完成/.test(r.st)?'已完成':'處理中'}</span></td></tr>`;
     const body=SM==='all'?months(pick).map(([m,g])=>`<tr class="subt"><td colspan="2">${mName(m)}</td><td>${fmt(g.reduce((a,b)=>a+b.amt,0))}</td><td>${g.length} 支</td></tr>`+g.map(line).join('')).join(''):pick.map(line).join('');
-    return `<div class="stmt"><div class="bar"><b>對帳單</b><select id="csSm"><option value="all" ${SM==='all'?'selected':''}>全部</option>${ms.map(m=>`<option ${String(m)===String(SM)?'selected':''} value="${m}">${mName(m)}</option>`).join('')}</select><span class="sp"></span><button class="btn2" data-cp>複製成文字</button></div>
+    return `<div class="stmt"><div class="bar"><b>對帳單</b>${ppl.length>1?`<span class="pflt" style="margin:0 6px">${['全部',...ppl].map(x=>`<span class="${SP===x?'on':''}" data-sp="${esc(x)}">${esc(x==='High咖品妤'?'兩人':x)}</span>`).join('')}</span>`:''}<select id="csSm"><option value="all" ${SM==='all'?'selected':''}>全部</option>${ms.map(m=>`<option ${String(m)===String(SM)?'selected':''} value="${m}">${mName(m)}</option>`).join('')}</select><span class="sp"></span><button class="btn2" data-cp>複製成文字</button></div>
       <table class="fixed"><colgroup><col style="width:18%"><col><col style="width:15%"><col style="width:13%"></colgroup><thead><tr><th>影片類型</th><th>檔案名稱</th><th>報價</th><th>狀態</th></tr></thead><tbody>${body}<tr class="tot"><td>${SM==='all'?'全部總計':mName(+SM)+'總結'}</td><td>${pick.length} 支</td><td>${fmt(tot)}</td><td></td></tr></tbody></table></div>`}
-  function stmtText(k){const c=clients().find(x=>x.key===k);const all=ROWS.filter(r=>r.src===k&&r.st!=='取消'),pick=SM==='all'?all:all.filter(r=>r.mkey===+SM);
+  function stmtText(k){const c0=clients().find(x=>x.key===k),c={name:c0.name+(SP!=='全部'?`（${SP==='High咖品妤'?'兩人':SP}）`:'')};const all=ROWS.filter(r=>r.src===k&&r.st!=='取消'&&(SP==='全部'||r.client===SP)),pick=SM==='all'?all:all.filter(r=>r.mkey===+SM);
     const sec=l=>{const g={};l.forEach(r=>{(g[r.kind]=g[r.kind]||[]).push(r)});return Object.keys(g).map(t=>`【${t}】\n`+g[t].map(r=>`・${r.title}　${fmt(r.amt)}${/^完成/.test(r.st)?'':'（處理中）'}`).join('\n')).join('\n\n')};
     const tot=l=>`共 ${l.length} 支　合計 ${fmt(l.reduce((a,b)=>a+b.amt,0))}`;
     if(SM!=='all')return `${c.name}　${mName(+SM)}對帳單\n\n${sec(pick)}\n\n${tot(pick)}`;
@@ -1913,6 +1915,8 @@ var CS=(()=>{
     return T}
   const PRICE=t=>{const k=kindOf(t),l=ROWS.filter(r=>r.kind===k&&r.amt).slice(-10).map(r=>r.amt);if(!l.length)return 0;const c={};l.forEach(x=>c[x]=(c[x]||0)+1);return +Object.keys(c).sort((a,b)=>c[b]-c[a])[0]};
   function newCase(){NC={src:srcList()[0]||'',srcNew:'',client:'',title:'',amt:'',due:'',link:'',sch:''};const g=cls(NC.src);if(g.length===1)NC.client=g[0];drawNC()}
+  // 客戶沒選：從專案名稱猜是誰發的（例如「品妤 x …」＝品妤、「嗨咖 x …」＝High咖），猜不到就用這個案源最常見的客戶
+  const inferClient=(src,title)=>{const c=cls(src);if(!c.length)return '';const al=n=>n==='High咖'?/嗨咖|high咖/i.test(title):title.includes(n);const hit=c.filter(n=>n.length<=6&&al(n));return hit.length===1?hit[0]:c[0]};
   const cls=src=>{const c={};ROWS.filter(r=>r.src===src).forEach(r=>c[r.client]=(c[r.client]||0)+1);return Object.keys(c).sort((a,b)=>c[b]-c[a])};
   // 手機：表單打開時把後面的頁面鎖住，上下滑不會帶動背景
   let LOCKY=null;function lockBg(on){if(DESK)return;const b=document.body;if(on&&LOCKY==null){LOCKY=scrollY;Object.assign(b.style,{position:'fixed',top:-LOCKY+'px',left:'0',right:'0',width:'100%'})}else if(!on&&LOCKY!=null){Object.assign(b.style,{position:'',top:'',left:'',right:'',width:''});scrollTo(0,LOCKY);LOCKY=null}}
@@ -1937,10 +1941,10 @@ var CS=(()=>{
     ov.querySelectorAll('[data-due]').forEach(b=>b.onclick=()=>{NC.due=b.dataset.due;drawNC()});
     {const dI=ov.querySelector('input[data-k="due"]');if(dI)dI.addEventListener('focus',()=>{if(document.querySelector('.dpk'))return;const c=datePick(dI,dI,v=>{NC.due=v;drawNC()});dI.addEventListener('blur',()=>setTimeout(c,0),{once:true})})}
     const add=keep=>{const lines=NC.title.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)return;const src=(NC.srcNew||'').trim()||NC.src,sch=normSch(NC.sch).trim(),p=sch?parseSched(sch,today0()):null,nx=p&&p.steps.find(s=>s.kind==='me');
-      const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcAll().includes(src),client=NC.client.trim()||srcShort(src),due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
-      lines.forEach((ti,ix)=>{const set={'案源':src,'客戶':client,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
+      const links=NC.link.trim()?[{l:'素材',url:NC.link.trim()}]:null,isNewSrc=!srcAll().includes(src),client=NC.client.trim()||inferClient(src,NC.title.split('\n').find(x=>x.trim())||'')||srcShort(src),due=NC.due||(nx?md(nx.d):''),amt0=NC.amt,t0=today0(),iso=t0.getFullYear()+'-'+String(t0.getMonth()+1).padStart(2,'0')+'-'+String(t0.getDate()).padStart(2,'0');
+      lines.forEach((ti,ix)=>{const cl=NC.client.trim()?client:(inferClient(src,ti)||client);const set={'案源':src,'客戶':cl,'專案':ti,'報價':String(amt0||PRICE(ti)||''),'交期':due,'時程':sch};const tmp='tmp'+Date.now()+'_'+ix;
         const dueD=due?(()=>{const m=due.match(/(\d{1,2})\/(\d{1,2})/);return m?new Date(t0.getFullYear(),+m[1]-1,+m[2]):null})():null;
-        const o={tab:String(t0.getFullYear()),r:0,id:tmp,intake:t0,mkey:ym(t0),mlabel:t0.getFullYear()+'/'+(t0.getMonth()+1),src,client,title:ti,amt:Number(set['報價'])||0,st:'',links:links?links.map(x=>({...x})):[],due:dueD,dueTxt:due,done:null,doneTxt:'',paid:null,paidTxt:'',file:'',memo:'',mynote:'',up:null,upTxt:'',schText:sch,kind:kindOf(ti)};o.sch=parseSched(sch,t0);ROWS.push(o);FX.flash=tmp;
+        const o={tab:String(t0.getFullYear()),r:0,id:tmp,intake:t0,mkey:ym(t0),mlabel:t0.getFullYear()+'/'+(t0.getMonth()+1),src,client:cl,title:ti,amt:Number(set['報價'])||0,st:'',links:links?links.map(x=>({...x})):[],due:dueD,dueTxt:due,done:null,doneTxt:'',paid:null,paidTxt:'',file:'',memo:'',mynote:'',up:null,upTxt:'',schText:sch,kind:kindOf(ti)};o.sch=parseSched(sch,t0);ROWS.push(o);FX.flash=tmp;
         const last=ix===lines.length-1;write('caseAdd',{intake:iso,set,links,id:'c'+Date.now().toString(36)+ix+Math.floor(Math.random()*1296).toString(36)},last?(lines.length>1?`已新增 ${lines.length} 件，在待排等你排`:`已新增「${ti}」，在待排等你排`):null,null,tmp).then(()=>{if(sch)syncSchCards(o,'',sch);if(last){syncNow(true);if(isNewSrc&&!keep)cliForm(null)}}).catch(()=>{ROWS=ROWS.filter(x=>x!==o);rerender()})});
       if(keep){// 繼續下一筆：保留案源、客戶、交期；專案換成下一個編號的開頭
         const prev=lines[lines.length-1],fam=prev.match(/^(\D*?)(\d+)/),nt=fam?templates(src,client).find(t=>t.startsWith(fam[1])):null;NC={...NC,src,srcNew:'',client,title:nt||'',amt:'',link:'',sch:''};rerender();drawNC('title')}
@@ -1974,7 +1978,7 @@ var CS=(()=>{
     root.querySelectorAll('[data-back]').forEach(e=>e.onclick=()=>{CLI=null;FX.cards=true;rerender()});
     root.querySelectorAll('[data-newcli]').forEach(e=>e.onclick=()=>cliForm(null));
     root.querySelectorAll('[data-editcli]').forEach(e=>e.onclick=()=>cliForm(clients().find(x=>x.key===CLI)));
-    const sm=root.querySelector('#csSm');if(sm)sm.onchange=()=>{SM=sm.value;rerender()};const sy=root.querySelector('#csSy');if(sy)sy.onchange=()=>{SY=+sy.value;rerender()};
+    const sm=root.querySelector('#csSm');if(sm)sm.onchange=()=>{SM=sm.value;rerender()};root.querySelectorAll('[data-sp]').forEach(e=>e.onclick=()=>{SP=e.dataset.sp;rerender()});const sy=root.querySelector('#csSy');if(sy)sy.onchange=()=>{SY=+sy.value;rerender()};
     root.querySelectorAll('[data-cp]').forEach(e=>e.onclick=()=>copyBox(stmtText(CLI)));
     root.querySelectorAll('[data-fx]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('[data-fxamt],.fxact'))return;FOPEN[e.dataset.fx]=!FOPEN[e.dataset.fx];rerender()});
     root.querySelectorAll('[data-cpt]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();copyTitles()});
@@ -2079,7 +2083,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261119233308';
+const VER=/*VER*/'20261119234643';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
