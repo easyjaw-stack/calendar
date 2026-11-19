@@ -1543,7 +1543,7 @@ var CS=(()=>{
   let FX={},D=null,LOADING=null,ROWS=[],FS='全部',Q='',SEL=new Set(),LAST=null,MULTI=false,OPEN=null,EDT=null,COL={'已結案':true},MCOL={},HELP=false,CLI=null,SM='all',FOPEN={},NC=null,DRAG=false,SY=null;
   try{const c=JSON.parse(localStorage.getItem('casecache')||'null');if(c)D=c}catch(e){}
   const SRC_PAL=['#7C9CBF','#D9A35E','#8FAF7E','#B68FB8','#C98F8F','#7FB0AC','#C9A27E','#9AA7B0'];
-  const SRC_FIX={'Medicathon':'#7C9CBF','嗨咖品妤':'#D9A35E','蔡森數位':'#8FAF7E','簡訊設計':'#B68FB8','自由接案':'#C9C7C0'};
+  const SRC_FIX={'Medicathon':'#8FAF7E','嗨咖品妤':'#D9A35E','Dcard 狄卡科技股份有限公司':'#7C9CBF','蔡森數位':'#C98F8F','簡訊設計':'#B68FB8','自由接案':'#C9C7C0'};
   const srcColor=k=>SRC_FIX[k]||SRC_PAL[[...String(k)].reduce((a,c)=>a+c.charCodeAt(0),0)%SRC_PAL.length];
   const ST={'完成':'s-done','完成未付款':'s-unpaid','客戶確認中':'s-check','修改中':'s-rev','剪輯中':'s-cut','等輸出中':'s-cut','做封面輸出':'s-cut','封面製作':'s-cut','等待交檔':'s-wait','取消':'s-cancel','':'s-none'};
   const STS=['','剪輯中','客戶確認中','修改中','等輸出中','封面製作','等待交檔','完成未付款','完成','取消'];
@@ -1713,7 +1713,7 @@ var CS=(()=>{
   // ---------- 客戶 ----------
   const rules=()=>{const o={};(D&&D.rules||[]).forEach(r=>o[r.src]=r);return o};
   const ruleTxt=r=>!r?'':r.k==='次月'?`次月 ${r.n} 號`:r.k==='月底加天數'?`月底＋${r.n} 天`:r.k;
-  const clients=()=>(D&&D.clients||[]).map(c=>{const key=srcAll().find(k=>c.name.includes(k)||k.includes(c.name))||c.name;return {...c,key,rule:rules()[key]}});
+  const clients=()=>(D&&D.clients||[]).map(c=>{const toks=c.name.split(/[\s\/／|｜、,，]+/).filter(w=>w.length>=2);const key=srcAll().find(k=>c.name.includes(k)||k.includes(c.name))||srcAll().find(k=>toks.some(w=>k.includes(w)))||c.name;return {...c,key,rule:rules()[key]}});
   const stats=k=>{const l=ROWS.filter(r=>r.src===k),y=new Date().getFullYear();return {n:l.length,ny:l.filter(r=>r.intake&&r.intake.getFullYear()===y).length,got:l.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0),un:l.filter(unpaid).reduce((a,b)=>a+b.amt,0),act:l.filter(active).length}};
   function cliPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const C=clients();
     if(!CLI)return `<div class="cgrid">${C.map(c=>{const s=stats(c.key);return `<div class="ccard" data-c="${esc(c.key)}"><h4><i class="dot" style="background:${srcColor(c.key)}"></i>${esc(c.name)}</h4><div class="kv"><span>收款</span><div>${esc(c.pay||'—')}${c.rule?`<span class="mu">（${esc(ruleTxt(c.rule))}）</span>`:''}</div><span>備註</span><div>${c.tags.map(t=>`<span class="tagx">${esc(t)}</span>`).join('')||'—'}</div></div><div class="stat"><div><b>${s.n}</b>總件數</div><div><b>${s.ny}</b>今年件數</div><div><b>${fmt(s.got)}</b>總收款</div></div></div>`}).join('')}<div class="ccard addc" data-newcli>＋ 新增客戶</div></div>`;
@@ -2079,7 +2079,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261119163059';
+const VER=/*VER*/'20261119233308';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
