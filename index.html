@@ -1602,7 +1602,8 @@ var CS=(()=>{
     Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期'){o.dueTxt=set[k];const m=String(set[k]).match(/(\d{1,2})\/(\d{1,2})/),b=o.due||o.intake||today0();o.due=m?new Date(b.getFullYear(),+m[1]-1,+m[2]):null}if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
     const pr=write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo);
-    if(set['時程']!=null&&String(set['時程']).trim()!==schBefore.trim())pr.then(()=>syncSchCards(o,schBefore,String(set['時程']))).catch(()=>{});
+    if(set['時程']!=null&&String(set['時程']).trim()!==schBefore.trim())pr.then(()=>syncSchCards(o,schBefore,String(set['時程']),old['專案'])).catch(()=>{});
+    else if(set['專案']!=null&&old['專案']!==set['專案']&&o.schText)pr.then(()=>syncSchCards(o,o.schText,o.schText,old['專案'])).catch(()=>{});  // 改了專案名稱：時程卡片跟著改名，不會留下舊名字的那一組
     // 改成修改中／等輸出中／封面製作 → 回到待排，存好後馬上更新待排
     if(set['進度']!=null&&/修改|輸出|封面/.test(set['進度']))pr.then(()=>{syncNow(true);if(msg)setTimeout(()=>toast('已放回待排，等你排「'+(set['進度'].match(/修改|輸出|封面/)[0])+'」'),1800)}).catch(()=>{});
     return pr}
@@ -1659,15 +1660,18 @@ var CS=(()=>{
   // 待排：每個還沒交的「你要交」各一張黑色剪輯卡（「名稱 Acopy 剪輯」），讓你自己拖去月曆預留時間
   // 時程改了：舊的卡（還沒打勾的）拿掉、換成新的；打勾完成的步驟從待排拿掉
   const stepLabel=(t,me)=>{let x=String(t).replace(/\d{1,2}[:：]\d{2}\s*(前|後)?/g,'').replace(/剪輯\s*(提交|交|提供)/,'').replace(/提供|影片/g,'').replace(/（.*?）|\(.*?\)/g,'').trim();if(me)x=x.split(/\s*[&＆、，,]\s*/)[0];return x.slice(0,16).trim()||'交片'};
-  const schName=o=>o.title.replace(/^業配｜/,'').trim();
-  function schPlan(o,text){const p=text?parseSched(text,o.intake||today0()):null,t=today0(),nm=schName(o),blue=[],black=[];if(!p)return {blue,black};
+  const schName=(o,t)=>String(t!=null?t:o.title).replace(/^業配｜/,'').trim();
+  function schPlan(o,text,title){const p=text?parseSched(text,o.intake||today0()):null,t=today0(),nm=schName(o,title),blue=[],black=[];if(!p)return {blue,black};
     p.steps.forEach(s=>{if(s.d<t)return;const me=s.kind==='me';let lb=stepLabel(s.t,me);const lb2=lb.split(/\s+/).filter(w=>!nm.toLowerCase().includes(w.toLowerCase())).join(' ').trim();if(lb2)lb=lb2;  // 案名已有的字（例如 shorts）不要重複
       blue.push({d:s.d,text:me?`${nm} 交片 ${lb}`:`${nm} ${lb}`});if(me&&!s.ok)black.push({d:s.d,text:`${nm} ${lb} 剪輯`})});return {blue,black}}
-  async function syncSchCards(o,oldText,newText){try{const A=schPlan(o,oldText),B=schPlan(o,newText),key=x=>+x.d+'|'+x.text;
+  async function syncSchCards(o,oldText,newText,oldTitle){try{const A=schPlan(o,oldText,oldTitle),B=schPlan(o,newText),key=x=>+x.d+'|'+x.text;
     const bOld=new Set(A.blue.map(key)),bNew=new Set(B.blue.map(key)),days={};
     const day=async d=>{const k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(!days[k]){const od={y:d.getFullYear(),m:d.getMonth()+1,d:d.getDate()};await ensureMonth(od.y,od.m);days[k]={o:od,items:clone(dayItems(od)),ch:false}}return days[k]};
     for(const x of A.blue)if(!bNew.has(key(x))){const D0=await day(x.d),i=D0.items.findIndex(it=>it.text===x.text&&!it.done);if(i>=0){D0.items.splice(i,1);D0.ch=true}}
     for(const x of B.blue)if(!bOld.has(key(x))){const D0=await day(x.d);if(!D0.items.some(it=>it.text===x.text)){D0.items.push({text:x.text,done:false,bg:'',fc:'',bold:false,note:'分類：標記'});D0.ch=true}}
+    // 改了專案名稱：你已經排到月曆上的黑色剪輯卡也跟著改名（只改完全一樣的舊名字）
+    if(oldTitle!=null&&schName(o,oldTitle)!==schName(o)){const ren={};A.black.forEach((x,i)=>{if(B.black[i])ren[x.text]=B.black[i].text});
+      for(const mk of Object.keys(M)){const mm=M[mk];if(!mm||!mm.days)continue;const [yy,mo]=mk.split('-').map(Number);for(const dd of Object.keys(mm.days)){if(!mm.days[dd].some(it=>ren[it.text]))continue;const D0=await day(new Date(yy,mo-1,+dd));D0.items.forEach(it=>{if(ren[it.text]){it.text=ren[it.text];D0.ch=true}})}}}
     const ch=Object.values(days).filter(x=>x.ch).map(x=>({o:x.o,items:x.items}));if(ch.length)await save(ch);
     const kOld=new Set(A.black.map(x=>x.text)),kNew=new Map(B.black.map(x=>[x.text,x]));
     // 一張失敗不會讓後面的都沒放：每張各自重試 2 次，最後還是失敗才提醒
@@ -2075,7 +2079,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261118222427';
+const VER=/*VER*/'20261119163059';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
