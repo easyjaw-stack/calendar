@@ -1737,18 +1737,21 @@ var CS=(()=>{
   const KIND_TAG={'Podcast 完整版':['#DCE6EE','#2E4466'],'Podcast 精選':['#E6EEDB','#4F6A45'],'短影音':['#F5E6DC','#8A5A3A'],'業配':['#EBE2F1','#6B5582'],'長片':['#F6DCD9','#791F1F'],'其他':['#F2F1EE','#6B6A66']};
   function stmtCanvas(k){const c0=clients().find(x=>x.key===k),who=SP!=='全部'?`（${SP==='High咖品妤'?'兩人':SP}）`:'';
     // 不分月份：還在做的（處理中）＋做完還沒收到錢的（完成未付款）；已收到錢的不放，避免重複請款
-    const base=ROWS.filter(r=>r.src===k&&r.st!=='取消'&&(SP==='全部'||r.client===SP)),ing=base.filter(r=>!/^完成/.test(r.st)).sort((a,b)=>(a.due||9e15)-(b.due||9e15)),ok=base.filter(r=>r.st==='完成未付款').sort((a,b)=>(a.done||a.due||0)-(b.done||b.due||0)),pick=ing.concat(ok),tot=ok.reduce((a,b)=>a+b.amt,0);
+    const base=ROWS.filter(r=>r.src===k&&r.st!=='取消'&&(SP==='全部'||r.client===SP)),KO=['Podcast 完整版','Podcast 精選','短影音','業配','長片','其他'],ko=r=>{const i=KO.indexOf(r.kind||'其他');return i<0?9:i},enum_=r=>{const m=String(r.title).match(/EP\.?\s?(\d+)|[A-Za-z]{1,5}\s?(\d{1,4})/i);return m?+(m[1]||m[2]):null},
+      // 同類型放一起，類型內有集數／編號就照編號，沒有就照日期
+      srt=dk=>(a,b)=>{if(ko(a)!==ko(b))return ko(a)-ko(b);const x=enum_(a),y=enum_(b);if(x!=null&&y!=null&&x!==y)return x-y;if((x==null)!==(y==null))return x==null?1:-1;return (dk(a)||0)-(dk(b)||0)},
+      ing=base.filter(r=>!/^完成/.test(r.st)).sort(srt(r=>r.due)),ok=base.filter(r=>r.st==='完成未付款').sort(srt(r=>r.done||r.due)),pick=ing.concat(ok),tot=ok.reduce((a,b)=>a+b.amt,0);
     const S=2,F='-apple-system,"PingFang TC","Noto Sans TC",sans-serif',cv=document.createElement('canvas'),x=cv.getContext('2d');
     const font=(sz,w)=>x.font=`${w||400} ${sz}px ${F}`,tw=(t,sz,w)=>{font(sz,w);return x.measureText(t).width};
     const PAD=22,IN=20,RH=34,GH=28,cols=[{h:'影片類型',w:0},{h:'檔案名稱',w:0},{h:'交期',w:0},{h:'報價',w:0},{h:'狀態',w:0},{h:'備註',w:0}];
     const cell=r=>[r.kind||'其他',r.title,r.dueTxt||dueOf(r)||'—',fmt(r.amt),/^完成/.test(r.st)?'已完成':'處理中',r.memo||''];
     pick.forEach(r=>{const c=cell(r);cols[0].w=Math.max(cols[0].w,tw(c[0],12)+22);cols[1].w=Math.max(cols[1].w,tw(c[1],13));cols[2].w=Math.max(cols[2].w,tw(c[2],13));cols[3].w=Math.max(cols[3].w,tw(c[3],13));cols[4].w=Math.max(cols[4].w,tw(c[4],11.5)+16);cols[5].w=Math.max(cols[5].w,tw(c[5],12))});
-    cols.forEach(c=>{c.w=Math.max(c.w,tw(c.h,11.5))+24});const TW=cols.reduce((a,b)=>a+b.w,0),title=`${c0?c0.name.replace(/\s*\/\s*/g,''):k}${who}　對帳單　${md(today0())}`;
-    const W=PAD*2+IN*2+Math.max(TW,tw(title,17,600)+40),H=PAD*2+IN*2+40+26+(ing.length?GH+ing.length*RH:0)+(ok.length?GH+ok.length*RH:0)+64;
+    cols.forEach(c=>{c.w=Math.max(c.w,tw(c.h,11.5))+24});const TW=cols.reduce((a,b)=>a+b.w,0),title=`${c0?c0.name.replace(/\s*\/\s*/g,''):k}${who}　對帳單`,dateTxt=`結算日 ${today0().getFullYear()}/${md(today0())}`;
+    const W=PAD*2+IN*2+Math.max(TW,tw(title,17,600)+tw(dateTxt,12)+52),H=PAD*2+IN*2+40+26+(ing.length?GH+ing.length*RH:0)+(ok.length?GH+ok.length*RH:0)+64;
     cv.width=W*S;cv.height=H*S;x.scale(S,S);
     const rr=(X,Y,w,h,r,fill)=>{x.beginPath();x.roundRect(X,Y,w,h,r);x.fillStyle=fill;x.fill()};
     rr(0,0,W,H,0,'#F2F1EE');rr(PAD,PAD,W-PAD*2,H-PAD*2,14,'#FFFFFF');let y=PAD+IN;const X0=PAD+IN;
-    font(17,600);x.fillStyle='#262624';x.textBaseline='middle';x.fillText(title,X0,y+12);y+=40;
+    font(17,600);x.fillStyle='#262624';x.textBaseline='middle';x.fillText(title,X0,y+12);const tx=X0+x.measureText(title).width+12;font(12);x.fillStyle='#9B9993';x.fillText(dateTxt,tx,y+13);y+=40;
     font(11.5);x.fillStyle='#9B9993';let cx=X0;cols.forEach(c=>{x.fillText(c.h,cx+10,y+10);cx+=c.w});y+=22;x.fillStyle='#E6E4DF';x.fillRect(X0,y,TW,1);y+=4;
     const grp=t=>{x.fillStyle='#FAFAF8';x.fillRect(X0,y,TW,GH);font(12);x.fillStyle='#6B6A66';x.fillText(t,X0+10,y+GH/2);y+=GH};
     const line=r=>{const c=cell(r),m=y+RH/2;let cx=X0;const [bg,fg]=KIND_TAG[c[0]]||KIND_TAG['其他'];
@@ -2125,7 +2128,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261124214525';
+const VER=/*VER*/'20261124215136';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
