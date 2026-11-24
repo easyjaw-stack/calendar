@@ -1766,7 +1766,7 @@ var CS=(()=>{
       T(c[1],cx+CP,mid(m,13.5),13.5,400,'#262624');cx+=cols[1].w;T(c[2],cx+CP,mid(m,13.5),13.5,400,'#262624');cx+=cols[2].w;T(c[3],cx+CP,mid(m,13.5),13.5,400,'#262624');cx+=cols[3].w;
       const ing2=c[4]==='處理中';font(12);const w3=x.measureText(c[4]).width+16;rr(cx+CP,m-10,w3,20,6,ing2?'#DCE6EE':'#F2F1EE');T(c[4],cx+CP+8,mid(m,12),12,400,ing2?'#2E4466':'#9B9993');cx+=cols[4].w;
       T(c[5],cx+CP,mid(m,12.5),12.5,400,'#9B9993');y+=RH;x.fillStyle='#F2F1EE';x.fillRect(X0,y-1,TW,1)};
-    if(ing.length){grp(`處理中 ${ing.length} 支（完成後再請款）`);ing.forEach(line)}
+    if(ing.length){grp(`處理中 ${ing.length} 支`);ing.forEach(line)}
     if(ok.length){grp(`已完成 ${ok.length} 支`);ok.forEach(line)}
     // 總結：中文和金額同一條基準線
     const fb=y+24+26,lw=T(lab,X0,fb,13,400,'#9B9993');T(fmt(tot),X0+lw+14,fb,26,700,'#262624');
@@ -2136,7 +2136,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261124215909';
+const VER=/*VER*/'20261124215920';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+location.hash)}}catch(e){}}
 checkVer();
