@@ -937,7 +937,7 @@ function dueToday(it){return dueOf(it)===cur.m+'/'+cur.d}
 
 // ---- 快速輸入：從月曆上寫過的待辦整理出常用客戶和階段 ----
 const STAGES=['剪輯','順剪','破口','逐字','輸出','修改','交ac','交bc','交檔','Final','上片','封面'];
-const FIXED_STAGES=['交bc','交檔','Final'];  // 一定出現的階段
+const FIXED_STAGES=['交bc','交檔','Final','破口'];  // 一定出現的階段
 function quickData(){const cl={},st={};
   Object.values(M).forEach(mm=>Object.values(mm.days||{}).forEach(list=>list.forEach(it=>{const t=String(it.text);if(t.indexOf('｜')<0)return;
     const c=t.split('｜')[0].trim();if(c&&c.length<=12&&!/\d/.test(c))cl[c]=(cl[c]||0)+1;
@@ -2154,7 +2154,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261127221600';
+const VER=/*VER*/'20261127221609';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+(WINP?'&page='+WINP:'')+location.hash)}}catch(e){}}
 checkVer();
