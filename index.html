@@ -1734,9 +1734,9 @@ var CS=(()=>{
   const months=l=>{const g={};l.forEach(r=>{(g[r.mkey]=g[r.mkey]||[]).push(r)});return Object.keys(g).sort((a,b)=>b-a).map(k=>[+k,g[k]])};
   const mName=k=>{const y=Math.floor(k/100),m=k%100;return (y!==new Date().getFullYear()?y+' 年 ':'')+m+' 月'};
   function block(name,l,hint,sort,cols){const c=COL[name];return `<div class="cpanel"><div class="sec" data-sec="${name}"><span class="ar">${c?'▶':'▼'}</span>${name}<span class="m">${l.length} 件・${fmt(l.reduce((a,b)=>a+b.amt,0))}${hint?'　'+hint:''}</span></div>${c?'':`<div class="tw"><table>${head(cols)}<tbody>${(sort?byDue(l):l).map(r=>rowH(r,cols)).join('')||`<tr><td colspan="12" class="emp">沒有</td></tr>`}</tbody></table></div>`}</div>`}
-  const srcList=()=>[...new Set(ROWS.map(r=>r.src).filter(Boolean))].sort((a,b)=>ROWS.filter(r=>r.src===b).length-ROWS.filter(r=>r.src===a).length);
+  const srcList=()=>[...new Set(ROWS.map(r=>r.src).filter(Boolean))].sort((a,b)=>((a==='自由接案')-(b==='自由接案'))||(ROWS.filter(r=>r.src===b).length-ROWS.filter(r=>r.src===a).length));  // 照件數排，「自由接案」固定最後
   // 新增案子用：除了做過的案源，也列出「付款規則」裡已經設好、還沒接過案的（例如剛開始合作的 Dcard）
-  const srcAll=()=>{const l=srcList();(D&&D.rules||[]).forEach(r=>{if(r.src&&!l.includes(r.src))l.push(r.src)});return l};
+  const srcAll=()=>{const l=srcList();(D&&D.rules||[]).forEach(r=>{if(r.src&&!l.includes(r.src))l.push(r.src)});const i=l.indexOf('自由接案');if(i>=0)l.push(l.splice(i,1)[0]);return l};
   const srcShort=k=>k.length>10?k.split(/\s+/)[0]:k;
   const filterRow=()=>`<div class="pflt">${['全部',...srcList()].map(s=>`<span class="${FS===s?'on':''}" data-fs="${esc(s)}">${s!=='全部'?`<i class="dot" style="background:${srcColor(s)}"></i>`:''}${esc(s)}</span>`).join('')}</div>`;
   function casePage(cols,compact){if(!D)return '<div class="cpanel emp">讀取剪輯表中…</div>';const L=flt(ROWS),cl=L.filter(closed);
@@ -2159,7 +2159,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261128151257';
+const VER=/*VER*/'20261129010912';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+(WINP?'&page='+WINP:'')+location.hash)}}catch(e){}}
 checkVer();
