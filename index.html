@@ -615,6 +615,9 @@ s.fin{text-decoration:none;color:#86739A;font-size:11px;display:inline-block}
 body.desk #desk{max-width:1640px;padding:20px 120px 36px}
 body.desk #desk.wide{max-width:1720px;padding:20px 72px 36px}
 .k.hid,.dp.hid{display:none}
+.dp.psel{border:1.5px solid #262624;background:#fff;box-shadow:0 0 0 3px #E6E4DF}
+.psel-n{font-size:11.5px;font-weight:400;color:#6b6a66;margin-left:auto;white-space:nowrap}.psel-n.hint{color:#B8B8B4}.psel-n [data-pclr]{margin-left:8px;color:#9B9993;cursor:pointer;text-decoration:underline}
+.ghost .pcount{position:absolute;right:-8px;top:-10px;background:#262624;color:#fff;font-size:11px;font-weight:600;border-radius:99px;padding:2px 8px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 /* 編輯視窗：欄位名稱、「無」、沒選到的選項、輸入框提示字都加深，比較好讀 */
 #ovl .ed .k,#ovl .ed .h button,#ovl .ed .chips span:not(.on){color:#5E5C57!important}
 #ovl .ed .v.ph{color:#8E8C86!important}
@@ -1249,6 +1252,11 @@ function pendMenu(p){$('#toast').innerHTML='';const box=document.createElement('
 async function pendSkip(p){PHIDE[p.id]=Date.now();PEND=PEND.filter(x=>x.id!==p.id);renderPend();if(DESK)renderDesk();toast('之後不會再出現');
   for(let t=0;t<3;t++){try{await call('pendSkip',{id:p.id});return}catch(e){await new Promise(f=>setTimeout(f,1500*(t+1)))}}
   delete PHIDE[p.id];PEND.push(p);renderPend();if(DESK)renderDesk();toast('「'+p.title+'」沒刪成功，請再試一次')}
+// 一次排好幾張到同一天（一次存檔）
+async function scheduleMany(list,o){const had=PEND.length;list.forEach(p=>PHIDE[p.id]=Date.now());const ids=new Set(list.map(p=>p.id));PEND=PEND.filter(x=>!ids.has(x.id));renderPend();if(had&&!PEND.length)pendCleared();
+  const k=ym(o.y,o.m);if(!M[k]){try{await loadMonth(o.y,o.m)}catch(e){list.forEach(p=>{delete PHIDE[p.id];PEND.push(p)});renderPend();if(DESK)renderDesk();toast('連不上網路，先放回待排');return}}
+  const items=clone(dayItems(o)).concat(list.map(p=>({text:p.text,done:false,bg:'',fc:'',bold:false,note:''})));
+  await save([{o,items}]);toast(`已把 ${list.length} 張排到 ${o.m}/${o.d}`)}
 async function schedule(p,o){const had=PEND.length;PHIDE[p.id]=Date.now();PEND=PEND.filter(x=>x.id!==p.id);renderPend();if(had&&!PEND.length)pendCleared();
   // 手上已經有這個月的資料就直接排上去（不等網路），伺服器那邊會自動合併；完全沒有才先讀
   const k=ym(o.y,o.m);if(!M[k]){try{await loadMonth(o.y,o.m)}catch(e){delete PHIDE[p.id];PEND.push(p);renderPend();if(DESK)renderDesk();toast('連不上網路，「'+p.title+'」先放回待排');return}}
@@ -1365,7 +1373,9 @@ function deskWeek(){const days=deskDays();let h=`<div class="dw">${days.map(o=>{
   // 一天一欄，全部卡片放一起（同類型自動排在一起）
   h+='<div class="ln"></div>'+days.map(o=>{const z=zones(o);return `<div class="cl ${DFIND&&freeDay(o)?'free':''}" data-day="${keyOf(o)}">${z.a}${slotC(o)}${z.b}${addHTML(o)}</div>`}).join('');return h+'</div>'}
 function deskDay(){const o=DREF,z=zones(o,true);return `<div class="dd" data-day="${keyOf(o)}"><div class="sec">工作</div>${z.a||'<div class="emp">這天沒有工作</div>'}<div class="zl"></div><div class="sec">Zhao's</div>${z.b||'<div class="emp">—</div>'}${addHTML(o)}<button class="dd-add" data-add="${keyOf(o)}"><i class="ti ti-plus"></i>新增</button></div>`}
-function deskSide(){return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${DDRAG&&DDRAG.type==='pend'&&DDRAG.p===p?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>滑鼠指著卡片（或點一下選取）按空白鍵＝完成劃線（再按一次取消）；按 Delete＝刪除、⌘Z 復原。<br>快速點兩下＝直接改文字、右鍵或 Enter＝完整編輯。<br>⌘C 複製卡片 → 滑鼠移到別天按 ⌘V 貼上。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、F 找空檔、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
+// 待排多選：⌘／Shift 點卡片＝選取（可選好幾張），拖其中一張＝全部一起排到那天
+let PSEL=new Set();
+function deskSide(){PSEL.forEach(id=>{if(!PEND.some(p=>p.id===id))PSEL.delete(id)});return `<div class="dk-side" id="dkSide"><h4>待排${PEND.length?`<b>${PEND.length}</b>`:''}${PSEL.size?`<span class="psel-n">已選 ${PSEL.size} 張<span data-pclr>取消</span></span>`:PEND.length>1?'<span class="psel-n hint">⌘ 點選＝多選</span>':''}</h4>${PEND.length?PEND.map((p,i)=>`<div class="dp ${PSEL.has(p.id)?'psel':''} ${DDRAG&&DDRAG.type==='pend'&&(DDRAG.p===p||(DDRAG.many&&DDRAG.many.includes(p)))?'hid':''}" draggable="false" data-p="${i}"><small>${esc(p.client)}${p.status?'・'+esc(p.status):''}</small>${esc(p.title)}${p.due?`<small class="${dueSoon(p.due)?'soon':''}">交期 ${esc(p.due)}</small>`:''}</div>`).join(''):(DFX.pclr&&Date.now()-DFX.pclr<2200?`<div class="pclr" style="--t:-${Date.now()-DFX.pclr}ms"><svg width="54" height="54" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#C5AECF" stroke-width="2.4" stroke-dasharray="107" class="cc"/><path d="M12 20.5l5.5 5.5L28 15" fill="none" stroke="#C5AECF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="26" class="ck"/></svg></div>`:'')+'<div class="emp">✓ 全部排好了</div>'}<div class="tip">拖進日期就排好；把月曆上的案子拖回這裡＝放回待排。<br>滑鼠指著卡片（或點一下選取）按空白鍵＝完成劃線（再按一次取消）；按 Delete＝刪除、⌘Z 復原。<br>快速點兩下＝直接改文字、右鍵或 Enter＝完整編輯。<br>⌘C 複製卡片 → 滑鼠移到別天按 ⌘V 貼上。<br>↑↓ 選卡片、空白鍵完成、Enter 編輯、Shift+←→ 移到前／後一天。<br>N 新增、F 找空檔、← → 換頁、T 回今天、Esc 取消選取。</div></div>`}
 let COMPOSING=false;document.addEventListener('compositionstart',()=>{COMPOSING=true},true);document.addEventListener('compositionend',()=>{COMPOSING=false},true);
 function renderDesk(){if(!DESK)return;if(COMPOSING&&!renderDesk._cz){renderDesk._cz=setTimeout(()=>{renderDesk._cz=null;renderDesk()},400);return}if(COMPOSING)return;const el=$('#desk'),pv=$('#dkInp')?$('#dkInp').value:null;PEND.sort((a,b)=>dueKey(a.due)-dueKey(b.due));
   const tabs=`<div class="pgbar"><div class="pg">${WINP?`<span class="on">${PGN[PAGE]||''}</span>`:[['cal','月曆'],['case','案件'],['cli','客戶'],['set','結算'],['fx','花費']].map(x=>`<span data-pg="${x[0]}" class="${PAGE===x[0]?'on':''}">${x[1]}</span>`).join('')}</div><div class="pwin">${WINP?'<button class="pgw" id="pgMerge" title="關掉這個視窗，回到主視窗"><i class="ti ti-arrows-minimize"></i>合併回主視窗</button>':'<button class="pgw" id="pgPop" title="把一頁拉成獨立視窗，可以跟主視窗並排擺"><i class="ti ti-external-link"></i>開新視窗</button>'}</div>${PAGE!=='cal'&&PAGE!=='split'?CS.tools():''}</div>`;
@@ -1392,6 +1402,7 @@ async function deskVanish(el){if(!el)return;el.style.overflow='hidden';await set
 
 async function deskAddItem(o,text){text=text.trim();if(!text)return;DFX.nw={k:keyOf(o),t:text};await ensureMonth(o.y,o.m);save([{o,items:clone(dayItems(o)).concat([{text,done:false,bg:'',fc:'',bold:false,note:''}])}]);toast(`已新增到 ${o.m}/${o.d}（${CATN[autoCat(text)]}）`)}
 async function deskDrop(o,bi){const d=DDRAG;DDRAG=null;if(!d)return;await ensureMonth(o.y,o.m);
+  if(d.type==='pend'&&d.many){DFX.bump=keyOf(o);PSEL.clear();scheduleMany(d.many,o);return}
   if(d.type==='pend'){DFX.bump=keyOf(o);DFX.nw={k:keyOf(o),t:d.p.text};schedule(d.p,o);return}
   const src=parseK(d.key),sItems=clone(dayItems(src)),it=sItems[d.i];if(!it||it.span||it.virtual)return;
   if(same(src,o)){if(bi==null||bi===d.i||bi===d.i+1)return;sItems.splice(d.i,1);sItems.splice(bi>d.i?bi-1:bi,0,it);save([{o,items:sItems}]);return}
@@ -1429,7 +1440,9 @@ function bindDesk(){const el=$('#desk');
     k.onmouseenter=()=>{if(PDR&&PDR.on)return;DHOV={k:k.dataset.k,i};const sp=k.querySelector('span[data-full]');if(sp){sp._s=sp.textContent;sp.textContent=sp.dataset.full}k.style.transform='';const r=k.getBoundingClientRect(),mx=$('#desk .dk-main').getBoundingClientRect().right-8;if(r.right>mx)k.style.transform=`translateX(${mx-r.right}px)`};k.onmouseleave=()=>{const sp=k.querySelector('span[data-full]');if(sp&&sp._s!=null)sp.textContent=sp._s;k.style.transform='';if(DHOV&&DHOV.k===k.dataset.k&&DHOV.i===i)DHOV=null};
     k.oncontextmenu=ev=>{ev.preventDefault();if(!it)return;if(it.span){spanMenu(o,i);return}cur=o;cardMenu(i)};
   });
-  el.querySelectorAll('.dp').forEach(p=>{p.onclick=()=>{if(Date.now()-NOCLICK<350)return;pendMenu(PEND[+p.dataset.p])}});
+  el.querySelectorAll('.dp').forEach(p=>{p.onclick=ev=>{if(Date.now()-NOCLICK<350)return;const it=PEND[+p.dataset.p];
+    if(ev.metaKey||ev.ctrlKey||ev.shiftKey||PSEL.size){if(PSEL.has(it.id))PSEL.delete(it.id);else PSEL.add(it.id);renderDesk();return}pendMenu(it)}});
+  const pc=el.querySelector('[data-pclr]');if(pc)pc.onclick=ev=>{ev.stopPropagation();PSEL.clear();renderDesk()};
 }
 // 在卡片上直接改文字；多天行程整串一起改
 async function deskRename(d,t){const o=parseK(d.k);let i=d.i,it=dayItems(o)[i];if(!it||String(it.text)!==String(d.t)){i=dayItems(o).findIndex(x=>!x.span&&String(x.text)===String(d.t));it=dayItems(o)[i]}
@@ -1491,14 +1504,16 @@ document.addEventListener('pointermove',ev=>{const P=PDR;if(!P)return;P.x=ev.cli
   P.vx=P.vx*.5+(P.x-P.lx)*.5;P.lx=P.x;dHit(P)});
 document.addEventListener('pointerup',()=>{const P=PDR;if(!P)return;if(!P.on){PDR=null;return}dEnd(P,false)});
 document.addEventListener('pointercancel',()=>{if(PDR&&PDR.on)dEnd(PDR,true);else PDR=null});
-document.addEventListener('keydown',ev=>{if(PDR&&PDR.on&&ev.key==='Escape'){ev.stopImmediatePropagation();ev.preventDefault();dEnd(PDR,true)}},true);
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&PSEL.size&&!(PDR&&PDR.on)&&!edit){PSEL.clear();if(DESK)renderDesk()}if(PDR&&PDR.on&&ev.key==='Escape'){ev.stopImmediatePropagation();ev.preventDefault();dEnd(PDR,true)}},true);
 window.addEventListener('blur',()=>{if(PDR&&PDR.on)dEnd(PDR,true)});
 function dStart(P){const s=P.src;P.on=true;try{getSelection().removeAllRanges()}catch(e){}clearTimeout(s._ct);if(s.onmouseleave)s.onmouseleave();
   const r=s.getBoundingClientRect(),cs=getComputedStyle(s);P.dx=P.x0-r.left;P.dy=P.y0-r.top;P.h=r.height;P.mb=cs.marginBottom;P.vx=0;P.lx=P.x;P.rot=0;P.sc=1;
   P.pend=s.classList.contains('dp');DDRAG=P.pend?{type:'pend',p:PEND[+s.dataset.p]}:{type:'item',key:s.dataset.k,i:+s.dataset.i};
+  if(P.pend&&PSEL.size>1&&PSEL.has(DDRAG.p.id)){DDRAG.many=PEND.filter(x=>PSEL.has(x.id));document.querySelectorAll('#desk .dp.psel').forEach(e=>{if(e!==s)e.classList.add('hid')})}
   const g=s.cloneNode(true);g.classList.remove('sel','pop','hid');g.classList.add('ghost');
   ['fontSize','padding','borderRadius','lineHeight','fontWeight','backgroundColor','color','boxShadow','border'].forEach(k=>g.style[k]=cs[k]);
   Object.assign(g.style,{position:'fixed',left:'0',top:'0',width:r.width+'px',margin:'0',zIndex:'999',pointerEvents:'none',transition:'none',transform:`translate(${r.left}px,${r.top}px)`});
+  if(DDRAG.many){const b=document.createElement('span');b.className='pcount';b.textContent=DDRAG.many.length+' 張';g.appendChild(b)}
   document.body.appendChild(g);P.g=g;
   // 原位換成一個空格（一開始就在原位，看起來像卡片被拿起來）
   const slot=document.createElement('div');slot.className='slot';slot.style.height=P.h+'px';slot.style.marginBottom=P.mb;s.parentNode.insertBefore(slot,s);s.classList.add('hid');
@@ -2159,7 +2174,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261129010912';
+const VER=/*VER*/'20261129011138';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+(WINP?'&page='+WINP:'')+location.hash)}}catch(e){}}
 checkVer();
