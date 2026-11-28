@@ -251,8 +251,9 @@ button:active,.strip .s:active,.chips span:active,.sw span:active,.mg div:active
 .cw.spn .ck{opacity:.35}
 .cw.lift .card{transform:scale(1.03);box-shadow:0 10px 24px rgba(60,50,40,.18)}
 .sheet button i{font-size:19px;color:var(--mu)}
-.qk{display:flex;gap:6px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.qk{display:flex;gap:6px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;cursor:grab;overscroll-behavior-x:contain}
 .qk::-webkit-scrollbar{display:none}
+#ovl .qk{display:flex!important;width:100%;max-width:100%;box-sizing:border-box}  /* 寬度固定在框內，多的才能左右滑（之前被撐寬後直接切掉）*/
 .qk span{flex-shrink:0;font-size:13px;padding:6px 11px;border-radius:9px;background:#F2F1EE;color:#5E5C57;white-space:nowrap;user-select:none;-webkit-user-select:none}
 .qk span:active{background:#E6E4DF;transform:scale(.95)}
 .qk.st span{background:#F3EEF6;color:#6e5c78}
@@ -948,16 +949,20 @@ function quickData(){const cl={},st={};
   return {clients:top(cl,10),stages:stages.length?stages:STAGES.slice(0,6)}}
 function quickHTML(){const q=quickData();if(!q.clients.length&&!q.stages.length)return '';
   return `<div class="qk">${q.clients.map(c=>`<span data-qc="${esc(c)}">${esc(c)}</span>`).join('')}</div><div class="qk st">${q.stages.map(w=>`<span data-qs="${esc(w)}">${esc(w)}</span>`).join('')}</div>`}
+let QKD=null;addEventListener('pointermove',e=>{if(QKD)QKD.row.scrollLeft=QKD.sl-(e.clientX-QKD.x)});addEventListener('pointerup',()=>{QKD=null});
 function bindQuick(){const t=$('#edT');if(!t)return;
   const put=v=>{t.value=v;edit.text=v;t.focus();try{t.setSelectionRange(v.length,v.length)}catch(e){}};
   // 輕點才算（放開時、幾乎沒移動）；左右滑看更多標籤不會誤觸。按下時 preventDefault 讓鍵盤不收起來
   const tap=(el,fn)=>{let sx=0,sy=0,ok=false;
-    el.addEventListener('pointerdown',ev=>{ev.preventDefault();sx=ev.clientX;sy=ev.clientY;ok=true});
+    el.addEventListener('pointerdown',ev=>{if(ev.pointerType==='mouse')ev.preventDefault();sx=ev.clientX;sy=ev.clientY;ok=true});el.addEventListener('mousedown',ev=>ev.preventDefault());el.addEventListener('touchstart',()=>{},{passive:true});
     el.addEventListener('pointermove',ev=>{if(ok&&(Math.abs(ev.clientX-sx)>6||Math.abs(ev.clientY-sy)>6))ok=false});
     el.addEventListener('pointercancel',()=>{ok=false});
     el.addEventListener('pointerup',ev=>{if(!ok)return;ok=false;ev.preventDefault();haptic();
       el.animate([{transform:'scale(1)'},{transform:'scale(.86)',background:'#86739A',color:'#fff',offset:.35},{transform:'scale(1.08)',background:'#86739A',color:'#fff',offset:.7},{transform:'scale(1)'}],{duration:340,easing:'ease-out'});
       fn();t.animate([{backgroundColor:'#EBE2F1'},{backgroundColor:'transparent'}],{duration:500})})};
+  // 電腦版：滑鼠滾輪上下滾＝這排左右滾；按住拖曳也可以左右滑（拖過才不算點）
+  document.querySelectorAll('.qk').forEach(row=>{row.addEventListener('wheel',e=>{if(row.scrollWidth<=row.clientWidth)return;const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;row.scrollLeft+=d;e.preventDefault()},{passive:false});
+    row.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')QKD={row,x:e.clientX,sl:row.scrollLeft}})});
   document.querySelectorAll('[data-qc]').forEach(b=>tap(b,()=>{const v=t.value,i=v.indexOf('｜');put(b.dataset.qc+'｜'+(i>=0?v.slice(i+1):v.trim()))}));
   document.querySelectorAll('[data-qs]').forEach(b=>tap(b,()=>{const v=t.value.replace(/\s+$/,''),w=b.dataset.qs;
     if(!v){put(w);return}const last=v.split(/[\s｜]/).pop().split('+').pop();put(v+(STAGES.indexOf(last)>=0||quickData().stages.indexOf(last)>=0?'+':' ')+w)}))}
@@ -2154,7 +2159,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261127221609';
+const VER=/*VER*/'20261128151257';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+(WINP?'&page='+WINP:'')+location.hash)}}catch(e){}}
 checkVer();
