@@ -1645,8 +1645,9 @@ var CS=(()=>{
     if(set['專案']!=null&&set['類型']==null&&o.kind==='其他'&&kindOf(set['專案'])!=='其他')set={...set,'類型':kindOf(set['專案'])};FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;if(set['進度']!=null&&/^完成/.test(set['進度'])&&cloudOn(o)&&!o.file&&set['檔案']==null)set={...set,'檔案':'雲端中'};if(set['進度']!=null&&!/^完成/.test(set['進度'])&&cloudOn(o)&&o.file==='雲端中'&&set['檔案']==null)set={...set,'檔案':''};  // 改回沒完成：檔案應該還沒上傳，拿掉雲端中// 先改畫面，再存（可以復原）
     const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});const schBefore=(o._schPrev!=null?o._schPrev:o.schText)||'';o._schPrev=null;if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};old['完成日']=pv.d||'';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
     const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
-    if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
-    if(set['進度']!=null&&set['完成日']==null&&/^完成/.test(set['進度'])&&!/^完成/.test(o.st||'')){const t0=today0();o.done=t0;o.doneTxt=md(t0)}  // 按完成那天＝完成日（後端也會寫今天）
+    if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||'')&&!o._noTidy)setTimeout(()=>tidyCal(o),450);
+    // 完成日：改成「完成未付款」那天就是完成日（覆蓋舊的）；直接按「完成」＝收到錢，只有完成日空的才補今天
+    if(set['進度']!=null&&set['完成日']==null&&((set['進度']==='完成未付款'&&!/^完成/.test(o.st||''))||(/^完成/.test(set['進度'])&&!o.doneTxt))){const t0=today0();o.done=t0;o.doneTxt=md(t0)}
     Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期'){o.dueTxt=set[k];const m=String(set[k]).match(/(\d{1,2})\/(\d{1,2})/),b=o.due||o.intake||today0();o.due=m?new Date(b.getFullYear(),+m[1]-1,+m[2]):null}if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
     const pr=write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo);
@@ -1951,8 +1952,14 @@ var CS=(()=>{
     if(below>=above){m.style.maxHeight=below+'px'}else{m.style.maxHeight=above+'px';m.style.top=(b.top-above-4)+'px'}m.style.overflowY='auto'}
   function pop(el,html){closeMenus();const b=el.getBoundingClientRect(),m=document.createElement('div');m.className='cspm';m.style.left=Math.min(b.left,innerWidth-240)+'px';m.style.top=(b.bottom+4)+'px';m.innerHTML=html;document.body.appendChild(m);fitMenu(m,b);
     setTimeout(()=>document.addEventListener('mousedown',function f(ev){if(!m.contains(ev.target)){m.remove();document.removeEventListener('mousedown',f)}}),0);return m}
-  function stMenu(el,o){const m=pop(el,STS.map(s=>`<div class="it" data-s="${s}"><span class="st ${ST[s]||'s-none'}">${s||'未開始'}</span></div>`).join(''));
-    m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();if(s===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};let t='進度改成「'+(s||'未開始')+'」';if(/^完成/.test(s)&&!o.doneTxt){o.doneTxt=md(today0());t+='，完成日自動填 '+o.doneTxt}if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t)}}
+  // 改進度：Shift 多選了好幾列、點其中一列的進度＝全部一起改（一次復原）
+  function stMenu(el,o){const L=SEL.size>1&&SEL.has(o.id)?[...SEL].map(byId).filter(Boolean):[o];
+    const m=pop(el,(L.length>1?`<div style="padding:6px 10px 4px;font-size:12px;color:#9B9993">${L.length} 件一起改成</div>`:'')+STS.map(s=>`<div class="it" data-s="${s}"><span class="st ${ST[s]||'s-none'}">${s||'未開始'}</span></div>`).join(''));
+    m.onclick=ev=>{const d=ev.target.closest('[data-s]');if(!d)return;const s=d.dataset.s;m.remove();
+      if(L.length===1){if(s===o.st)return;o._prev={d:o.doneTxt,p:o.paidTxt};let t='進度改成「'+(s||'未開始')+'」';if(s==='完成未付款'&&!/^完成/.test(o.st||''))t+='，完成日記為今天 '+md(today0());else if(/^完成/.test(s)&&!o.doneTxt)t+='，完成日自動填 '+md(today0());if(s==='完成'&&!o.paidTxt){o.paidTxt=md(today0());t+='、收款日 '+o.paidTxt}upd(o,{'進度':s},t);return}
+      const tg=L.filter(x=>x.st!==s);if(!tg.length)return;const olds=tg.map(x=>({'進度':x.st||'','完成日':x.doneTxt||'','收款日':x.paidTxt||''}));
+      tg.forEach(x=>{x._prev={d:x.doneTxt,p:x.paidTxt};if(s==='完成'&&!x.paidTxt)x.paidTxt=md(today0());x._noTidy=true;upd(x,{'進度':s},null,null,true);x._noTidy=false});
+      toast(`${tg.length} 件改成「${s||'未開始'}」`,()=>{tg.forEach((x,i)=>{x.paidTxt=olds[i]['收款日'];upd(x,olds[i],i===tg.length-1?`已復原 ${tg.length} 件`:null,null,true)})})}}
   function lkMenu(el,o){if(!o.links.length){addLink(o);return}
     // 每個連結：點名稱＝打開；右邊「改」＝修改名稱／網址，「✕」＝移除（可以復原）
     const m=pop(el,o.links.map((x,i)=>`<div class="lkr"><a class="it" href="${esc(x.url)}" target="_blank" rel="noopener"><span style="color:#2E4466">↗</span>${esc(x.l)}<em>${LBL(x.url)}</em></a><span class="lka" data-led="${i}" title="修改">改</span><span class="lka del" data-ldel="${i}" title="移除這個連結">✕</span></div>`).join('')+'<div class="it add" data-add>＋ 貼上新連結</div>');
@@ -2103,7 +2110,7 @@ var CS=(()=>{
     const nb=root.querySelector('#csNew');if(nb)nb.onclick=newCase;
     const order=[...root.querySelectorAll('tr.r[data-id]')].map(e=>e.dataset.id);
     root.querySelectorAll('tr.r[data-id]').forEach(e=>{const id=e.dataset.id;
-      e.onmousedown=ev=>{if(ev.button!==0||ev.detail>1)return;
+      e.onmousedown=ev=>{if(ev.button!==0||ev.detail>1)return;if(ev.target.closest('[data-stp]')&&SEL.size>1&&SEL.has(id))return;  // 點選取範圍裡的進度＝一起改，不要取消多選
         if(ev.shiftKey){ev.preventDefault();setFocusCell(ev.target.closest('td'));if(!MULTI&&!(SEL.size===1&&!SEL.has(id)))SEL=new Set();if(SEL.has(id))SEL.delete(id);else SEL.add(id);LAST=id;DRAG=SEL.has(id);MULTI=true;rerender();return}
         SEL=new Set([id]);LAST=id;MULTI=false;document.querySelectorAll('tr.r.sel').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');setFocusCell(ev.target.closest('td'));sumBar();highlight()};
       e.ondblclick=ev=>{clearTimeout(EDT);if(ev.target.closest('input,[data-stp],[data-lk],[data-open]'))return;const td=ev.target.closest('td.ed');if(td){inlineEdit(td,byId(id),td.dataset.f);return}OPEN=id;drawer();document.querySelectorAll('tr.r.op').forEach(x=>x.classList.remove('op'));e.classList.add('op')};  // 點兩下不能改的格子＝打開詳細
@@ -2180,7 +2187,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261129011606';
+const VER=/*VER*/'20261129011949';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+(WINP?'&page='+WINP:'')+location.hash)}}catch(e){}}
 checkVer();
