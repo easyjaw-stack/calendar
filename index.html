@@ -1643,9 +1643,10 @@ var CS=(()=>{
     // 改專案名稱：類型如果是之前照名稱自動判斷的，就跟著新名稱重新判斷（例如補上「業配｜」就變成業配）
     if(set['專案']!=null&&set['類型']==null&&o.kind===kindOf(o.title)&&kindOf(set['專案'])!==o.kind)set={...set,'類型':kindOf(set['專案'])};
     if(set['專案']!=null&&set['類型']==null&&o.kind==='其他'&&kindOf(set['專案'])!=='其他')set={...set,'類型':kindOf(set['專案'])};FX.flash=o.id;if(set['進度']!=null)FX.pop=o.id;if(set['進度']!=null&&/^完成/.test(set['進度'])&&cloudOn(o)&&!o.file&&set['檔案']==null)set={...set,'檔案':'雲端中'};if(set['進度']!=null&&!/^完成/.test(set['進度'])&&cloudOn(o)&&o.file==='雲端中'&&set['檔案']==null)set={...set,'檔案':''};  // 改回沒完成：檔案應該還沒上傳，拿掉雲端中// 先改畫面，再存（可以復原）
-    const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});const schBefore=(o._schPrev!=null?o._schPrev:o.schText)||'';o._schPrev=null;if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};if(!pv.d)old['完成日']='';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
+    const old={};Object.keys(set).forEach(k=>{if(OLDF[k])old[k]=OLDF[k](o)});const schBefore=(o._schPrev!=null?o._schPrev:o.schText)||'';o._schPrev=null;if(set['進度']!=null){const pv=o._prev||{d:o.doneTxt,p:o.paidTxt};old['完成日']=pv.d||'';if(!pv.p)old['收款日']='';o._prev=null}const oldLinks=links?o.links.map(x=>({...x})):null;
     const undo=noUndo?null:()=>upd(o,old,'已復原',oldLinks,true);
     if(set['進度']!=null&&/^完成|^取消/.test(set['進度'])&&!/^完成|^取消/.test(old['進度']||''))setTimeout(()=>tidyCal(o),450);
+    if(set['進度']!=null&&set['完成日']==null&&/^完成/.test(set['進度'])&&!/^完成/.test(o.st||'')){const t0=today0();o.done=t0;o.doneTxt=md(t0)}  // 按完成那天＝完成日（後端也會寫今天）
     Object.keys(set).forEach(k=>{const f={'檔案':'file','類型':'kind','專案':'title','客戶':'client','案源':'src','備註':'memo','我的備註':'mynote','檔案':'file','進度':'st','時程':'schText'}[k];if(f)o[f]=set[k];if(k==='報價')o.amt=Number(String(set[k]).replace(/[^\d.]/g,''))||0;if(k==='交期'){o.dueTxt=set[k];const m=String(set[k]).match(/(\d{1,2})\/(\d{1,2})/),b=o.due||o.intake||today0();o.due=m?new Date(b.getFullYear(),+m[1]-1,+m[2]):null}if(k==='上片日')o.upTxt=set[k];if(k==='完成日')o.doneTxt=set[k]});
     if(links)o.links=links;if(set['時程']!=null)o.sch=parseSched(o.schText,o.intake||today0());if(set['收款日']!=null)o.paidTxt=set['收款日'];rerender();
     const pr=write('caseUpdate',{tab:o.tab,id:o.id,set,links},msg,undo);
@@ -1761,8 +1762,10 @@ var CS=(()=>{
     return (compact?'':filterRow())+block('進行中',L.filter(active),'依交期排',true,cols)+block('完成未付款',L.filter(unpaid),'',false,cols)+
       `<div class="cpanel"><div class="sec" data-sec="已結案"><span class="ar">${COL['已結案']?'▶':'▼'}</span>已結案<span class="m">${cl.length} 件・${fmt(cl.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0))}</span></div>${COL['已結案']?'':`<div class="tw"><table>${head(cols)}<tbody>${months(cl).map(([k,g])=>{const c=MCOL[k]!==false;return `<tr class="g" data-m="${k}"><td colspan="12">${c?'▸':'▾'} ${mName(k)}<span>${g.length} 件・${fmt(g.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0))}</span></td></tr>`+(c?'':g.map(r=>rowH(r,cols)).join(''))}).join('')}</tbody></table></div>`}</div>`+(compact?'':cloudBlock())}
   // ---------- 客戶 ----------
-  const rules=()=>{const o={};(D&&D.rules||[]).forEach(r=>o[r.src]=r);return o};
-  const ruleTxt=r=>!r?'':r.k==='次月'?`次月 ${r.n} 號`:r.k==='月底加天數'?`月底＋${r.n} 天`:r.k;
+  // 付款規則沒設好（沒有或寫「確認中」）：先預測＝月底結帳、下個月付款（次月月底前）
+  const DEF_RULE={k:'次月月底',n:0,def:true};
+  const rules=()=>{const o={};(D&&D.rules||[]).forEach(r=>o[r.src]=/次月|月底|完成後/.test(r.k||'')?r:{...r,...DEF_RULE});srcAll().forEach(k=>{if(!o[k])o[k]={src:k,...DEF_RULE}});return o};
+  const ruleTxt=r=>!r?'':r.def?'還沒設定，先預測：月底結帳、次月付款':r.k==='次月'?`次月 ${r.n} 號`:r.k==='月底加天數'?`月底＋${r.n} 天`:r.k;
   const clients=()=>(D&&D.clients||[]).map(c=>{const toks=c.name.split(/[\s\/／|｜、,，]+/).filter(w=>w.length>=2);const key=srcAll().find(k=>c.name.includes(k)||k.includes(c.name))||srcAll().find(k=>toks.some(w=>k.includes(w)))||c.name;return {...c,key,rule:rules()[key]}});
   const stats=k=>{const l=ROWS.filter(r=>r.src===k),y=new Date().getFullYear();return {n:l.length,ny:l.filter(r=>r.intake&&r.intake.getFullYear()===y).length,got:l.filter(r=>r.st==='完成').reduce((a,b)=>a+b.amt,0),un:l.filter(unpaid).reduce((a,b)=>a+b.amt,0),act:l.filter(active).length}};
   function cliPage(){if(!D)return '<div class="cpanel emp">讀取中…</div>';const C=clients();
@@ -1826,7 +1829,7 @@ var CS=(()=>{
   function copyBox(t){const ov=document.createElement('div');ov.className='csov';ov.innerHTML=`<div class="csdlg" style="width:520px"><div class="dh">複製的內容長這樣<span class="sp"></span><span data-x class="x">✕</span></div><textarea readonly class="ta">${esc(t)}</textarea><div class="df"><button class="btn2 dk" data-ok>複製</button></div></div>`;
     document.body.appendChild(ov);const ta=ov.querySelector('textarea');ov.querySelector('[data-ok]').onclick=()=>{let ok=false;try{ta.select();ok=document.execCommand('copy')}catch(e){}(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('已複製，可以直接貼到 LINE')).catch(()=>{if(ok)toast('已複製，可以直接貼到 LINE');else toast('複製失敗，請手動選取文字')});ov.remove()};
     ov.querySelector('[data-x]').onclick=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)ov.remove()}}
-  function cliForm(c){const ov=document.createElement('div');ov.className='csov';const r=c&&c.rule||{k:'次月',n:''};
+  function cliForm(c){const ov=document.createElement('div');ov.className='csov';const r=c&&c.rule&&!c.rule.def?c.rule:{k:'次月',n:''};
     ov.innerHTML=`<div class="csdlg"><div class="dh">${c?'編輯客戶':'新增客戶'}<span class="sp"></span><span data-x class="x">✕</span></div><div class="frm">
       <label>名稱<input data-k="name" value="${esc(c?c.name:'')}" placeholder="例：嗨咖品妤"></label><label>收款日<input data-k="pay" value="${esc(c?c.pay:'')}" placeholder="例：10號、月結60號"></label>
       <label>結算規則<select data-k="rk">${['次月','月底加天數','完成後'].map(k=>`<option ${r.k===k?'selected':''}>${k}</option>`).join('')}</select><input data-k="rn" value="${esc(r.n||'')}" placeholder="幾號／幾天" style="width:110px"></label>
@@ -1884,7 +1887,7 @@ var CS=(()=>{
   let REMINDED=false;
   async function autoReminders(){if(REMINDED||!D)return;REMINDED=true;const t=today0(),R=rules();
     const g={};ROWS.filter(unpaid).forEach(r=>{(g[r.src]=g[r.src]||[]).push(r)});
-    for(const k of Object.keys(g)){const ru=R[k];if(!ru||!/次月|月底/.test(ru.k))continue;const l=g[k],first=new Date(Math.min(...l.map(r=>+(r.done||r.due||r.intake||t))));const due=ru.k==='次月'?new Date(first.getFullYear(),first.getMonth()+1,ru.n):new Date(+new Date(first.getFullYear(),first.getMonth()+1,0)+ru.n*864e5);
+    for(const k of Object.keys(g)){const ru=R[k];if(!ru||!/次月|月底/.test(ru.k))continue;const l=g[k],first=new Date(Math.min(...l.map(r=>+(r.done||r.due||r.intake||t))));const due=ru.def?new Date(first.getFullYear(),first.getMonth()+2,0):ru.k==='次月'?new Date(first.getFullYear(),first.getMonth()+1,ru.n):new Date(+new Date(first.getFullYear(),first.getMonth()+1,0)+ru.n*864e5);
       if(due<=t&&(t-due)<45*864e5){const o={y:due.getFullYear(),m:due.getMonth()+1,d:due.getDate()};try{await addCalCard(o,`${k} ${fmt(l.reduce((a,b)=>a+b.amt,0))} 該入帳了`)}catch(e){}}}
     for(const s of subs()){if(!s.next||s.off)continue;const dd=Math.round((s.next-t)/864e5);if(dd<0||dd>14)continue;const o={y:s.next.getFullYear(),m:s.next.getMonth()+1,d:s.next.getDate()};
       // 舊的「明天扣款」卡（扣款前一天那張）拿掉，改成扣款當天一張
@@ -2177,7 +2180,7 @@ window.addEventListener('resize',render);
 setDesk();syncNow();go(cur);bdAuto();
 autoReceipt();
 // 自動更新：回到 App 時檢查網站上有沒有新版，有就重新載入
-const VER=/*VER*/'20261129011442';
+const VER=/*VER*/'20261129011606';
 async function checkVer(){if(VER==='dev')return;try{const t=await (await fetch('./?v='+Date.now(),{cache:'no-store'})).text();const m=t.match(/\/\*VER\*\/'(\w+)'/);let cq=0;try{cq=JSON.parse(localStorage.getItem('caseq')||'[]').length}catch(e){}
   if(m&&m[1]!==VER&&!edit&&!touchedSinceVisible&&!pending&&!qN()&&!cq){let n=0;try{n=+sessionStorage.getItem('upd-'+m[1])||0;sessionStorage.setItem('upd-'+m[1],n+1)}catch(e){}if(n<2)location.replace(location.pathname+'?v='+m[1]+(WINP?'&page='+WINP:'')+location.hash)}}catch(e){}}
 checkVer();
